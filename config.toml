@@ -1,6 +1,6 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
-title = "The Stupid Life of Ryan"
+title = "The Life of Ryan"
 theme = "ink-free"
 paginate = 5
 
@@ -12,7 +12,7 @@ copyright = "© Copyright notice"
   posts = "/:year/:month/:title"
 
 [params]
-	subtitle = "Stories about learning and (sometimes) stupid mistakes"
+	subtitle = "Variety of stories about learning and mistakes"
 
 	# Optional 64x64 avatar image.
 	avatar = "/images/profile.jpg"
