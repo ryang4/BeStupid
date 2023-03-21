@@ -1,6 +1,6 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
-title = "The Life of Ryan"
+title = "Ryan and Connections"
 theme = "ink-free"
 paginate = 5
 
