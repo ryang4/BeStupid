@@ -2,4 +2,6 @@
   publish = "public"
 
 [build.environment]
-  HUGO_VERSION = "v0.118.2-da7983ac4b94d97d776d7c2405040de97e95c03d+extended"
+  HUGO_VERSION = "0.118.2"
+  HUGO_ENV = "production"
+  HUGO_ENABLEGITINFO = "true"
