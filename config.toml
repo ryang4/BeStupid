@@ -15,7 +15,7 @@ copyright = "© Copyright notice"
 	subtitle = "Variety of stories about learning and mistakes"
 
 	# Optional 64x64 avatar image.
-	avatar = "/images/profile.jpg"
+	avatar = "images/profile-compressed.jpg"
 
 	featherIconsCDN = false
 
