@@ -1,6 +1,6 @@
-baseURL = "http://example.org/"
+baseURL = "https://rgalliher.com/"
 languageCode = "en-us"
-title = "The Life of Ryan"
+title = "Zenith Self"
 theme = "ink-free"
 paginate = 5
 
