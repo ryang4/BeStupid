@@ -12,7 +12,7 @@ copyright = "© Copyright notice"
   posts = "/:year/:month/:title"
 
 [params]
-	subtitle = "Finding your Zenith Self 100 hours at a time" 
+	subtitle = "Finding the Zenith Self 100 hours at a time" 
 
 	# Optional 64x64 avatar image.
 	avatar = "/images/profile-compressed.jpg"
