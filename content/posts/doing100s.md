@@ -1,6 +1,6 @@
 ---
 title: "100 hours to Zenith Self"
-date: 2023-10-20T22:25:56-04:00
+date: 2023-10-22T22:25:56-04:00
 draft: true
 description: Living, not searching, for happiness 
 tags: [one-hundred]
