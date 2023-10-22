@@ -10,7 +10,7 @@ There are three primary reasons I am starting this blog:
 2. To help with my mental health
 3. To hold myself accountable
 
-### To Focus My Energy
+### **To Focus My Energy**
 
 I always have ideas bouncing around my head but I don't do anything about them. I don't feel like there is something I have an extreme passion for and as a result all my energy is wasted thinking about things, starting some projects and never really committing to them. I want to use this blog to maintain focus on a single task for a long period of time. Hopefully I discover some passion along the way.
 
@@ -20,7 +20,7 @@ I will provide progress on my task in a weekly post, and I will post daily video
 
 Welcome to a blog of passion discovery, one doable topic at a time.
 
-### To Help With My Mental Health
+### **To Help With My Mental Health**
 
 I've struggled with depression my whole life. I don't really know why. Not knowing why is the most frustrating thing about my depression, other than maybe when other people tell me what to do to cure it.
 
@@ -34,7 +34,7 @@ Creating a routine and maintaining consistency is hard. Writing about my progres
 
 Welcome to a blog not just of passion discovery, but also of mental vulnerabilities and the difficulties of trying to live a 'healthy' lifestyle.
 
-### To Hold Myself Accountable
+### **To Hold Myself Accountable**
 
 For me, giving up is too easy. My life has always been too comfortable and lacked hardship that I think really spurs motivation in some people. I need additional, external motivation as much as I'd love to be able to rely on my internal motivation alone. This blog is my creation of that external motivation.
 
