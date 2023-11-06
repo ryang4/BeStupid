@@ -3,7 +3,7 @@ title: "100 hours to Zenith Self"
 date: 2023-10-25T22:25:56-04:00
 draft: false
 description: Living, not searching, for happiness 
-tags: [one-hundred]
+tags: [one-hundred, 100]
 ---
 
 The [Finnish proverb](https://www.goodreads.com/quotes/11513957-there-s-a-finnish-saying-onni-ei-tule-etsien-vaan-elaen) "Happiness is not found by searching, but by living" inspired this 100 hour idea by highlighting one of life's simple truths: lasting happiness comes with action. 
