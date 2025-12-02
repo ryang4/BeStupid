@@ -1,21 +1,32 @@
 baseURL = "https://rgalliher.com/"
 languageCode = "en-us"
-title = "GAIning Number"
+title = "Ryan Galliher"
 theme = "PaperMod"
 
 [params]
-    defaultTheme = "auto"
+    defaultTheme = "dark"
     # Profile Mode settings (The Homepage)
     [params.profileMode]
         enabled = true
-        title = "The Protocol"
-        subtitle = "Man vs. Machine Content Experiment"
-        imageUrl = "https://github.com/username.png" # Change this to your image
-        imageTitle = "Me"
-        buttons = [
-            { name = "Twitter", url = "https://twitter.com/yourhandle" },
-            { name = "The Repo", url = "https://github.com/yourname/repo" }
-        ]
+        title = "Hi, I'm Ryan Galliher"
+        subtitle = "This my life's data. Feel free to copy it!"
+        imageUrl = "/images/profile.png"
+        imageTitle = "Human Subject"
+        imageWidth = 150
+        imageHeight = 150
+
+        # Friendly Buttons
+        [[params.profileMode.buttons]]
+            name = "🌊 Read the Journey"
+            url = "/logs"
+
+        [[params.profileMode.buttons]]
+            name = "🤖 See the AI Analysis"
+            url = "/ai-logs" # You can filter tags later
+
+[params.homeInfoParams]
+    Title = "N=1"
+    Content = "Welcome to the experiment."
 
 [menu]
     [[menu.main]]
