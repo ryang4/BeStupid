@@ -1,6 +1,6 @@
-baseURL = "http://example.org/"
+baseURL = "https://rgalliher.com/"
 languageCode = "en-us"
-title = "The Life of Ryan"
+title = "Zenith Self"
 theme = "ink-free"
 paginate = 5
 
@@ -12,10 +12,10 @@ copyright = "© Copyright notice"
   posts = "/:year/:month/:title"
 
 [params]
-	subtitle = "Variety of stories about learning and mistakes"
+	subtitle = "Finding the Zenith Self 100 hours at a time" 
 
 	# Optional 64x64 avatar image.
-	avatar = "/images/profile.jpg"
+	avatar = "/images/profile-compressed.jpg"
 
 	featherIconsCDN = false
 
@@ -30,12 +30,6 @@ copyright = "© Copyright notice"
 
 	# Define words per minute to approximate reading time
 	wpm = 250
-
-	# Stupid footers :)
-	footers = [ 
-		"What Tiger King can teach us about x86 Assembly",
-		"10 Reasons why gcc SHOULD be re-written in JavaScript - You won't believe #8!"
-	]
 
 	# Github base url
 	github = "https://github.com/chollinger93/ink-free"
