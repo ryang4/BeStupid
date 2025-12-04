@@ -1,0 +1,107 @@
+/* 🌊 THE BIOLUMINESCENT OCEAN THEME 🌊 */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+:root {
+    /* --- OCEAN PALETTE --- */
+    --bg-deep: #0a192f;        /* The Abyssal Zone */
+    --bg-card: #112240;        /* The Midnight Zone */
+    --text-main: #ccd6f6;      /* Moonlight White */
+    --text-muted: #8892b0;     /* Sea Mist */
+    
+    /* --- ACCENTS --- */
+    --human-glow: #64ffda;     /* Bioluminescent Cyan (You) */
+    --ai-glow: #bd93f9;        /* Synthetic Purple (The Bot) */
+    
+    /* --- STRUCTURE --- */
+    --radius: 12px;            /* Soft, organic corners */
+    --font-stack: 'Inter', sans-serif;
+}
+
+/* 1. GLOBAL SETTINGS */
+body {
+    background-color: var(--bg-deep) !important;
+    color: var(--text-main) !important;
+    font-family: var(--font-stack) !important;
+    line-height: 1.7; /* Relaxed reading experience */
+}
+
+/* 2. CARD UI (The "Iceberg" Tip) */
+.post-entry {
+    background-color: var(--bg-card);
+    border: 1px solid transparent; /* Invisible border by default */
+    border-radius: var(--radius);
+    padding: 30px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+    transition: all 0.3s ease;
+}
+
+.post-entry:hover {
+    transform: translateY(-5px); /* Gentle float effect */
+}
+
+/* 3. THE "HUMAN VS AI" DISTINCTION (The Outline) */
+/* By default, posts are "Human" (Cyan Glow on hover) */
+.post-entry:hover {
+    border-color: var(--human-glow);
+}
+
+/* Special Class for AI Posts (Purple Glow) */
+.post-entry.ai-content {
+    border-left: 4px solid var(--ai-glow); /* Subtle permanent marker */
+}
+.post-entry.ai-content:hover {
+    border-color: var(--ai-glow);
+}
+
+/* 4. TYPOGRAPHY (Technical Humanist) */
+h1, h2, h3, h4 {
+    color: var(--text-main);
+    font-weight: 800; /* Strong, confident headers */
+    letter-spacing: -0.02em; /* Tight, modern tracking */
+}
+
+/* The "Blue" Vibe Links */
+a {
+    color: var(--human-glow);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+
+/* 5. THE "ICEBERG" DATA TOGGLE (Details/Summary) */
+/* This styles the <details> tag where you hide your charts */
+details {
+    background: rgba(100, 255, 218, 0.05); /* Very faint cyan tint */
+    border-radius: var(--radius);
+    padding: 15px;
+    margin-top: 20px;
+    border: 1px solid rgba(100, 255, 218, 0.1);
+}
+
+summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--human-glow);
+    list-style: none; /* Hide default triangle */
+}
+
+summary::after {
+    content: "+ EXPAND DATA"; 
+    float: right;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+details[open] summary::after {
+    content: "- COLLAPSE";
+}
+
+/* 6. HEADER & FOOTER */
+.header, .footer {
+    background: var(--bg-deep); /* Blend with background */
+}
