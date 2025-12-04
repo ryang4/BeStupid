@@ -1,69 +1,41 @@
 ---
-# ==========================================
-# 📝 METADATA
-# ==========================================
 title: "Day {{date:DDD}}: [Headline]"
 date: {{date:YYYY-MM-DD}}
-tags: ["log", "human"]
-vibe: "😐 Neutral"  # Options: 😤 Grinding, ⚡ Flow, 💀 Dead, 🧘 Recovery
-
-# ==========================================
-# 🎯 ACCOUNTABILITY (Auto-Filled by Script)
-# ==========================================
-# The Python Agent injects your orders here:
-planned_workout:
-  type: "{{plan_type}}"   # e.g. "Run"
-  desc: "{{plan_desc}}"   # e.g. "5mi Aerobic (Zone 2)"
-
-compliance: 100         # 0 = Skipped, 100 = Executed Perfectly
-time_outside_min: 0     # Minutes (Sunlight/Grounding)
-
-# ==========================================
-# 🧬 TRAINING DATA (Actual Output)
-# ==========================================
-cardio:
-  swim_m: 0
-  bike_mi: 0
-  run_mi: 0
-  avg_hr: 0             # Average Heart Rate
-
-strength:
-  focus: "None"         # e.g. "Push", "Legs"
-  exercises:            # Add items as needed. Leave 0 if not done.
-    - name: "Primary Lift"
-      sets: 0
-      reps: 0
-      weight_lbs: 0
-
-# ==========================================
-# 🥗 FUEL & RECOVERY
-# ==========================================
-sleep:
-  hours: 0.0
-  quality: 0            # 1-10 (Subjective or Oura)
-  bed_time: "22:00"
-  wake_time: "06:00"
-
-diet:
-  quality_score: 0      # 1-10 (Cleanliness)
-  alcohol: false
-  # 🤖 AI_FILLED_FIELDS (Leave these 0. The Agent calculates them from your text below)
-  est_calories: 0
-  est_protein_g: 0
-  est_carbs_g: 0
-  est_fat_g: 0
+tags: ["log"]
+# 🤖 AUTO-FILLED ORDERS (Do not edit)
+planned_workout: "{{plan_desc}}"
 ---
 
-## 🏃 Session Notes
-<!-- Context on the workout itself. Did you hit the planned targets? -->
-*Plan was {{plan_desc}}. Execution was...*
+## 📊 Daily Stats
+<!-- Enter values in the second column. Leave 0 if not applicable. -->
+
+| Metric | Value | Notes |
+| :--- | :--- | :--- |
+| **Weight (lbs)** | 0 | |
+| **Sleep Hours** | 0 | |
+| **Sleep Quality** | 0 | 1-10 |
+| **Diet Score** | 0 | 1-10 |
+| **Compliance** | 100 | 0-100% |
+| **Outside (min)** | 0 | Sunlight |
+
+## 🧬 Training Output
+
+| Activity | Dist/Time | HR / Watts |
+| :--- | :--- | :--- |
+| **Swim (m)** | 0 | |
+| **Bike (mi)** | 0 | |
+| **Run (mi)** | 0 | |
+
+## 🏋️ Strength Log
+<!-- Add rows as needed. Format: Sets | Reps | Weight -->
+
+| Exercise | Sets | Reps | Weight (lbs) |
+| :--- | :--- | :--- | :--- |
+| Primary Lift | 0 | 0 | 0 |
+| Accessory 1 | 0 | 0 | 0 |
 
 ## 🥗 Fuel Log
-<!-- Describe food plainly. The AI reads this to estimate macros. -->
-**Breakfast:** **Lunch:** **Dinner:** **Snacks:** ![[food_photo.jpg]]
-
----
+*Describe your food here for the AI...*
 
 ## 📝 The Narrative
-<!-- The "Iceberg Tip" - 2 sentences that appear on the homepage feed. -->
-*...*
+*How did it feel?*
