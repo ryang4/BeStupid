@@ -1,87 +1,36 @@
 baseURL = "https://rgalliher.com/"
 languageCode = "en-us"
-title = "Zenith Self"
-theme = "ink-free"
-paginate = 5
-
-copyright = "© Copyright notice"
-# Demo only
-#ignoreErrors = ["error-missing-instagram-accesstoken"]
-
-[permalinks]
-  posts = "/:year/:month/:title"
+title = "Ryan Galliher"
+theme = "PaperMod"
 
 [params]
-	subtitle = "Finding the Zenith Self 100 hours at a time" 
+    defaultTheme = "dark"
+    # Profile Mode settings (The Homepage)
+    [params.profileMode]
+        enabled = true
+        title = "Hi, I'm Ryan Galliher"
+        subtitle = "This my life's data. Feel free to copy it!"
+        imageUrl = "/images/profile.png"
+        imageTitle = "Human Subject"
+        imageWidth = 150
+        imageHeight = 150
 
-	# Optional 64x64 avatar image.
-	avatar = "/images/profile-compressed.jpg"
+        # Friendly Buttons
+        [[params.profileMode.buttons]]
+            name = "🌊 Read the Journey"
+            url = "/logs"
 
-	featherIconsCDN = false
+        [[params.profileMode.buttons]]
+            name = "🤖 See the AI Analysis"
+            url = "/ai-logs" # You can filter tags later
 
-	# Site color - dark/light/auto
-	mode = "auto"
+[params.homeInfoParams]
+    Title = "N=1"
+    Content = "Welcome to the experiment."
 
-	# Enable a table of contents
-	toc = true
-
-	# Max tags
-	maxTags = 7
-
-	# Define words per minute to approximate reading time
-	wpm = 250
-
-	# Github base url
-	github = "https://github.com/chollinger93/ink-free"
-
-
-# Nav.
-[[menu.main]]
-name = "Home"
-url = "/"
-weight = 1
-
-[[menu.main]]
-name = "All posts"
-url = "/posts"
-weight = 2
-
-[[menu.main]]
-name = "About"
-url = "/about"
-weight = 3
-
-[[menu.main]]
-name = "Tags"
-url = "/tags"
-weight = 4
-
-[[params.social]]
-name = "Github"
-icon = "github"
-url = "https://github.com/chollinger93/"
-
-[[params.social]]
-name = "RSS"
-icon = "rss"
-url = "/index.xml"
-
-[taxonomies]
-   tag = "tags"
-
-[markup]
-  [markup.highlight]
-    codeFences = true
-    guessSyntax = false
-    hl_Lines = ""
-    lineNoStart = 1
-    lineNos = true
-    lineNumbersInTable = true
-    noClasses = true
-    style = "github"
-    tabWidth = 4
-
-  [markup.tableOfContents]
-    endLevel = 3
-    ordered = true
-    startLevel = 2 
+[menu]
+    [[menu.main]]
+        identifier = "logs"
+        name = "Training Logs"
+        url = "/logs/"
+        weight = 10
