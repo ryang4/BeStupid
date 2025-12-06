@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Configs on Ryan Galliher</title>
+    <link>http://localhost:1313/config/</link>
+    <description>Recent content in Configs on Ryan Galliher</description>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 02 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/config/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Protocol 2025-W49: Foundation Phase</title>
+      <link>http://localhost:1313/config/protocol_2025-w49/</link>
+      <pubDate>Tue, 02 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/config/protocol_2025-w49/</guid>
+      <description>&lt;h2 id=&#34;-ai-rationale&#34;&gt;🤖 AI Rationale&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Why this protocol works for Ryan:&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Base Building Focus&lt;/strong&gt;: At 245 lbs transitioning from marathon running to triathlon, the priority is building aerobic efficiency across all three sports while managing recovery load. Week 49 establishes baseline volume that&amp;rsquo;s conservative enough to prevent overtraining but progressive enough to drive adaptation.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Strength Preservation&lt;/strong&gt;: Two strength sessions (Mon/Thu) with compound lifts maintains existing strength base (300 DL, 225 squat, 155 bench) without interfering with endurance adaptations. Lower body on Monday allows 48hr recovery before Wednesday run. Upper body on Thursday is isolated from other sessions.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/config/ryan/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/config/ryan/</guid>
+      <description>&lt;p&gt;Hi agent! Your job is to help me live the best version of my life. This repository contains the logs of my days in simple text format.&lt;/p&gt;
+&lt;p&gt;My current goal is to train for a triathalon, leran machine learning/AI engineering, and launch my startup while creating content so I can dogfood my startup.&lt;/p&gt;
+&lt;p&gt;Your job is to help me plan my day as a top 0.01% individual in the world.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
