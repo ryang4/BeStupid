@@ -8,8 +8,8 @@ import json
 
 # Configuration
 OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = "qwen3:30b"
-TIMEOUT = 180  # 3 minutes max for LLM response (larger model needs more time)
+MODEL = "qwen3:8b"
+TIMEOUT = 600  # 10 minutes - WSL CPU-only inference can be slow
 
 def call_ollama(messages, format_json=False):
     """

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv pip list:*)",
+      "Bash(findstr:*)",
+      "Bash(powershell -Command \"cd ''c:\\Users\\galli\\OneDrive\\BeStupid\\scripts''; uv pip list\")",
+      "Bash(powershell -Command:*)",
+      "Bash(ip route:*)",
+      "Bash(echo:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
