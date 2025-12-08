@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
-from ollama_client import generate_daily_briefing
+from llm_client import generate_daily_briefing
 
 # CONFIGURATION
 VAULT_DIR = "content/logs"

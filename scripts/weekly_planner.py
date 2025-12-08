@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
-from ollama_client import generate_weekly_protocol
+from llm_client import generate_weekly_protocol
 
 # CONFIGURATION
 RYAN_CONFIG = "content/config/ryan.md"

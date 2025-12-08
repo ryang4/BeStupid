@@ -5,15 +5,17 @@ Shared helper for weekly_planner.py and scheduler.py
 
 import requests
 import json
+import os
 
 # Configuration
-OLLAMA_URL = "http://localhost:11434/api/chat"
-MODEL = "qwen3:8b"
-TIMEOUT = 600  # 10 minutes - WSL CPU-only inference can be slow
+# Use OLLAMA_HOST env var for WSL->Windows connection, default to localhost
+OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "localhost")
+OLLAMA_URL = f"http://{OLLAMA_HOST}:11434/api/chat"
+MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:8b")
 
 def call_ollama(messages, format_json=False):
     """
-    Call Ollama API with qwen model.
+    Call Ollama API with qwen model using streaming to avoid timeouts.
 
     Args:
         messages: List of message dicts with 'role' and 'content'
@@ -25,46 +27,48 @@ def call_ollama(messages, format_json=False):
 
     Raises:
         ConnectionError: If Ollama is not running
-        TimeoutError: If request takes >TIMEOUT seconds
         RuntimeError: For other API errors
     """
     payload = {
         "model": MODEL,
         "messages": messages,
-        "stream": False
+        "stream": True  # Use streaming to avoid timeout issues
     }
 
     if format_json:
         payload["format"] = "json"
 
     try:
+        # Use streaming with a short connect timeout but no read timeout
         response = requests.post(
             OLLAMA_URL,
             json=payload,
-            timeout=TIMEOUT
+            timeout=(10, None),  # 10s connect timeout, no read timeout
+            stream=True
         )
         response.raise_for_status()
 
-        data = response.json()
-        return data['message']['content']
+        # Collect streamed response chunks
+        full_response = ""
+        for line in response.iter_lines():
+            if line:
+                chunk = json.loads(line)
+                if 'message' in chunk and 'content' in chunk['message']:
+                    full_response += chunk['message']['content']
+                # Check if done
+                if chunk.get('done', False):
+                    break
+
+        return full_response
 
     except requests.exceptions.ConnectionError:
         raise ConnectionError(
             f"❌ Cannot connect to Ollama at {OLLAMA_URL}. "
             f"Is Ollama running? Try: ollama serve"
         )
-    except requests.exceptions.Timeout:
-        raise TimeoutError(
-            f"❌ Ollama request timed out after {TIMEOUT}s. "
-            f"Model may be too slow or overloaded."
-        )
     except requests.exceptions.HTTPError as e:
         raise RuntimeError(
             f"❌ Ollama API error: {e.response.status_code} - {e.response.text}"
-        )
-    except KeyError:
-        raise RuntimeError(
-            f"❌ Unexpected response format from Ollama: {response.text}"
         )
     except Exception as e:
         raise RuntimeError(f"❌ Unexpected error calling Ollama: {str(e)}")
