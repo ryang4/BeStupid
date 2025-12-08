@@ -1,5 +1,5 @@
 ---
-title: "Day 340: First Brick Workout"
+title: "Sample Log"
 date: 2025-12-06
 tags: ["log"]
 # 🤖 AUTO-FILLED ORDERS (Do not edit)
