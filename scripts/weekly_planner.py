@@ -149,14 +149,15 @@ def main():
     print(f"   ✓ Found {len(last_week_logs)} daily logs")
 
     # Generate protocol using AI
-    print(f"🤖 Calling Ollama (qwen) to generate protocol...")
+    print(f"🤖 Generating weekly protocol...")
     print("   (This may take 30-60 seconds...)")
 
     try:
         protocol_content = generate_weekly_protocol(goals, last_protocol, last_week_logs)
-    except ConnectionError as e:
+    except RuntimeError as e:
+        # This catches when all LLM backends fail
         print(f"\n{e}")
-        print("\n💡 To fix: Run 'ollama serve' in another terminal")
+        print("\n💡 To fix: Set HF_TOKEN in .env file or run 'ollama serve' in another terminal")
         sys.exit(1)
     except Exception as e:
         print(f"\n❌ Error generating protocol: {e}")

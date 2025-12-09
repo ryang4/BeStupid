@@ -6,7 +6,14 @@
       "Bash(powershell -Command \"cd ''c:\\Users\\galli\\OneDrive\\BeStupid\\scripts''; uv pip list\")",
       "Bash(powershell -Command:*)",
       "Bash(ip route:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(hugo:*)",
+      "Bash(cat:*)",
+      "Bash(crontab:*)",
+      "Bash(python3:*)",
+      "Bash(uv run:*)",
+      "Bash(ollama list:*)"
     ],
     "deny": [],
     "ask": []

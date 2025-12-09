@@ -134,7 +134,7 @@ def create_daily_log():
     todos_list = ["- [ ] Complete today's planned workout", "- [ ] Log all stats and narrative"]
 
     if full_protocol and (last_3_days or mission.get('desc') != "No protocol found."):
-        print("🤖 Calling Ollama (qwen) for daily briefing...")
+        print("🤖 Generating AI daily briefing...")
         print("   (This may take 10-30 seconds...)")
 
         try:
@@ -149,9 +149,10 @@ def create_daily_log():
 
             print("   ✓ AI briefing generated")
 
-        except ConnectionError as e:
+        except RuntimeError as e:
+            # This catches when all LLM backends fail
             print(f"\n⚠️  {e}")
-            print("   → Using fallback briefing (Ollama not available)")
+            print("   → Using fallback briefing")
         except Exception as e:
             print(f"\n⚠️  Error generating AI briefing: {e}")
             print("   → Using fallback briefing")

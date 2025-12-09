@@ -2,15 +2,13 @@
 title: "2025-12-07: [Headline]"
 date: 2025-12-07
 tags: ["log"]
-# 🤖 AUTO-FILLED ORDERS (Protocol baseline)
 planned_workout: "Active recovery: 30min walk, stretching, meal prep, weekly review"
-# 🤖 AI DAILY BRIEFING (Aggressive adjustments based on last 3 days)
 daily_briefing: "First day of tracking - no historical context yet. Execute protocol as planned."
-# ✅ TODAY'S TODOS (Carryovers + new suggestions)
-todos:
-  - [ ] Complete today's planned workout
-  - [ ] Log all stats and narrative
 ---
+
+## ✅ TODAY'S TODOS (Carryovers + new suggestions)
+- [ ] Complete today's planned workout
+- [ ] Log all stats and narrative
 
 ## 📊 Daily Stats
 <!-- Enter values in the second column. Leave 0 if not applicable. -->

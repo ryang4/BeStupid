@@ -46,26 +46,62 @@ HF_API_URL = "https://router.huggingface.co/v1/chat/completions"
 OLLAMA_URL = f"http://{OLLAMA_HOST}:11434/api/chat"
 
 
-def call_llm(messages, format_json=False):
+def call_llm(messages, format_json=False, prefer_backend=None):
     """
-    Call LLM API (Hugging Face or Ollama based on config).
+    Call LLM API with automatic fallback between backends.
+
+    Tries primary backend first, then falls back to alternate backend if it fails.
+    Primary backend is Hugging Face (if HF_TOKEN set), otherwise Ollama.
 
     Args:
         messages: List of message dicts with 'role' and 'content'
                   Example: [{"role": "user", "content": "Hello"}]
         format_json: If True, request JSON output format
+        prefer_backend: Optional. "huggingface" or "ollama" to try first (defaults to LLM_BACKEND)
 
     Returns:
         str: Model's response content
 
     Raises:
-        ConnectionError: If API is not reachable
-        RuntimeError: For other API errors
+        RuntimeError: If all backends fail
     """
-    if LLM_BACKEND == "huggingface":
-        return _call_huggingface(messages, format_json)
+    primary = prefer_backend or LLM_BACKEND
+
+    # Determine backend order
+    if primary == "huggingface" and HF_TOKEN:
+        backends = [
+            ("huggingface", _call_huggingface),
+            ("ollama", _call_ollama)
+        ]
     else:
-        return _call_ollama(messages, format_json)
+        backends = [
+            ("ollama", _call_ollama),
+            ("huggingface", _call_huggingface)
+        ]
+
+    errors = []
+
+    for backend_name, backend_func in backends:
+        # Skip Hugging Face if no token
+        if backend_name == "huggingface" and not HF_TOKEN:
+            continue
+
+        try:
+            print(f"   → Trying {backend_name}...")
+            result = backend_func(messages, format_json)
+            print(f"   ✓ Success with {backend_name}")
+            return result
+        except (ConnectionError, RuntimeError) as e:
+            error_msg = str(e).replace("❌ ", "")  # Clean error message
+            errors.append(f"{backend_name}: {error_msg}")
+            if len([b for b in backends if b[0] != backend_name]) > 0:
+                print(f"   ✗ {backend_name} failed, trying fallback...")
+            continue
+
+    # All backends failed
+    raise RuntimeError(
+        "All LLM backends failed:\n" + "\n".join(f"  - {e}" for e in errors)
+    )
 
 
 def _call_huggingface(messages, format_json=False):
