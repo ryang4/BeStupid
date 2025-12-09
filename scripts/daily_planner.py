@@ -27,33 +27,22 @@ RYAN_CONFIG = "content/config/ryan.md"
 
 def get_todays_protocol_mission():
     """
-    Finds the active Weekly Protocol and extracts today's baseline workout.
+    Finds the active Weekly Protocol. 
     """
     today = datetime.now()
     year, week, _ = today.isocalendar()
-    day_name = today.strftime("%A").lower()
 
     protocol_file = f"protocol_{year}-W{week:02d}.md"
     protocol_path = os.path.join(PROTOCOL_DIR, protocol_file)
-
-    mission = {"type": "Rest", "desc": "No protocol found."}
-    full_protocol = None
 
     if os.path.exists(protocol_path):
         try:
             with open(protocol_path, 'r', encoding='utf-8') as f:
                 full_protocol = f.read()
-                data = frontmatter.loads(full_protocol)
-
-            schedule = data.get('schedule', {})
-            daily_plan = schedule.get(day_name)
-
-            if daily_plan:
-                mission = daily_plan
         except Exception as e:
             print(f"⚠️  Error reading protocol: {e}")
 
-    return mission, full_protocol
+    return full_protocol
 
 
 def read_last_n_days(n=3):
@@ -121,8 +110,7 @@ def create_daily_log():
 
     # 1. Get protocol baseline mission
     print("📖 Reading weekly protocol...")
-    mission, full_protocol = get_todays_protocol_mission()
-    print(f"   ✓ Protocol mission: {mission.get('type')}")
+    full_protocol = get_todays_protocol_mission()
 
     # 2. Read last 3 days for AI context
     print("📖 Reading last 3 days of logs...")
@@ -133,7 +121,7 @@ def create_daily_log():
     briefing = "First day of tracking - no historical context yet. Execute protocol as planned."
     todos_list = ["- [ ] Complete today's planned workout", "- [ ] Log all stats and narrative"]
 
-    if full_protocol and (last_3_days or mission.get('desc') != "No protocol found."):
+    if full_protocol:
         print("🤖 Generating AI daily briefing...")
         print("   (This may take 10-30 seconds...)")
 

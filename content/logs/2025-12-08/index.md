@@ -7,9 +7,9 @@ planned_workout: "No protocol found."
 # 🤖 AI DAILY BRIEFING (Aggressive adjustments based on last 3 days)
 daily_briefing: "First day of tracking - no historical context yet. Execute protocol as planned."
 # ✅ TODAY'S TODOS (Carryovers + new suggestions)
-todos:
-  - [ ] Complete today's planned workout
-  - [ ] Log all stats and narrative
+# todos:
+#   - [ ] Complete today's planned workout
+#   - [ ] Log all stats and narrative
 ---
 
 ## 📊 Daily Stats

@@ -1,369 +1,524 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Ryan Galliher</title><link>https://ryan-galliher.com/</link><description>Recent content on Ryan Galliher</description><generator>Hugo -- 0.152.2</generator><language>en-us</language><lastBuildDate>Sun, 07 Dec 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://ryan-galliher.com/index.xml" rel="self" type="application/rss+xml"/><item><title>2025-12-07: [Headline]</title><link>https://ryan-galliher.com/logs/2025-12-07/</link><pubDate>Sun, 07 Dec 2025 00:00:00 +0000</pubDate><guid>https://ryan-galliher.com/logs/2025-12-07/</guid><description>&lt;h2 id="-todays-todos-carryovers--new-suggestions"&gt;✅ TODAY&amp;rsquo;S TODOS (Carryovers + new suggestions)&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Ryan Galliher</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Ryan Galliher</description>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 08 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>2025-12-08: [Headline]</title>
+      <link>http://localhost:1313/logs/2025-12-08/</link>
+      <pubDate>Mon, 08 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-08/</guid>
+      <description>&lt;h2 id=&#34;-daily-stats&#34;&gt;📊 Daily Stats&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;100&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0-100%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Sunlight&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;-training-output&#34;&gt;🧬 Training Output&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;-strength-log&#34;&gt;🏋️ Strength Log&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Exercise&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Sets&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Reps&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Weight (lbs)&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Primary Lift&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Accessory 1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;-fuel-log&#34;&gt;🥗 Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>2025-12-07: [Headline]</title>
+      <link>http://localhost:1313/logs/2025-12-07/</link>
+      <pubDate>Sun, 07 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-07/</guid>
+      <description>&lt;h2 id=&#34;-todays-todos-carryovers--new-suggestions&#34;&gt;✅ TODAY&amp;rsquo;S TODOS (Carryovers + new suggestions)&lt;/h2&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; Complete today&amp;rsquo;s planned workout&lt;/li&gt;
-&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; Log all stats and narrative&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Complete today&amp;rsquo;s planned workout&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Log all stats and narrative&lt;/li&gt;
 &lt;/ul&gt;
-&lt;h2 id="-daily-stats"&gt;📊 Daily Stats&lt;/h2&gt;
+&lt;h2 id=&#34;-daily-stats&#34;&gt;📊 Daily Stats&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Metric&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Value&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Notes&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;1-10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;1-10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;100&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0-100%&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;Sunlight&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;100&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0-100%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Sunlight&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-training-output"&gt;🧬 Training Output&lt;/h2&gt;
+&lt;h2 id=&#34;-training-output&#34;&gt;🧬 Training Output&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Activity&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Dist/Time&lt;/th&gt;
-&lt;th style="text-align: left"&gt;HR / Watts&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-strength-log"&gt;🏋️ Strength Log&lt;/h2&gt;
+&lt;h2 id=&#34;-strength-log&#34;&gt;🏋️ Strength Log&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Exercise&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Sets&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Reps&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Weight (lbs)&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;Primary Lift&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;Accessory 1&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Exercise&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Sets&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Reps&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Weight (lbs)&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Primary Lift&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Accessory 1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-fuel-log"&gt;🥗 Fuel Log&lt;/h2&gt;
-&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;&lt;/p&gt;</description></item><item><title>Sample Log</title><link>https://ryan-galliher.com/logs/2025-12-06/</link><pubDate>Sat, 06 Dec 2025 00:00:00 +0000</pubDate><guid>https://ryan-galliher.com/logs/2025-12-06/</guid><description>&lt;h2 id="-daily-stats"&gt;📊 Daily Stats&lt;/h2&gt;
+&lt;h2 id=&#34;-fuel-log&#34;&gt;🥗 Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Sample Log</title>
+      <link>http://localhost:1313/logs/2025-12-06/</link>
+      <pubDate>Sat, 06 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-06/</guid>
+      <description>&lt;h2 id=&#34;-daily-stats&#34;&gt;📊 Daily Stats&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Metric&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Value&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Notes&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;245&lt;/td&gt;
-&lt;td style="text-align: left"&gt;Morning weight&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;7.5&lt;/td&gt;
-&lt;td style="text-align: left"&gt;Solid night&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;8&lt;/td&gt;
-&lt;td style="text-align: left"&gt;1-10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;7&lt;/td&gt;
-&lt;td style="text-align: left"&gt;1-10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;90&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0-100%&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;60&lt;/td&gt;
-&lt;td style="text-align: left"&gt;Sunlight&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;245&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Morning weight&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;7.5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Solid night&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;8&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;7&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;90&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0-100%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;60&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Sunlight&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-training-output"&gt;🧬 Training Output&lt;/h2&gt;
+&lt;h2 id=&#34;-training-output&#34;&gt;🧬 Training Output&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Activity&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Dist/Time&lt;/th&gt;
-&lt;th style="text-align: left"&gt;HR / Watts&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;8.5&lt;/td&gt;
-&lt;td style="text-align: left"&gt;140 avg HR&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;2.1&lt;/td&gt;
-&lt;td style="text-align: left"&gt;155 avg HR&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;-&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;8.5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;140 avg HR&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;2.1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;155 avg HR&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-strength-log"&gt;🏋️ Strength Log&lt;/h2&gt;
+&lt;h2 id=&#34;-strength-log&#34;&gt;🏋️ Strength Log&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Exercise&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Sets&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Reps&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Weight (lbs)&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;-&lt;/td&gt;
-&lt;td style="text-align: left"&gt;-&lt;/td&gt;
-&lt;td style="text-align: left"&gt;-&lt;/td&gt;
-&lt;td style="text-align: left"&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Exercise&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Sets&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Reps&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Weight (lbs)&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;-&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;-&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;-&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;-&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-fuel-log"&gt;🥗 Fuel Log&lt;/h2&gt;
+&lt;h2 id=&#34;-fuel-log&#34;&gt;🥗 Fuel Log&lt;/h2&gt;
 &lt;p&gt;Breakfast: 4 eggs scrambled, 2 slices toast, banana, coffee
 Pre-workout: Protein shake (whey, banana, peanut butter)
 Lunch: Chicken breast, rice, broccoli
 Snack: Greek yogurt, almonds
 Dinner: Salmon, sweet potato, asparagus
-Water: ~100oz throughout day&lt;/p&gt;</description></item><item><title>Day 338: [Headline]</title><link>https://ryan-galliher.com/logs/2025-12-04/</link><pubDate>Thu, 04 Dec 2025 00:00:00 +0000</pubDate><guid>https://ryan-galliher.com/logs/2025-12-04/</guid><description>&lt;h2 id="-daily-stats"&gt;📊 Daily Stats&lt;/h2&gt;
+Water: ~100oz throughout day&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Day 338: [Headline]</title>
+      <link>http://localhost:1313/logs/2025-12-04/</link>
+      <pubDate>Thu, 04 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-04/</guid>
+      <description>&lt;h2 id=&#34;-daily-stats&#34;&gt;📊 Daily Stats&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Metric&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Value&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Notes&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;1-10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;1-10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;100&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0-100%&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;Sunlight&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Diet Score&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Compliance&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;100&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0-100%&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Outside (min)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Sunlight&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-training-output"&gt;🧬 Training Output&lt;/h2&gt;
+&lt;h2 id=&#34;-training-output&#34;&gt;🧬 Training Output&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Activity&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Dist/Time&lt;/th&gt;
-&lt;th style="text-align: left"&gt;HR / Watts&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-strength-log"&gt;🏋️ Strength Log&lt;/h2&gt;
+&lt;h2 id=&#34;-strength-log&#34;&gt;🏋️ Strength Log&lt;/h2&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th style="text-align: left"&gt;Exercise&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Sets&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Reps&lt;/th&gt;
-&lt;th style="text-align: left"&gt;Weight (lbs)&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;Primary Lift&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td style="text-align: left"&gt;Accessory 1&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;td style="text-align: left"&gt;0&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Exercise&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Sets&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Reps&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Weight (lbs)&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Primary Lift&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;Accessory 1&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
 &lt;/table&gt;
-&lt;h2 id="-fuel-log"&gt;🥗 Fuel Log&lt;/h2&gt;
-&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;&lt;/p&gt;</description></item><item><title/><link>https://ryan-galliher.com/config/protocol_2025-w51_draft/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ryan-galliher.com/config/protocol_2025-w51_draft/</guid><description>&lt;div class="highlight"&gt;&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"&gt;&lt;code class="language-markdown" data-lang="markdown"&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;---
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;title: &amp;#34;Protocol 2023-W45: Base Building&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;date: 2023-11-06
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;week_number: W45
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;tags: [&amp;#34;protocol&amp;#34;]
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;phase: &amp;#34;Base Building&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;focus: &amp;#34;Triathlon technique and base building&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;target_compliance: 85%
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;schedule:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; monday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Recovery/Rest&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Active recovery: 30-minute light walk, stretching, foam rolling. Focus on mobility and flexibility.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; tuesday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Swim&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Technique-focused swim: 800m (400m drills, 400m continuous swim). Focus on form and breathing.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; wednesday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Strength&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Lower body strength: Deadlift 3x5 @ 300lbs, Squat 3x5 @ 225lbs. Accessory work: 3 sets of 12 lunges, 3 sets of 12 glute bridges.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; thursday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Bike&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Indoor cycling: 60 minutes at Zone 2 intensity (HR 130-140). Focus on cadence (85-95 RPM) and form.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; friday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Run&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Easy run: 4 miles at Zone 2 intensity (HR &amp;lt;150). Focus on maintaining a comfortable pace and good form.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; saturday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Brick Workout + Content Creation&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Brick workout: 30-minute easy bike followed by 20-minute easy run. Focus on smooth transitions. Create content: Document the experience and share on Twitter and blog.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; sunday:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; type: &amp;#34;Long Run&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; desc: &amp;#34;Long run: 6 miles at Zone 2 intensity (HR &amp;lt;150). Clear schedule, focus on endurance and mental toughness.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;training_goals:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Build a solid foundation in swimming and cycling technique.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Maintain running base while gradually increasing volume.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Preserve strength gains with consistent lower body workouts.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;startup_goals:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Complete 6+ hours of deep work on startup MVP.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Ship one piece of content reflecting on the training and startup journey.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;content_strategy:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; theme: &amp;#34;Transitioning to Triathlon: Week 1 Insights&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; posts:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; platform: &amp;#34;Twitter&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; status: &amp;#34;Planned&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; topic: &amp;#34;First impressions of swim and bike training.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; platform: &amp;#34;Blog&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; status: &amp;#34;Draft&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; topic: &amp;#34;Balancing triathlon training with startup development.&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;targets:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; cardio_volume:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; swim: &amp;#34;800m&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; bike: &amp;#34;60 minutes&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; run: &amp;#34;10 miles&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; strength:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Deadlift 3x5 @ 300lbs&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;Squat 3x5 @ 225lbs&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; startup:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;6+ hours of deep work&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; recovery:
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt; &lt;span style="color:#66d9ef"&gt;-&lt;/span&gt; &amp;#34;7+ hours of sleep per night&amp;#34;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;---
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 🤖 AI Rationale
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;This protocol is designed to establish a solid foundation for Ryan&amp;#39;s transition into triathlon while maintaining his strength and supporting his startup goals. Given that this is the first week and there is no historical data, the focus is on building a base with a gradual increase in volume and a strong emphasis on technique. The schedule includes two strength sessions to ensure Ryan maintains his current PRs, which is crucial for long-term performance. The inclusion of a brick workout on Saturday provides a practical application of the skills learned and serves as a content creation opportunity. The long run on Sunday allows for building endurance and mental resilience, essential for both triathlon and startup success. The balance between triathlon training and deep work ensures that Ryan can sustain high performance across all areas.
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;## 🧬 Human Notes
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;&lt;span style="color:#75715e"&gt;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span style="display:flex;"&gt;&lt;span&gt;[Placeholder for Ryan to add his own adjustments/notes]
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description></item><item><title/><link>https://ryan-galliher.com/config/ryan/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ryan-galliher.com/config/ryan/</guid><description>&lt;h1 id="-ai-agent-instructions"&gt;🧠 AI AGENT INSTRUCTIONS&lt;/h1&gt;
+&lt;h2 id=&#34;-fuel-log&#34;&gt;🥗 Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/config/protocol_2025-w50/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/config/protocol_2025-w50/</guid>
+      <description>&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;title: &amp;#34;Protocol 2025-W50: Base Building&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;date: 2025-12-08
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;week_number: W50
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;tags: [&amp;#34;protocol&amp;#34;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;phase: &amp;#34;Base Building&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;focus: &amp;#34;Triathlon technique and base building&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;target_compliance: 85%
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;schedule:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  monday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Recovery/Rest&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Active recovery: 30-minute light walk, stretching, foam rolling. Focus on mobility and flexibility.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  tuesday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Swim&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Technique-focused swim: 800m (400m drills, 400m continuous swim). Focus on form and breathing.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  wednesday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Strength&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Lower body strength: Deadlift 3x5 @ 300lbs, Squat 3x5 @ 225lbs. Accessory work: 3 sets of 12 lunges, 3 sets of 12 glute bridges.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  thursday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Bike&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Indoor cycling: 60 minutes at Zone 2 intensity (HR 130-140). Focus on cadence (85-95 RPM) and form.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  friday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Run&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Easy run: 4 miles at Zone 2 intensity (HR &amp;lt;150). Focus on maintaining a comfortable pace and good form.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  saturday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Brick Workout + Content Creation&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Brick workout: 30-minute easy bike followed by 20-minute easy run. Focus on smooth transitions. Create content: Document the experience and share on Twitter and blog.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  sunday:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    type: &amp;#34;Long Run&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    desc: &amp;#34;Long run: 6 miles at Zone 2 intensity (HR &amp;lt;150). Clear schedule, focus on endurance and mental toughness.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;training_goals:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Build a solid foundation in swimming and cycling technique.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Maintain running base while gradually increasing volume.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Preserve strength gains with consistent lower body workouts.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;startup_goals:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Complete 6+ hours of deep work on startup MVP.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Ship one piece of content reflecting on the training and startup journey.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Primary goal 1 is to complete in the 6+ hours is to touch up the UI bug fixes.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Primary goal 2 is to complete auto fixer PR agent MVP.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Primary goal 3 is to build agentic rag for the system.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;content_strategy:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  theme: &amp;#34;Transitioning to Triathlon: Week 1 Insights&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  posts:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; platform: &amp;#34;Twitter&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      status: &amp;#34;Planned&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      topic: &amp;#34;First impressions of swim and bike training.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; platform: &amp;#34;Blog&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      status: &amp;#34;Draft&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      topic: &amp;#34;Balancing triathlon training with startup development.&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;targets:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  cardio_volume:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    swim: &amp;#34;800m&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    bike: &amp;#34;60 minutes&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    run: &amp;#34;10 miles&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  strength:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Deadlift 3x5 @ 300lbs&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;Squat 3x5 @ 225lbs&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  startup:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;6+ hours of deep work&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  recovery:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;-&lt;/span&gt; &amp;#34;7+ hours of sleep per night&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;---
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;## 🤖 AI Rationale
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;This protocol is designed to establish a solid foundation for Ryan&amp;#39;s transition into triathlon while maintaining his strength and supporting his startup goals. Given that this is the first week and there is no historical data, the focus is on building a base with a gradual increase in volume and a strong emphasis on technique. The schedule includes two strength sessions to ensure Ryan maintains his current PRs, which is crucial for long-term performance. The inclusion of a brick workout on Saturday provides a practical application of the skills learned and serves as a content creation opportunity. The long run on Sunday allows for building endurance and mental resilience, essential for both triathlon and startup success. The balance between triathlon training and deep work ensures that Ryan can sustain high performance across all areas.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;## 🧬 Human Notes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;I have some current back injuries so I think it&amp;#39;s best to take a break from heavy lifts for now. 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Each day should include time to journal/reflect and learn new things and read. I understand that is a lot, but reflecting on my day help me builds on the next one. 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Weekly goals should be SMART and embedded in weekly outcomes. If one of my goals is not tied to a specific outcome, you should add a specific outcome that I can achieve and build on.
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>http://localhost:1313/config/ryan/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/config/ryan/</guid>
+      <description>&lt;h1 id=&#34;-ai-agent-instructions&#34;&gt;🧠 AI AGENT INSTRUCTIONS&lt;/h1&gt;
 &lt;p&gt;Hi agent! Your job is to help me live the best version of my life. This repository contains the logs of my days in simple text format.&lt;/p&gt;
-&lt;h2 id="mission"&gt;Mission&lt;/h2&gt;
+&lt;h2 id=&#34;mission&#34;&gt;Mission&lt;/h2&gt;
 &lt;p&gt;Help me plan my weeks and days as a &lt;strong&gt;top 0.01% individual&lt;/strong&gt; who excels across multiple domains simultaneously: triathlon training, startup building, ML/AI engineering, and content creation.&lt;/p&gt;
-&lt;h2 id="current-focus"&gt;Current Focus&lt;/h2&gt;
+&lt;h2 id=&#34;current-focus&#34;&gt;Current Focus&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Primary:&lt;/strong&gt; Triathlon training (swim/bike/run) while maintaining strength
-&lt;strong&gt;Secondary:&lt;/strong&gt; Launch startup MVP + create content to dogfood the product&lt;/p&gt;</description></item></channel></rss>
+&lt;strong&gt;Secondary:&lt;/strong&gt; Launch startup MVP + create content to dogfood the product&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
