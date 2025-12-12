@@ -25,16 +25,76 @@ current_fitness:
 
 goals:
   primary:
-    - "Complete first triathlon"
-    - "Launch startup MVP"
-    - "Learn ML/AI engineering"
+    - name: "Complete half ironman in 2026"
+      specific: "Complete a 70.3 mile half ironman triathlon (1.2mi swim, 56mi bike, 13.1mi run)"
+      measurable:
+        - "Swim 1.2 miles continuously by June 2026"
+        - "Bike 56 miles at 16+ mph avg by July 2026"
+        - "Run half marathon in under 2:30 by August 2026"
+        - "Complete full half ironman race by October 2026"
+      achievable: "Building from marathon running base (5:34 PR), adding swim/bike progressively over 18 months"
+      relevant: "Pushes physical limits while maintaining startup work; creates content opportunities"
+      time_bound: "Race day: October 2026. Quarterly milestones: Q1 2026 (swim base), Q2 2026 (bike endurance), Q3 2026 (race simulation)"
+
+    - name: "Make at least $1 from online product"
+      specific: "Launch MVP of daily planning/tracking product and acquire first paying customer"
+      measurable:
+        - "MVP launched with core features by January 2026"
+        - "10 beta users testing product by February 2026"
+        - "First $1 in revenue by February 2026"
+        - "$100 MRR by March 2026"
+      achievable: "Using own daily planning system as foundation; dogfooding throughout development"
+      relevant: "Validates startup idea while building in public; creates sustainable business foundation"
+      time_bound: "MVP launch: March 2026. First revenue: May 2026. $100 MRR: August 2026"
+
+    - name: "Learn ML/AI engineering"
+      specific: "Master ML/AI engineering fundamentals through project-based learning and deployment"
+      measurable:
+        - "Complete 3 end-to-end ML projects (data → model → deployment) by June 2026"
+        - "Contribute to 2 open source ML libraries by August 2026"
+        - "Build and deploy 1 production ML feature in startup by September 2026"
+        - "Write 12 technical ML blog posts documenting learning journey"
+      achievable: "Leveraging existing programming skills; 10-15 hours/week dedicated study and practice"
+      relevant: "Critical skill for competitive advantage in startup; aligns with long-term career vision"
+      time_bound: "Project 1: February 2026, Project 2: April 2026, Project 3: June 2026. Production feature: September 2026"
+
   secondary:
-    - "Maintain compound lift strength (300+ DL, 225+ squat, 155+ bench)"
-    - "Create weekly content to dogfood startup"
-    - "Become top 0.01% across multiple domains"
+    - name: "Maintain compound lift strength"
+      specific: "Preserve strength PRs (300+ DL, 225+ squat, 155+ bench) while increasing triathlon volume"
+      measurable:
+        - "2 strength sessions per week minimum"
+        - "Test maxes quarterly: maintain or improve current PRs"
+        - "Track volume: 3x5 for DL/squat, 3x8 for bench"
+        - "Deload week every 4th week to manage fatigue"
+      achievable: "Strategic programming with lower volume but maintained intensity; proven to preserve strength during endurance training"
+      relevant: "Prevents muscle loss, supports injury prevention, maintains hard-earned progress"
+      time_bound: "Ongoing through 2026 with quarterly PR tests (March, June, September, December)"
+
+    - name: "Create weekly content to dogfood startup and document progress with triathlons and machine learning progress"
+      specific: "Publish 1 piece of content weekly documenting training, startup building, or ML learning"
+      measurable:
+        - "52 pieces of content published in 2026"
+        - "Content types: Twitter threads, blog posts, or video logs"
+        - "Use own product to plan/create all content"
+        - "Track engagement: 100+ views per piece average by month 6"
+      achievable: "Training and building provide unlimited content fuel; batch creation on Saturdays post-workout"
+      relevant: "Validates product through dogfooding; builds audience for future customers; documents journey"
+      time_bound: "Every week in 2026. Review and adjust strategy quarterly based on engagement data"
+
+    - name: "Become top 0.01% machine learning/AI engineer"
+      specific: "Achieve elite ML engineering capability by building ML tools that solve real problems and deliver measurable value"
+      measurable:
+        - "Q1 2026: Master foundations and build first useful ML tool (e.g., workout plan optimizer, content idea generator, log analyzer)"
+        - "Q2 2026: Deploy 2 production-quality ML tools that measurably improve personal workflows (time saved, quality improved, insights gained)"
+        - "Q3 2026: Build 1 complex ML system integrated into daily life (automated planning assistant, performance tracker, etc.)"
+        - "Q4 2026: Ship ML feature for startup that delivers clear value (to self or users)"
+        - "Throughout 2026: Document learnings through 12 technical posts showing real implementation details"
+      achievable: "Focus on solving personal problems first; 15-20 hours/week building tools that scratch own itches; leveraging software engineering foundation"
+      relevant: "Builds ML skills through practical application; tools improve personal productivity; portfolio of working systems vs theoretical knowledge"
+      time_bound: "Quarterly tool releases throughout 2026. Elite status proven by useful ML systems in daily use, not papers or user counts"
 
 constraints:
-  injuries: "none currently"
+  injuries: "lower back soreness, need help combating this. Triggered by sitting without a backrest and lifting items that are too heavy."
   equipment:
     - "Garmin Vivoactive 5"
     - "Gym membership"
@@ -42,8 +102,11 @@ constraints:
 
 preferences:
   training_time: "mornings (6-9am)"
-  work_time: "afternoons/evenings (2-6pm)"
+  work_time: "afternoons/evenings (10-6pm)"
   content_creation: "paired with Saturday workouts"
+
+weakness:
+  proritization: "I have a tendency to bounce from project to project or book to book before finishing or launching anything."
 
 ---
 

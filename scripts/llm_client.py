@@ -7,30 +7,14 @@ Shared helper for weekly_planner.py and scheduler.py
 import requests
 import json
 import os
+import re
 from pathlib import Path
+from dotenv import load_dotenv
 
-# Load .env file if it exists
-def _load_env():
-    """Load environment variables from .env file."""
-    env_paths = [
-        Path(__file__).parent / ".env",  # scripts/.env
-        Path(__file__).parent.parent / ".env",  # project root .env
-    ]
-    for env_path in env_paths:
-        if env_path.exists():
-            with open(env_path) as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#") and "=" in line:
-                        key, value = line.split("=", 1)
-                        # Remove quotes if present
-                        value = value.strip().strip('"').strip("'")
-                        os.environ.setdefault(key.strip(), value)
-            break
+# Load .env file from scripts directory only
+load_dotenv(Path(__file__).parent / ".env")
 
-_load_env()
-
-# Configuration - set HF_TOKEN in .env or environment
+# API tokens and hosts - load from .env
 HF_TOKEN = os.environ.get("HF_TOKEN")
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "localhost")
 
@@ -249,71 +233,64 @@ def generate_weekly_protocol(goals, last_protocol, last_week_logs):
 {analysis}
 
 # YOUR TASK
-Generate a complete weekly protocol for the upcoming week in EXACTLY this markdown format:
+Generate a complete weekly protocol for the upcoming week in EXACTLY this markdown format.
+IMPORTANT: Do NOT wrap the output in code fences. Return raw markdown only.
 
-```markdown
 ---
 title: "Protocol YYYY-WXX: [Phase Name]"
 date: YYYY-MM-DD
 week_number: WXX
 tags: ["protocol"]
-
 phase: "[Base Building / Build / Peak]"
 focus: "[Primary training focus]"
 target_compliance: XX%
-
-schedule:
-  monday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-  tuesday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-  wednesday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-  thursday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-  friday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-  saturday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-  sunday:
-    type: "[Workout Type]"
-    desc: "[Specific workout details]"
-
-training_goals:
-  - "[Goal 1]"
-  - "[Goal 2]"
-  - "[Goal 3]"
-
-startup_goals:
-  - "[Startup goal 1]"
-  - "[Startup goal 2]"
-
-content_strategy:
-  theme: "[Weekly content theme]"
-  posts:
-    - platform: "[Platform]"
-      status: "[Status]"
-      topic: "[Topic]"
-
-targets:
-  cardio_volume:
-    swim: "[XXXm]"
-    bike: "[XX minutes]"
-    run: "[XX miles]"
-  strength:
-    - "[Lift 1 target]"
-    - "[Lift 2 target]"
-  startup:
-    - "[Startup metric]"
-  recovery:
-    - "[Recovery metric]"
 ---
+
+## 📅 Weekly Schedule
+
+| Day | Type | Workout |
+|-----|------|---------|
+| Monday | [Type] | [Specific workout details] |
+| Tuesday | [Type] | [Specific workout details] |
+| Wednesday | [Type] | [Specific workout details] |
+| Thursday | [Type] | [Specific workout details] |
+| Friday | [Type] | [Specific workout details] |
+| Saturday | [Type] | [Specific workout details] |
+| Sunday | [Type] | [Specific workout details] |
+
+## 🎯 Training Goals
+- [Goal 1]
+- [Goal 2]
+- [Goal 3]
+
+## 🚀 Startup Goals
+- [Startup goal 1]
+- [Startup goal 2]
+
+## 📊 Weekly Targets
+
+**Cardio Volume:**
+- Swim: [XXXm]
+- Bike: [XX minutes]
+- Run: [XX miles]
+
+**Strength:**
+- [Lift 1 target]
+- [Lift 2 target]
+
+**Startup:**
+- [Startup metric]
+
+**Recovery:**
+- [Recovery metric]
+
+## 📱 Content Strategy
+
+**Theme:** [Weekly content theme]
+
+| Platform | Status | Topic |
+|----------|--------|-------|
+| [Platform] | [Status] | [Topic] |
 
 ## 🤖 AI Rationale
 
@@ -322,7 +299,6 @@ targets:
 ## 🧬 Human Notes
 
 [Placeholder for Ryan to add his own adjustments/notes]
-```
 
 CRITICAL RULES:
 1. If compliance was >85% and sleep >7hrs avg → Increase volume 5-10%
@@ -340,17 +316,24 @@ Return ONLY the markdown protocol, no extra commentary."""
     return call_llm(messages)
 
 
-def generate_daily_briefing(goals, protocol, last_3_days):
+def generate_daily_briefing(goals, protocol, last_3_days, day_name):
     """
-    Generate daily briefing and todos based on recent logs.
+    Generate daily briefing, workout, and todos based on protocol and recent logs.
 
     Args:
         goals: Content of ryan.md (str)
-        protocol: This week's protocol (str)
+        protocol: This week's full protocol markdown (str)
         last_3_days: List of last 3 daily logs with full content
+        day_name: Today's day name (e.g., "Thursday")
 
     Returns:
-        dict: {"briefing": str, "todos": list}
+        dict with keys:
+            - workout_type: str (strength|swim|bike|run|brick|recovery)
+            - planned_workout: str
+            - briefing: str
+            - todos: list of strings
+            - include_strength_log: bool
+            - cardio_activities: list of strings (subset of ["swim", "bike", "run"])
     """
 
     # Extract yesterday's todos if they exist
@@ -365,54 +348,97 @@ def generate_daily_briefing(goals, protocol, last_3_days):
 
     prompt = f"""You are Ryan's AI coach providing aggressive, actionable daily guidance.
 
+# TODAY IS: {day_name}
+
 # RYAN'S GOALS
 {goals}
 
-# THIS WEEK'S PROTOCOL
+# THIS WEEK'S PROTOCOL (contains the schedule for each day)
 {protocol}
 
 # LAST 3 DAYS OF LOGS
 {json.dumps(last_3_days, indent=2)}
 
 # YOUR TASK
-Analyze the last 3 days (especially yesterday) and generate:
+1. **Extract today's planned workout** from the weekly protocol schedule for {day_name}
+2. **Determine workout type and which log sections are needed**
+3. **Analyze the last 3 days** (especially yesterday) to adjust the plan if needed
+4. **Generate specific, actionable todos**
 
-1. **Daily Briefing** (2-3 direct, actionable sentences):
-   - Aggressively adjust today's workout based on yesterday's reality
-   - If fatigued/poor sleep → reduce intensity significantly
-   - If strong/recovered → stay the course or push slightly
-   - Reference specific details from narratives
-
-2. **Today's Todos** (5-7 items):
-   - Carry forward incomplete items from yesterday
-   - Add workout prep tasks
-   - Add startup/content work based on goals
-   - Prioritize based on narrative mentions
-   - Use checkbox format: `- [ ] Task description`
-
-Return response as JSON:
+Return response as JSON with EXACTLY this structure:
 {{
-  "briefing": "Your briefing text here",
+  "workout_type": "strength|swim|bike|run|brick|recovery",
+  "planned_workout": "Full workout description from protocol",
+  "briefing": "2-3 direct sentences with specific adjustments",
   "todos": [
-    "- [ ] Todo item 1",
-    "- [ ] Todo item 2",
-    "..."
-  ]
+    "- [ ] Specific action item 1",
+    "- [ ] Specific action item 2"
+  ],
+  "include_strength_log": true or false,
+  "cardio_activities": ["swim", "bike", "run"]
 }}
 
-Be DIRECT and SPECIFIC. Examples:
-✅ "Yesterday's brick left quads fatigued. Replace 4mi run with 30min walk + stretch."
-❌ "Consider adjusting your workout if tired."
+CRITICAL RULES:
+
+1. **workout_type**: Choose ONE of: strength, swim, bike, run, brick, recovery
+   - brick = combination workout (e.g., bike + run)
+
+2. **include_strength_log**:
+   - true ONLY if today involves weightlifting (deadlifts, squats, etc.)
+   - false for cardio-only or recovery days
+
+3. **cardio_activities**: List ONLY activities happening today
+   - Swim day → ["swim"]
+   - Brick workout → ["bike", "run"]
+   - Strength day → []
+   - Recovery → []
+
+4. **todos**: MUST follow these rules:
+   - NEVER use "AND" - split into separate items
+     ❌ "Complete deadlifts and squats"
+     ✅ "Complete 3x5 deadlifts at 300lbs"
+     ✅ "Complete 3x5 squats at 225lbs"
+   - Be SPECIFIC with numbers, weights, distances
+     ❌ "Complete today's workout"
+     ✅ "Complete 800m swim with technique drills"
+   - Include 5-7 items covering: workout tasks, startup work, recovery
+   - Carry forward incomplete items from yesterday
+
+5. **briefing**: Reference specific data from recent logs
+   ✅ "Yesterday's 6mi run at 8:30 pace shows good recovery. Push deadlifts to 305 today."
+   ❌ "Consider how you feel before working out."
 """
 
     messages = [{"role": "user", "content": prompt}]
     response = call_llm(messages, format_json=True)
 
+    # Clean the response - LLMs often wrap JSON in markdown code fences
+    cleaned = response.strip()
+
+    # Remove markdown code fences if present
+    if cleaned.startswith("```"):
+        # Remove opening fence (```json or ```)
+        cleaned = re.sub(r'^```(?:json)?\s*\n?', '', cleaned)
+        # Remove closing fence
+        cleaned = re.sub(r'\n?```\s*$', '', cleaned)
+
+    # Try to extract JSON object if there's extra text
+    json_match = re.search(r'\{[\s\S]*\}', cleaned)
+    if json_match:
+        cleaned = json_match.group()
+
     try:
-        return json.loads(response)
-    except json.JSONDecodeError:
+        return json.loads(cleaned)
+    except json.JSONDecodeError as e:
+        # Print raw response for debugging
+        print(f"\n⚠️  JSON parsing failed: {e}")
+        print(f"📄 Raw LLM response:\n{response[:2000]}{'...' if len(response) > 2000 else ''}\n")
         # Fallback if JSON parsing fails
         return {
+            "workout_type": "recovery",
+            "planned_workout": f"Check protocol for {day_name}'s workout",
             "briefing": "Error generating briefing - check LLM output",
-            "todos": yesterday_todos if yesterday_todos else ["- [ ] Review today's protocol"]
+            "todos": yesterday_todos if yesterday_todos else ["- [ ] Review today's protocol"],
+            "include_strength_log": False,
+            "cardio_activities": []
         }

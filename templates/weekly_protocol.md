@@ -7,13 +7,13 @@ date: {{date:YYYY-MM-DD}}
 week_number: {{date:WW}}
 tags: ["protocol"]
 
+# ==========================================
+# 🗓️ THE SCHEDULE
+# ==========================================
 phase: "Build 1"        # Base / Build / Peak
 focus: "Hypertrophy"    # The main adaptive goal
 target_compliance: 90%
 
-# ==========================================
-# 🗓️ THE SCHEDULE
-# ==========================================
 schedule:
   monday:
     type: "Lift"

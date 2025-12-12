@@ -28,31 +28,56 @@ LOGS_DIR = "content/logs"
 
 
 def get_next_week():
-    """Calculate next week's year and week number."""
+    """
+    Calculate next week's Monday date.
+
+    Returns:
+        tuple: (year, week_number, monday_date_str)
+    """
     today = datetime.now()
-    next_week = today + timedelta(days=7)
-    year, week, _ = next_week.isocalendar()
-    return year, week
+    # Find next Monday
+    days_until_monday = (7 - today.weekday()) % 7
+    if days_until_monday == 0:
+        days_until_monday = 7  # If today is Monday, get next Monday
+    next_monday = today + timedelta(days=days_until_monday)
+    year, week, _ = next_monday.isocalendar()
+    monday_str = next_monday.strftime("%Y-%m-%d")
+    return year, week, monday_str
 
 
-def read_last_protocol(year, week):
-    """Read last week's protocol file."""
-    last_week = week - 1
-    last_year = year
+def read_last_protocol(target_monday_str):
+    """
+    Read last week's protocol file.
 
-    # Handle year transition
-    if last_week < 1:
-        last_year = year - 1
-        # Get last week of previous year
-        dec_31 = datetime(last_year, 12, 31)
-        last_week = dec_31.isocalendar()[1]
+    Args:
+        target_monday_str: Monday date of target week (YYYY-MM-DD)
 
-    protocol_file = f"protocol_{last_year}-W{last_week:02d}.md"
+    Returns:
+        str or None: Protocol content if found
+    """
+    # Calculate last week's Monday
+    target_monday = datetime.strptime(target_monday_str, "%Y-%m-%d")
+    last_monday = target_monday - timedelta(days=7)
+    last_monday_str = last_monday.strftime("%Y-%m-%d")
+
+    # Try new date-based format first
+    protocol_file = f"protocol_{last_monday_str}.md"
     protocol_path = os.path.join(PROTOCOL_DIR, protocol_file)
 
     if os.path.exists(protocol_path):
         with open(protocol_path, 'r', encoding='utf-8') as f:
             return f.read()
+
+    # Fallback to old week-number format during transition
+    year, week, _ = last_monday.isocalendar()
+    old_protocol_file = f"protocol_{year}-W{week:02d}.md"
+    old_protocol_path = os.path.join(PROTOCOL_DIR, old_protocol_file)
+
+    if os.path.exists(old_protocol_path):
+        print(f"Note: Using legacy protocol format {old_protocol_file}")
+        with open(old_protocol_path, 'r', encoding='utf-8') as f:
+            return f.read()
+
     return None
 
 
@@ -78,7 +103,8 @@ def read_last_week_logs(year, week):
     for day_offset in range(7):
         log_date = target_monday + timedelta(days=day_offset)
         log_date_str = log_date.strftime("%Y-%m-%d")
-        log_path = os.path.join(LOGS_DIR, log_date_str, "index.md")
+        # Flat file path (not page bundle)
+        log_path = os.path.join(LOGS_DIR, f"{log_date_str}.md")
 
         if os.path.exists(log_path):
             try:
@@ -104,6 +130,7 @@ def read_last_week_logs(year, week):
 def main():
     parser = argparse.ArgumentParser(description="Generate weekly training protocol")
     parser.add_argument('--week', type=int, help='Specific week number to generate')
+    parser.add_argument('--date', type=str, help='Specific Monday date (YYYY-MM-DD) to generate')
     parser.add_argument('--finalize', action='store_true', help='Remove _DRAFT suffix from latest protocol')
     args = parser.parse_args()
 
@@ -112,7 +139,7 @@ def main():
         # Find most recent DRAFT file
         draft_files = [f for f in os.listdir(PROTOCOL_DIR) if f.endswith('_DRAFT.md')]
         if not draft_files:
-            print("❌ No DRAFT protocol files found")
+            print("No DRAFT protocol files found")
             sys.exit(1)
 
         latest_draft = sorted(draft_files)[-1]
@@ -120,36 +147,45 @@ def main():
         final_path = draft_path.replace('_DRAFT.md', '.md')
 
         os.rename(draft_path, final_path)
-        print(f"✅ Finalized: {latest_draft} → {os.path.basename(final_path)}")
+        print(f"Finalized: {latest_draft} -> {os.path.basename(final_path)}")
         sys.exit(0)
 
     # Determine target week
-    if args.week:
+    if args.date:
+        monday_str = args.date
+        target_monday = datetime.strptime(monday_str, "%Y-%m-%d")
+        year, week, _ = target_monday.isocalendar()
+    elif args.week:
         year = datetime.now().year
         week = args.week
+        # Calculate Monday for that week
+        jan_4 = datetime(year, 1, 4)
+        week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
+        target_monday = week_1_monday + timedelta(weeks=week - 1)
+        monday_str = target_monday.strftime("%Y-%m-%d")
     else:
-        year, week = get_next_week()
+        year, week, monday_str = get_next_week()
 
-    print(f"📅 Generating protocol for {year}-W{week:02d}...")
+    print(f"Generating protocol for week of {monday_str} (W{week:02d})...")
 
     # Read inputs
-    print("📖 Reading Ryan's goals...")
+    print("Reading Ryan's goals...")
     with open(RYAN_CONFIG, 'r', encoding='utf-8') as f:
         goals = f.read()
 
-    print("📖 Reading last week's protocol...")
-    last_protocol = read_last_protocol(year, week)
+    print("Reading last week's protocol...")
+    last_protocol = read_last_protocol(monday_str)
     if last_protocol:
-        print("   ✓ Found previous protocol")
+        print("   Found previous protocol")
     else:
-        print("   ℹ️  No previous protocol (first week)")
+        print("   No previous protocol (first week)")
 
-    print("📖 Reading last week's logs...")
+    print("Reading last week's logs...")
     last_week_logs = read_last_week_logs(year, week)
-    print(f"   ✓ Found {len(last_week_logs)} daily logs")
+    print(f"   Found {len(last_week_logs)} daily logs")
 
     # Generate protocol using AI
-    print(f"🤖 Generating weekly protocol...")
+    print("Generating weekly protocol...")
     print("   (This may take 30-60 seconds...)")
 
     try:
@@ -157,24 +193,24 @@ def main():
     except RuntimeError as e:
         # This catches when all LLM backends fail
         print(f"\n{e}")
-        print("\n💡 To fix: Set HF_TOKEN in .env file or run 'ollama serve' in another terminal")
+        print("\nTo fix: Set HF_TOKEN in .env file or run 'ollama serve' in another terminal")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Error generating protocol: {e}")
+        print(f"\nError generating protocol: {e}")
         sys.exit(1)
 
-    # Save as DRAFT
-    output_filename = f"protocol_{year}-W{week:02d}_DRAFT.md"
+    # Save as DRAFT with date-based naming
+    output_filename = f"protocol_{monday_str}_DRAFT.md"
     output_path = os.path.join(PROTOCOL_DIR, output_filename)
 
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(protocol_content)
 
-    print(f"\n✅ Protocol generated: {output_filename}")
-    print(f"\n📝 Next steps:")
+    print(f"\nProtocol generated: {output_filename}")
+    print("\nNext steps:")
     print(f"   1. Review/edit in Obsidian: {output_path}")
-    print(f"   2. When ready, finalize: python weekly_planner.py --finalize")
-    print(f"   3. Or manually rename to: protocol_{year}-W{week:02d}.md")
+    print("   2. When ready, finalize: python weekly_planner.py --finalize")
+    print(f"   3. Or manually rename to: protocol_{monday_str}.md")
 
 
 if __name__ == "__main__":

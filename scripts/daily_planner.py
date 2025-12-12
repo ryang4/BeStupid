@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
 from llm_client import generate_daily_briefing
+from template_renderer import render_daily_log
 
 # CONFIGURATION
 VAULT_DIR = "content/logs"
@@ -25,24 +26,48 @@ TEMPLATE_DIR = "templates"
 RYAN_CONFIG = "content/config/ryan.md"
 
 
-def get_todays_protocol_mission():
+def get_weekly_protocol():
     """
-    Finds the active Weekly Protocol. 
+    Finds and returns the active Weekly Protocol content.
+
+    Searches for protocol file using Monday's date of current week.
+    Format: protocol_YYYY-MM-DD.md (where date is Monday)
+    Falls back to old format (protocol_YYYY-WXX.md) during transition.
+
+    Returns:
+        str: Full protocol content (empty string if not found)
     """
     today = datetime.now()
-    year, week, _ = today.isocalendar()
+    # Find Monday of current week (weekday 0 = Monday)
+    days_since_monday = today.weekday()
+    monday = today - timedelta(days=days_since_monday)
+    monday_str = monday.strftime("%Y-%m-%d")
 
-    protocol_file = f"protocol_{year}-W{week:02d}.md"
+    # Try new date-based format first
+    protocol_file = f"protocol_{monday_str}.md"
     protocol_path = os.path.join(PROTOCOL_DIR, protocol_file)
 
     if os.path.exists(protocol_path):
         try:
             with open(protocol_path, 'r', encoding='utf-8') as f:
-                full_protocol = f.read()
+                return f.read()
         except Exception as e:
-            print(f"⚠️  Error reading protocol: {e}")
+            print(f"Warning: Error reading protocol: {e}")
 
-    return full_protocol
+    # Fallback to old week-number format during transition
+    year, week, _ = today.isocalendar()
+    old_protocol_file = f"protocol_{year}-W{week:02d}.md"
+    old_protocol_path = os.path.join(PROTOCOL_DIR, old_protocol_file)
+
+    if os.path.exists(old_protocol_path):
+        print(f"Note: Using legacy protocol format {old_protocol_file}")
+        try:
+            with open(old_protocol_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            print(f"Warning: Error reading protocol: {e}")
+
+    return ""
 
 
 def read_last_n_days(n=3):
@@ -58,7 +83,8 @@ def read_last_n_days(n=3):
     for i in range(n, 0, -1):  # 3, 2, 1 (yesterday is most recent)
         past_date = today - timedelta(days=i)
         date_str = past_date.strftime("%Y-%m-%d")
-        log_path = os.path.join(VAULT_DIR, date_str, "index.md")
+        # Flat file path (not page bundle)
+        log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
 
         if os.path.exists(log_path):
             try:
@@ -93,36 +119,43 @@ def read_last_n_days(n=3):
 
 def create_daily_log():
     """
-    Generate today's daily log with AI-powered briefing and todos.
+    Generate today's daily log with AI-powered briefing and dynamic sections.
     """
     today = datetime.now()
     date_str = today.strftime("%Y-%m-%d")
+    day_name = today.strftime("%A")
 
-    folder_path = os.path.join(VAULT_DIR, date_str)
-    file_path = os.path.join(folder_path, "index.md")
+    # Flat file path (not page bundle)
+    file_path = os.path.join(VAULT_DIR, f"{date_str}.md")
 
     # Check if log already exists
     if os.path.exists(file_path):
-        print(f"⏭️  Log already exists for {date_str}")
+        print(f"Log already exists for {date_str}")
         return
 
-    print(f"📅 Generating log for {date_str}...")
+    print(f"Generating log for {date_str} ({day_name})...")
 
-    # 1. Get protocol baseline mission
-    print("📖 Reading weekly protocol...")
-    full_protocol = get_todays_protocol_mission()
+    # 1. Get full weekly protocol
+    print("Reading weekly protocol...")
+    full_protocol = get_weekly_protocol()
 
     # 2. Read last 3 days for AI context
-    print("📖 Reading last 3 days of logs...")
+    print("Reading last 3 days of logs...")
     last_3_days = read_last_n_days(3)
-    print(f"   ✓ Found {len(last_3_days)} recent logs")
+    print(f"   Found {len(last_3_days)} recent logs")
 
-    # 3. Generate AI briefing and todos
-    briefing = "First day of tracking - no historical context yet. Execute protocol as planned."
-    todos_list = ["- [ ] Complete today's planned workout", "- [ ] Log all stats and narrative"]
+    # 3. Default fallback response
+    ai_response = {
+        "workout_type": "recovery",
+        "planned_workout": "No protocol found - please create weekly protocol first.",
+        "briefing": "First day of tracking - no historical context yet. Execute protocol as planned.",
+        "todos": ["- [ ] Create weekly protocol", "- [ ] Log all stats and narrative"],
+        "include_strength_log": False,
+        "cardio_activities": []
+    }
 
     if full_protocol:
-        print("🤖 Generating AI daily briefing...")
+        print("Generating AI daily briefing...")
         print("   (This may take 10-30 seconds...)")
 
         try:
@@ -130,46 +163,46 @@ def create_daily_log():
             with open(RYAN_CONFIG, 'r', encoding='utf-8') as f:
                 goals = f.read()
 
-            ai_response = generate_daily_briefing(goals, full_protocol, last_3_days)
-
-            briefing = ai_response.get('briefing', briefing)
-            todos_list = ai_response.get('todos', todos_list)
-
-            print("   ✓ AI briefing generated")
+            ai_response = generate_daily_briefing(goals, full_protocol, last_3_days, day_name)
+            print("   AI briefing generated")
 
         except RuntimeError as e:
-            # This catches when all LLM backends fail
-            print(f"\n⚠️  {e}")
-            print("   → Using fallback briefing")
+            print(f"\nWarning: {e}")
+            print("   Using fallback briefing")
         except Exception as e:
-            print(f"\n⚠️  Error generating AI briefing: {e}")
-            print("   → Using fallback briefing")
+            print(f"\nWarning: Error generating AI briefing: {e}")
+            print("   Using fallback briefing")
 
-    # 4. Format todos as YAML list
-    todos_yaml = "\n".join([f"  {todo}" for todo in todos_list])
+    # 4. Build markdown using Jinja2 template
+    content = render_daily_log(
+        date_str=date_str,
+        workout_type=ai_response.get('workout_type', 'recovery'),
+        planned_workout=ai_response.get('planned_workout', 'No workout scheduled'),
+        briefing=ai_response.get('briefing', 'Execute protocol as planned.'),
+        todos=ai_response.get('todos', ['- [ ] Review today\'s protocol']),
+        include_strength_log=ai_response.get('include_strength_log', False),
+        cardio_activities=ai_response.get('cardio_activities', []),
+    )
 
-    # 5. Load template and inject data
-    with open(os.path.join(TEMPLATE_DIR, "daily_log.md"), "r", encoding='utf-8') as t:
-        content = t.read()
-
-    # Inject all placeholders
-    content = content.replace("{{date:YYYY-MM-DD}}", date_str)
-    content = content.replace("{{plan_desc}}", mission.get('desc', 'Active Recovery'))
-    content = content.replace("{{daily_briefing}}", briefing)
-    content = content.replace("{{todos}}", todos_yaml)
-
-    # 6. Create folder and write file
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-
+    # 5. Write file (no folder creation needed)
     with open(file_path, "w", encoding='utf-8') as f:
         f.write(content)
 
-    print(f"\n✅ Generated log: {file_path}")
-    print(f"\n📝 Summary:")
-    print(f"   - Protocol: {mission.get('type')} - {mission.get('desc')}")
-    print(f"   - AI Briefing: {briefing[:80]}...")
-    print(f"   - Todos: {len(todos_list)} items")
+    # 6. Print summary
+    workout_type = ai_response.get('workout_type', 'recovery')
+    planned_workout = ai_response.get('planned_workout', '')
+    briefing = ai_response.get('briefing', '')
+    todos = ai_response.get('todos', [])
+    include_strength = ai_response.get('include_strength_log', False)
+    cardio = ai_response.get('cardio_activities', [])
+
+    print(f"\nGenerated log: {file_path}")
+    print("\nSummary:")
+    print(f"   - Type: {workout_type}")
+    print(f"   - Workout: {planned_workout[:50]}...")
+    print(f"   - Briefing: {briefing[:50]}...")
+    print(f"   - Todos: {len(todos)} items")
+    print(f"   - Sections: {'Strength ' if include_strength else ''}{', '.join(cardio) if cardio else 'None'}")
 
 
 if __name__ == "__main__":
