@@ -4,26 +4,30 @@ title = "Ryan Galliher"
 theme = "PaperMod"
 
 [params]
-    defaultTheme = "dark"
+    defaultTheme = "light"
+    disableThemeToggle = true
     # Profile Mode settings (The Homepage)
     [params.profileMode]
         enabled = true
-        title = "Hi, I'm Ryan Galliher"
-        subtitle = "This my life's data. Feel free to copy it!"
+        title = "Hi, I'm Ryan"
+        subtitle = "and I'm designing my future self"
         imageUrl = "/images/profile.png"
         imageTitle = "Human Subject"
-        imageWidth = 150
-        imageHeight = 150
+        imageWidth = 175
+        imageHeight = 175
 
         # Friendly Buttons
         [[params.profileMode.buttons]]
-            name = "🌊 Read the Journey"
+            name = "the past self"
             url = "/logs"
 
         [[params.profileMode.buttons]]
-            name = "🤖 See the AI Analysis"
+            name = "the progress over time"
             url = "/ai-logs" # You can filter tags later
-
+        
+        [[params.profileMode.buttons]]
+            name = "wait what is this?"
+            url = "/about"
 [params.homeInfoParams]
     Title = "N=1"
     Content = "Welcome to the experiment."
