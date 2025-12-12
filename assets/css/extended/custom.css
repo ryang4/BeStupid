@@ -1,0 +1,65 @@
+:root {
+    --theme: #1a1f3c;           /* Navy blue background */
+    --entry: #242a4a;           /* Slightly lighter navy for cards */
+    --primary: #ffffff;         /* White text */
+    --secondary: #e0e0e0;       /* Light gray for secondary text */
+    --tertiary: #2a3158;        /* Borders/dividers */
+    --content: #ffffff;         /* Main content text */
+    --code-bg: #0d1117;         /* Code block background */
+    --border: #3a4168;          /* Border color */
+}
+
+.dark {
+    --theme: #0f1225;           /* Darker navy for dark mode */
+    --entry: #1a1f3c;
+    --primary: #ffffff;
+    --secondary: #c0c0c0;
+    --tertiary: #242a4a;
+    --content: #ffffff;
+    --code-bg: #0d1117;
+    --border: #2a3158;
+}
+
+/* Force all links to white */
+a {
+    color: #ffffff !important;
+}
+
+a:hover {
+    color: #e0e0e0 !important;
+}
+
+/* Header/nav links */
+.nav a,
+#menu a,
+.logo a {
+    color: #ffffff !important;
+}
+
+/* Button styling */
+button,
+.button,
+.btn {
+    color: #ffffff !important;
+    background-color: #2a3158 !important;
+    border-color: #3a4168 !important;
+}
+
+/* Post titles */
+.post-title,
+.entry-title,
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+}
+
+/* Social icons */
+.social-icons a {
+    color: #ffffff !important;
+}
+
+/* Profile mode text */
+.profile .profile_inner h1,
+.profile .profile_inner h2,
+.profile .profile_inner .buttons a {
+    color: #ffffff !important;
+}
