@@ -21,8 +21,9 @@ tags: ["log"]
 | **Weight (lbs)** | 0 | |
 | **Sleep Hours** | 0 | |
 | **Sleep Quality** | 0 | 1-10 |
-| **Morning Mood** |   | 1-10  |
-| **Bedtime Mood** |  5  |     |
+| **Diet Score** | 0 | 1-10 |
+| **Compliance** | 100 | 0-100% |
+| **Outside (min)** | 0 | Sunlight |
 
 {% if has_cardio %}
 ## Training Output
