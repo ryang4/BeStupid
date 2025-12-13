@@ -5,6 +5,8 @@
 .env
 .env.*
 scripts/.env
+scripcts/__pycache__/*
+__pycache__/*
 
 # Snyk Security Extension - AI Rules (auto-generated)
 .github/instructions/snyk_rules.instructions.md
