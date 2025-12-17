@@ -442,3 +442,51 @@ CRITICAL RULES:
             "include_strength_log": False,
             "cardio_activities": []
         }
+
+
+def estimate_macros(fuel_log_text):
+    """
+    Estimate calories and macros from a fuel log description.
+
+    Args:
+        fuel_log_text: Free-text description of food consumed
+
+    Returns:
+        dict with keys: calories, protein_g, carbs_g, fat_g
+        Returns None if estimation fails
+    """
+    prompt = f"""Analyze this food log and estimate the total daily macronutrients.
+Return ONLY a JSON object with these exact keys:
+{{"calories": <int>, "protein_g": <int>, "carbs_g": <int>, "fat_g": <int>}}
+
+Be reasonable with estimates - use typical portion sizes if not specified.
+
+Food log:
+{fuel_log_text}"""
+
+    messages = [{"role": "user", "content": prompt}]
+
+    try:
+        response = call_llm(messages, format_json=True)
+
+        # Clean the response - handle markdown code fences
+        cleaned = response.strip()
+        if cleaned.startswith("```"):
+            cleaned = re.sub(r'^```(?:json)?\s*\n?', '', cleaned)
+            cleaned = re.sub(r'\n?```\s*$', '', cleaned)
+
+        # Extract JSON object
+        json_match = re.search(r'\{[\s\S]*\}', cleaned)
+        if json_match:
+            cleaned = json_match.group()
+
+        data = json.loads(cleaned)
+        return {
+            "calories": int(data.get("calories", 0)),
+            "protein_g": int(data.get("protein_g", data.get("protein", 0))),
+            "carbs_g": int(data.get("carbs_g", data.get("carbs", 0))),
+            "fat_g": int(data.get("fat_g", data.get("fat", 0)))
+        }
+    except (json.JSONDecodeError, RuntimeError) as e:
+        print(f"⚠️  Macro estimation failed: {e}")
+        return None

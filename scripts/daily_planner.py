@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
-from llm_client import generate_daily_briefing
+from llm_client import generate_daily_briefing, estimate_macros
 from template_renderer import render_daily_log
 
 # CONFIGURATION
@@ -117,6 +117,59 @@ def read_last_n_days(n=3):
     return logs
 
 
+def get_yesterday_macros():
+    """
+    Read yesterday's log and estimate macros from the Fuel Log section.
+
+    Returns:
+        dict with keys: calories, protein_g, carbs_g, fat_g
+        Returns None if no fuel log found or estimation fails
+    """
+    yesterday = datetime.now() - timedelta(days=1)
+    date_str = yesterday.strftime("%Y-%m-%d")
+    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
+
+    if not os.path.exists(log_path):
+        print(f"   No log found for yesterday ({date_str})")
+        return None
+
+    try:
+        post = frontmatter.load(log_path)
+        content = post.content
+
+        # Extract Fuel Log section
+        if "## Fuel Log" not in content:
+            print(f"   No Fuel Log section in yesterday's log")
+            return None
+
+        # Get text between "## Fuel Log" and next "##" or end
+        fuel_start = content.index("## Fuel Log") + len("## Fuel Log")
+        remaining = content[fuel_start:]
+
+        # Find the next section header
+        next_section = remaining.find("\n## ")
+        if next_section != -1:
+            fuel_text = remaining[:next_section].strip()
+        else:
+            fuel_text = remaining.strip()
+
+        # Skip if it's just the placeholder text
+        if fuel_text.startswith("*Describe your food"):
+            print(f"   Fuel Log not filled in for yesterday")
+            return None
+
+        if len(fuel_text) < 10:
+            print(f"   Fuel Log too short to analyze")
+            return None
+
+        print(f"Estimating macros for yesterday ({date_str})...")
+        return estimate_macros(fuel_text)
+
+    except Exception as e:
+        print(f"⚠️  Error reading yesterday's log: {e}")
+        return None
+
+
 def create_daily_log():
     """
     Generate today's daily log with AI-powered briefing and dynamic sections.
@@ -134,6 +187,25 @@ def create_daily_log():
         return
 
     print(f"Generating log for {date_str} ({day_name})...")
+
+    # 0. Extract and save yesterday's metrics (non-blocking)
+    print("Extracting yesterday's metrics...")
+    try:
+        from metrics_extractor import extract_and_save_yesterday
+        metrics = extract_and_save_yesterday()
+        if metrics:
+            print(f"   Saved metrics for {metrics['date']}")
+        else:
+            print("   No metrics extracted (missing data or first day)")
+    except Exception as e:
+        print(f"   Warning: Metrics extraction failed: {e}")
+        # Continue - never block log generation
+
+    # 1. Get yesterday's macro estimates
+    print("Checking yesterday's fuel log...")
+    yesterday_macros = get_yesterday_macros()
+    if yesterday_macros:
+        print(f"   Estimated: {yesterday_macros['calories']} cal, {yesterday_macros['protein_g']}g protein")
 
     # 1. Get full weekly protocol
     print("Reading weekly protocol...")
@@ -182,6 +254,7 @@ def create_daily_log():
         todos=ai_response.get('todos', ['- [ ] Review today\'s protocol']),
         include_strength_log=ai_response.get('include_strength_log', False),
         cardio_activities=ai_response.get('cardio_activities', []),
+        yesterday_macros=yesterday_macros,
     )
 
     # 5. Write file (no folder creation needed)

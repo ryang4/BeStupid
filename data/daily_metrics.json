@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "entries": [
+    {
+      "date": "2025-12-15",
+      "extracted_at": "2025-12-16T20:17:19.620475",
+      "sleep": {
+        "hours": 6.5,
+        "quality": 5.5
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 3.0,
+        "bedtime": 5.0
+      },
+      "training": {
+        "workout_type": "recovery",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 14,
+        "completed": 6,
+        "completion_rate": 0.43
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null
+      },
+      "extraction_notes": []
+    }
+  ],
+  "last_updated": "2025-12-16T20:17:19.623970"
+}

@@ -15,7 +15,13 @@
       "Bash(uv run:*)",
       "Bash(ollama list:*)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(python metrics_extractor.py:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(where uv)",
+      "Bash(del nul)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

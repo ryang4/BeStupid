@@ -10,6 +10,13 @@ tags: ["log"]
 ## Daily Briefing
 {{ briefing }}
 
+{% if yesterday_macros %}
+## Yesterday's Nutrition (AI Estimate)
+| Calories | Protein | Carbs | Fat |
+|----------|---------|-------|-----|
+| {{ yesterday_macros.calories }} | {{ yesterday_macros.protein_g }}g | {{ yesterday_macros.carbs_g }}g | {{ yesterday_macros.fat_g }}g |
+{% endif %}
+
 ## Today's Todos
 {{ todos_markdown }}
 
