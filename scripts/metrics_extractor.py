@@ -11,6 +11,7 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 import frontmatter
+from llm_client import estimate_macros
 
 
 # Configuration
@@ -143,18 +144,31 @@ def parse_training_value(value: str) -> tuple[Optional[float], Optional[int]]:
     if "/" in value:
         parts = value.split("/")
         try:
-            distance = float(parts[0])
+            # Remove non-numeric characters (except decimal point) from distance
+            # e.g., "750m" -> "750", "4.5mi" -> "4.5"
+            distance_str = re.sub(r'[^\d.]', '', parts[0])
+            distance = float(distance_str) if distance_str else None
         except ValueError:
             distance = None
 
-        # Duration could be "20" (minutes) or "1:15" (h:mm)
+        # Duration could be "20" (minutes) or "1:15" (h:mm) or "33:39" (mm:ss)
         duration_str = parts[1] if len(parts) > 1 else ""
         duration = None
         if duration_str:
             if ":" in duration_str:
                 try:
-                    h, m = duration_str.split(":")
-                    duration = int(h) * 60 + int(m)
+                    first, second = duration_str.split(":")
+                    first_val = int(first)
+                    second_val = int(second)
+
+                    # Heuristic: if first part >= 10, treat as MM:SS, else HH:MM
+                    # (e.g., "33:39" = 33min 39sec, but "1:15" = 1hr 15min)
+                    if first_val >= 10:
+                        # MM:SS format - convert to decimal minutes
+                        duration = first_val + round(second_val / 60, 2)
+                    else:
+                        # HH:MM format - convert to minutes
+                        duration = first_val * 60 + second_val
                 except ValueError:
                     pass
             else:
@@ -331,6 +345,41 @@ def extract_workout_type_from_title(content: str) -> str:
     return ""
 
 
+def extract_fuel_log(content: str) -> Optional[str]:
+    """
+    Extract the Fuel Log section from daily log content.
+
+    Returns:
+        str: Fuel log text, or None if not found or empty
+    """
+    # Find Fuel Log section
+    if "## Fuel Log" not in content:
+        return None
+
+    # Get text between "## Fuel Log" and next "##" or end
+    fuel_start = content.index("## Fuel Log") + len("## Fuel Log")
+    remaining = content[fuel_start:]
+
+    # Find the next section header
+    next_section = remaining.find("\n## ")
+    if next_section != -1:
+        fuel_text = remaining[:next_section].strip()
+    else:
+        fuel_text = remaining.strip()
+
+    # Remove the placeholder line if it exists
+    if fuel_text.startswith("*Describe your food"):
+        # Remove the placeholder line and get the actual content
+        lines = fuel_text.split('\n', 1)
+        fuel_text = lines[1].strip() if len(lines) > 1 else ""
+
+    # Skip if too short to analyze
+    if len(fuel_text) < 10:
+        return None
+
+    return fuel_text
+
+
 def extract_daily_metrics(date_str: str) -> Optional[dict]:
     """
     Extract all metrics from a single day's log file.
@@ -392,13 +441,41 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
         notes.append(f"Todo parsing failed: {e}")
         result["todos"] = {"total": 0, "completed": 0, "completion_rate": 0}
 
-    # Nutrition placeholder - will be filled by estimate_macros if available
-    result["nutrition"] = {
-        "calories": None,
-        "protein_g": None,
-        "carbs_g": None,
-        "fat_g": None
-    }
+    # Extract and estimate nutrition from Fuel Log
+    try:
+        fuel_log = extract_fuel_log(content)
+        if fuel_log:
+            macros = estimate_macros(fuel_log)
+            if macros:
+                # estimate_macros returns: calories, protein_g, carbs_g, fat_g, line_items
+                result["nutrition"] = macros
+            else:
+                result["nutrition"] = {
+                    "calories": None,
+                    "protein_g": None,
+                    "carbs_g": None,
+                    "fat_g": None,
+                    "line_items": []
+                }
+                notes.append("Fuel log found but macro estimation failed")
+        else:
+            result["nutrition"] = {
+                "calories": None,
+                "protein_g": None,
+                "carbs_g": None,
+                "fat_g": None,
+                "line_items": []
+            }
+            notes.append("No fuel log found")
+    except Exception as e:
+        notes.append(f"Nutrition parsing failed: {e}")
+        result["nutrition"] = {
+            "calories": None,
+            "protein_g": None,
+            "carbs_g": None,
+            "fat_g": None,
+            "line_items": []
+        }
 
     result["extraction_notes"] = notes
 

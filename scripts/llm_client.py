@@ -452,14 +452,35 @@ def estimate_macros(fuel_log_text):
         fuel_log_text: Free-text description of food consumed
 
     Returns:
-        dict with keys: calories, protein_g, carbs_g, fat_g
+        dict with keys:
+            - calories, protein_g, carbs_g, fat_g (summary totals)
+            - line_items: array of individual food items with their macros
         Returns None if estimation fails
     """
-    prompt = f"""Analyze this food log and estimate the total daily macronutrients.
-Return ONLY a JSON object with these exact keys:
-{{"calories": <int>, "protein_g": <int>, "carbs_g": <int>, "fat_g": <int>}}
+    prompt = f"""Analyze this food log and estimate macronutrients for each food item AND the total.
+
+Return ONLY a JSON object with this exact structure:
+{{
+  "total": {{
+    "calories": <int>,
+    "protein_g": <int>,
+    "carbs_g": <int>,
+    "fat_g": <int>
+  }},
+  "line_items": [
+    {{
+      "food": "<description of food item>",
+      "time": "<time if mentioned, else null>",
+      "calories": <int>,
+      "protein_g": <int>,
+      "carbs_g": <int>,
+      "fat_g": <int>
+    }}
+  ]
+}}
 
 Be reasonable with estimates - use typical portion sizes if not specified.
+Parse each line as a separate food item.
 
 Food log:
 {fuel_log_text}"""
@@ -481,11 +502,17 @@ Food log:
             cleaned = json_match.group()
 
         data = json.loads(cleaned)
+
+        # Extract totals
+        total = data.get("total", {})
+        line_items = data.get("line_items", [])
+
         return {
-            "calories": int(data.get("calories", 0)),
-            "protein_g": int(data.get("protein_g", data.get("protein", 0))),
-            "carbs_g": int(data.get("carbs_g", data.get("carbs", 0))),
-            "fat_g": int(data.get("fat_g", data.get("fat", 0)))
+            "calories": int(total.get("calories", 0)),
+            "protein_g": int(total.get("protein_g", total.get("protein", 0))),
+            "carbs_g": int(total.get("carbs_g", total.get("carbs", 0))),
+            "fat_g": int(total.get("fat_g", total.get("fat", 0))),
+            "line_items": line_items
         }
     except (json.JSONDecodeError, RuntimeError) as e:
         print(f"⚠️  Macro estimation failed: {e}")

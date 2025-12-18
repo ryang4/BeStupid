@@ -30,7 +30,144 @@
         "fat_g": null
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2025-12-16",
+      "extracted_at": "2025-12-17T18:45:06.504563",
+      "sleep": {
+        "hours": 6.13,
+        "quality": 7.4
+      },
+      "weight_lbs": 244.0,
+      "mood": {
+        "morning": 5.0,
+        "bedtime": 6.0
+      },
+      "training": {
+        "workout_type": "swim",
+        "activities": [
+          {
+            "type": "swim",
+            "distance": 750.0,
+            "distance_unit": "m",
+            "duration_minutes": 33.65,
+            "avg_hr": 117,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 7,
+        "completion_rate": 1.0
+      },
+      "nutrition": {
+        "calories": 2720,
+        "protein_g": 85,
+        "carbs_g": 380,
+        "fat_g": 120,
+        "line_items": [
+          {
+            "food": "4.5 trader joes toffee nut bars",
+            "time": "12pm",
+            "calories": 450,
+            "protein_g": 6,
+            "carbs_g": 54,
+            "fat_g": 27
+          },
+          {
+            "food": "4 eggs and 2 thin sliced whole wheat bread with guac",
+            "time": "10am",
+            "calories": 450,
+            "protein_g": 28,
+            "carbs_g": 34,
+            "fat_g": 24
+          },
+          {
+            "food": "3 servings tollhouse pita chips",
+            "time": "12pm",
+            "calories": 450,
+            "protein_g": 6,
+            "carbs_g": 60,
+            "fat_g": 24
+          },
+          {
+            "food": "Trader joes multi grain bread with 50g peanut butter and 30g raspberry jam",
+            "time": null,
+            "calories": 500,
+            "protein_g": 15,
+            "carbs_g": 55,
+            "fat_g": 28
+          },
+          {
+            "food": "More coffee",
+            "time": "1pm",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "Trader joes apple cider",
+            "time": "5pm",
+            "calories": 120,
+            "protein_g": 0,
+            "carbs_g": 30,
+            "fat_g": 0
+          },
+          {
+            "food": "1 chicken breast",
+            "time": "6pm",
+            "calories": 220,
+            "protein_g": 35,
+            "carbs_g": 0,
+            "fat_g": 5
+          },
+          {
+            "food": "spaghetti noodles with sauce, two servings",
+            "time": "6pm",
+            "calories": 600,
+            "protein_g": 20,
+            "carbs_g": 120,
+            "fat_g": 10
+          },
+          {
+            "food": "8 asparagus",
+            "time": null,
+            "calories": 64,
+            "protein_g": 5,
+            "carbs_g": 12,
+            "fat_g": 1
+          },
+          {
+            "food": "Tea",
+            "time": "10pm",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "1 cup of bean stew",
+            "time": "11:59pm",
+            "calories": 250,
+            "protein_g": 15,
+            "carbs_g": 40,
+            "fat_g": 6
+          },
+          {
+            "food": "10 potato chips",
+            "time": "11:59pm",
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 15,
+            "fat_g": 10
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2025-12-16T20:17:19.623970"
+  "last_updated": "2025-12-17T18:45:29.823023"
 }
