@@ -10,13 +10,6 @@ tags: ["log"]
 ## Daily Briefing
 {{ briefing }}
 
-{% if yesterday_macros %}
-## Yesterday's Nutrition (AI Estimate)
-| Calories | Protein | Carbs | Fat |
-|----------|---------|-------|-----|
-| {{ yesterday_macros.calories }} | {{ yesterday_macros.protein_g }}g | {{ yesterday_macros.carbs_g }}g | {{ yesterday_macros.fat_g }}g |
-{% endif %}
-
 ## Today's Todos
 {{ todos_markdown }}
 
@@ -63,5 +56,3 @@ tags: ["log"]
 ## Daily Reflection
 *What is one thing you learned today, one thing went well, and one thing that went poorly*
 
-## The Narrative
-*Write about three things you DID today that are not recorded above. One interaction with a human and one place you went.*

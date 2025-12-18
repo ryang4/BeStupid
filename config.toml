@@ -22,8 +22,8 @@ theme = "PaperMod"
             url = "/logs"
 
         [[params.profileMode.buttons]]
-            name = "the progress over time"
-            url = "/ai-logs" # You can filter tags later
+            name = "the metrics"
+            url = "/metrics"
         
         [[params.profileMode.buttons]]
             name = "wait what is this?"

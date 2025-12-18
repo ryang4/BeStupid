@@ -1,0 +1,724 @@
+{{- define "main" }}
+
+<header class="page-header">
+  <h1>{{ .Title }}</h1>
+  {{- if .Content }}
+  <div class="post-description">
+    {{ .Content }}
+  </div>
+  {{- end }}
+</header>
+
+<div class="metrics-container">
+  <div id="charts-container">
+
+    <!-- Sleep Chart -->
+    <div class="chart-wrapper">
+      <h2>Sleep Metrics</h2>
+      <div class="chart-container">
+        <canvas id="sleepChart" role="img" aria-label="Sleep metrics chart showing hours and quality over time"></canvas>
+      </div>
+    </div>
+
+    <!-- Weight Chart -->
+    <div class="chart-wrapper">
+      <h2>Weight Tracking</h2>
+      <div class="chart-container">
+        <canvas id="weightChart" role="img" aria-label="Weight tracking chart showing weight in pounds over time"></canvas>
+      </div>
+    </div>
+
+    <!-- Mood Chart -->
+    <div class="chart-wrapper">
+      <h2>Daily Mood</h2>
+      <div class="chart-container">
+        <canvas id="moodChart" role="img" aria-label="Daily mood chart showing morning and bedtime mood scores"></canvas>
+      </div>
+    </div>
+
+    <!-- Todos Chart -->
+    <div class="chart-wrapper">
+      <h2>Task Completion Rate</h2>
+      <div class="chart-container">
+        <canvas id="todosChart" role="img" aria-label="Task completion rate chart showing percentage over time"></canvas>
+      </div>
+    </div>
+
+    <!-- Nutrition Chart -->
+    <div class="chart-wrapper">
+      <h2>Macronutrients</h2>
+      <div class="chart-container">
+        <canvas id="nutritionChart" role="img" aria-label="Macronutrients chart showing protein, carbs, and fat in grams"></canvas>
+      </div>
+    </div>
+
+    <!-- Training Chart -->
+    <div class="chart-wrapper">
+      <h2>Training Volume</h2>
+      <div class="chart-container">
+        <canvas id="trainingChart" role="img" aria-label="Training volume chart showing distance covered per day"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  /* Metrics-specific styles */
+  .metrics-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  #charts-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-top: 30px;
+  }
+
+  .chart-wrapper {
+    background: var(--entry);
+    border: 1px solid rgba(58, 65, 104, 0.4);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.12),
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 8px 24px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .chart-wrapper:hover {
+    border-color: rgba(58, 65, 104, 0.6);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.16),
+      0 8px 16px rgba(0, 0, 0, 0.12),
+      0 16px 32px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+
+  .chart-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1) 50%, transparent);
+    border-radius: 12px 12px 0 0;
+  }
+
+  .chart-wrapper h2 {
+    margin: 0 0 24px 0;
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .chart-wrapper h2::before {
+    content: '';
+    width: 3px;
+    height: 20px;
+    background: linear-gradient(180deg, #4dabf7, #339af0);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 340px;
+    width: 100%;
+  }
+
+  /* Responsive grid: 2 columns on larger screens */
+  @media (min-width: 768px) {
+    #charts-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Full width for nutrition and training charts */
+    .chart-wrapper:nth-child(5),  /* Nutrition */
+    .chart-wrapper:nth-child(6) { /* Training */
+      grid-column: 1 / -1;
+    }
+
+    .chart-wrapper:nth-child(5) .chart-container,
+    .chart-wrapper:nth-child(6) .chart-container {
+      height: 380px;
+    }
+  }
+
+  /* Tablet optimization */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .chart-container {
+      height: 320px;
+    }
+
+    .chart-wrapper {
+      padding: 24px;
+    }
+
+    .chart-wrapper:nth-child(5) .chart-container,
+    .chart-wrapper:nth-child(6) .chart-container {
+      height: 360px;
+    }
+  }
+
+  /* Mobile optimization */
+  @media (max-width: 767px) {
+    .metrics-container {
+      padding: 12px;
+    }
+
+    .chart-wrapper {
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .chart-wrapper h2 {
+      font-size: 1.15em;
+      margin-bottom: 16px;
+    }
+
+    .chart-container {
+      height: 280px;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Hugo embeds data at build time
+    const metricsData = JSON.parse({{ .Site.Data.daily_metrics | jsonify }});
+
+    // Sort by date ascending
+    const entries = metricsData.entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const dates = entries.map(e => e.date);
+
+    // Common chart options matching navy blue theme
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: {
+        duration: 750,
+        easing: 'easeInOutQuart'
+      },
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            color: '#e0e0e0',
+            font: {
+              size: 11,
+              family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              weight: '500'
+            },
+            boxWidth: 12,
+            boxHeight: 12,
+            borderRadius: 2,
+            padding: 12,
+            usePointStyle: false
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(20, 25, 50, 0.95)',
+          titleColor: '#ffffff',
+          bodyColor: '#e0e0e0',
+          borderColor: 'rgba(58, 65, 104, 0.5)',
+          borderWidth: 1,
+          titleFont: { size: 12, weight: '600' },
+          bodyFont: { size: 11, weight: '400' },
+          padding: 12,
+          cornerRadius: 6,
+          boxWidth: 8,
+          boxHeight: 8,
+          boxPadding: 6,
+          caretSize: 6,
+          caretPadding: 8,
+          callbacks: {
+            title: function(context) {
+              const date = new Date(context[0].label);
+              return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              });
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: '#a0a0a0',
+            font: { size: 10 }
+          },
+          grid: {
+            color: 'rgba(58, 65, 104, 0.2)',
+            lineWidth: 1,
+            drawBorder: false
+          }
+        },
+        y: {
+          ticks: {
+            color: '#a0a0a0',
+            font: { size: 10 },
+            padding: 8
+          },
+          grid: {
+            color: 'rgba(58, 65, 104, 0.2)',
+            lineWidth: 1,
+            drawBorder: false
+          }
+        }
+      }
+    };
+
+    // 1. Sleep Chart
+    new Chart(document.getElementById('sleepChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Hours',
+            data: entries.map(e => e.sleep?.hours),
+            borderColor: '#4dabf7',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(77, 171, 247, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(77, 171, 247, 0.2)');
+              gradient.addColorStop(1, 'rgba(77, 171, 247, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#4dabf7',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          },
+          {
+            label: 'Quality (1-10)',
+            data: entries.map(e => e.sleep?.quality),
+            borderColor: '#748ffc',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(116, 143, 252, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(116, 143, 252, 0.2)');
+              gradient.addColorStop(1, 'rgba(116, 143, 252, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#748ffc',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        plugins: {
+          ...commonOptions.plugins,
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            callbacks: {
+              ...commonOptions.plugins.tooltip.callbacks,
+              label: function(context) {
+                return context.dataset.label + ': ' + (context.parsed.y?.toFixed(1) || 'N/A');
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 2. Weight Chart
+    new Chart(document.getElementById('weightChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Weight (lbs)',
+          data: entries.map(e => e.weight_lbs),
+          borderColor: '#51cf66',
+          borderWidth: 2.5,
+          borderCapStyle: 'round',
+          borderJoinStyle: 'round',
+          backgroundColor: function(context) {
+            const chart = context.chart;
+            const {ctx, chartArea} = chart;
+            if (!chartArea) return 'rgba(81, 207, 102, 0.1)';
+            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(81, 207, 102, 0.2)');
+            gradient.addColorStop(1, 'rgba(81, 207, 102, 0.0)');
+            return gradient;
+          },
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#51cf66',
+          pointBorderWidth: 2,
+          pointHoverBorderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          spanGaps: true
+        }]
+      },
+      options: commonOptions
+    });
+
+    // 3. Mood Chart
+    new Chart(document.getElementById('moodChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Morning Mood',
+            data: entries.map(e => e.mood?.morning),
+            borderColor: '#ffc107',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(255, 193, 7, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(255, 193, 7, 0.2)');
+              gradient.addColorStop(1, 'rgba(255, 193, 7, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#ffc107',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          },
+          {
+            label: 'Bedtime Mood',
+            data: entries.map(e => e.mood?.bedtime),
+            borderColor: '#ff9500',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(255, 149, 0, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(255, 149, 0, 0.2)');
+              gradient.addColorStop(1, 'rgba(255, 149, 0, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#ff9500',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            min: 0,
+            max: 10,
+            ticks: { ...commonOptions.scales.y.ticks, stepSize: 1 }
+          }
+        }
+      }
+    });
+
+    // 4. Todos Chart (Completion Rate as Percentage)
+    new Chart(document.getElementById('todosChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Completion Rate (%)',
+          data: entries.map(e => e.todos?.completion_rate ? e.todos.completion_rate * 100 : null),
+          borderColor: '#8b5cf6',
+          borderWidth: 2.5,
+          borderCapStyle: 'round',
+          borderJoinStyle: 'round',
+          backgroundColor: function(context) {
+            const chart = context.chart;
+            const {ctx, chartArea} = chart;
+            if (!chartArea) return 'rgba(139, 92, 246, 0.1)';
+            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(139, 92, 246, 0.2)');
+            gradient.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+            return gradient;
+          },
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#8b5cf6',
+          pointBorderWidth: 2,
+          pointHoverBorderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          spanGaps: true
+        }]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            min: 0,
+            max: 100,
+            ticks: {
+              ...commonOptions.scales.y.ticks,
+              callback: function(value) { return value + '%'; }
+            }
+          }
+        }
+      }
+    });
+
+    // 5. Nutrition Chart (Macronutrients)
+    new Chart(document.getElementById('nutritionChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Total Macros',
+            data: entries.map(e => {
+              const protein = e.nutrition?.protein_g || 0;
+              const carbs = e.nutrition?.carbs_g || 0;
+              const fat = e.nutrition?.fat_g || 0;
+              return protein + carbs + fat || null;
+            }),
+            borderColor: '#ff6b6b',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(255, 107, 107, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(255, 107, 107, 0.2)');
+              gradient.addColorStop(1, 'rgba(255, 107, 107, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#ff6b6b',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          },
+          {
+            label: 'Protein (g)',
+            data: entries.map(e => e.nutrition?.protein_g),
+            borderColor: '#4ecdc4',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(78, 205, 196, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(78, 205, 196, 0.2)');
+              gradient.addColorStop(1, 'rgba(78, 205, 196, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#4ecdc4',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          },
+          {
+            label: 'Carbs (g)',
+            data: entries.map(e => e.nutrition?.carbs_g),
+            borderColor: '#f9ca24',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(249, 202, 36, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(249, 202, 36, 0.2)');
+              gradient.addColorStop(1, 'rgba(249, 202, 36, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#f9ca24',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          },
+          {
+            label: 'Fat (g)',
+            data: entries.map(e => e.nutrition?.fat_g),
+            borderColor: '#e056fd',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(224, 86, 253, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(224, 86, 253, 0.2)');
+              gradient.addColorStop(1, 'rgba(224, 86, 253, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#e056fd',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            title: { display: true, text: 'Grams', color: '#ffffff' }
+          }
+        }
+      }
+    });
+
+    // 6. Training Chart (Total distance per day)
+    const trainingData = entries.map(e => {
+      if (!e.training?.activities || e.training.activities.length === 0) {
+        return null;
+      }
+      // Sum total distance, convert all to meters
+      return e.training.activities.reduce((sum, activity) => {
+        const distance = activity.distance || 0;
+        // Assuming distance_unit is 'm' or 'km'
+        const meters = activity.distance_unit === 'km' ? distance * 1000 : distance;
+        return sum + meters;
+      }, 0);
+    });
+
+    new Chart(document.getElementById('trainingChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Total Distance (meters)',
+          data: trainingData,
+          borderColor: '#339af0',
+          borderWidth: 2.5,
+          borderCapStyle: 'round',
+          borderJoinStyle: 'round',
+          backgroundColor: function(context) {
+            const chart = context.chart;
+            const {ctx, chartArea} = chart;
+            if (!chartArea) return 'rgba(51, 154, 240, 0.1)';
+            const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+            gradient.addColorStop(0, 'rgba(51, 154, 240, 0.2)');
+            gradient.addColorStop(1, 'rgba(51, 154, 240, 0.0)');
+            return gradient;
+          },
+          pointRadius: 3.5,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#339af0',
+          pointBorderWidth: 2,
+          pointHoverBorderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          spanGaps: true
+        }]
+      },
+      options: {
+        ...commonOptions,
+        plugins: {
+          ...commonOptions.plugins,
+          legend: {
+            display: false
+          },
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            callbacks: {
+              ...commonOptions.plugins.tooltip.callbacks,
+              afterLabel: function(context) {
+                const entry = entries[context.dataIndex];
+                if (entry.training?.workout_type) {
+                  return 'Type: ' + entry.training.workout_type;
+                }
+                return '';
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+
+{{- end }}{{/* end main */}}

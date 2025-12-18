@@ -167,7 +167,104 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2025-12-17",
+      "extracted_at": "2025-12-18T09:33:45.079910",
+      "sleep": {
+        "hours": 5.82,
+        "quality": 7.3
+      },
+      "weight_lbs": 249.0,
+      "mood": {
+        "morning": 5.0,
+        "bedtime": 5.0
+      },
+      "training": {
+        "workout_type": "brick",
+        "activities": [
+          {
+            "type": "bike",
+            "distance": 8.54,
+            "distance_unit": "mi",
+            "duration_minutes": 30.0,
+            "avg_hr": 116,
+            "avg_watts": null
+          },
+          {
+            "type": "run",
+            "distance": 1.45,
+            "distance_unit": "mi",
+            "duration_minutes": 20.0,
+            "avg_hr": 140,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 11,
+        "completed": 5,
+        "completion_rate": 0.45
+      },
+      "nutrition": {
+        "calories": 1846,
+        "protein_g": 96,
+        "carbs_g": 217,
+        "fat_g": 71,
+        "line_items": [
+          {
+            "food": "1 cup of Fage non-fat greek yogurth with 25 blueberries, wegmans high protein coconut and chocolate granola 50 grams, and 1 tsp honey",
+            "time": null,
+            "calories": 250,
+            "protein_g": 20,
+            "carbs_g": 40,
+            "fat_g": 5
+          },
+          {
+            "food": "lots of fuego takis, like 5 servings",
+            "time": null,
+            "calories": 750,
+            "protein_g": 10,
+            "carbs_g": 95,
+            "fat_g": 35
+          },
+          {
+            "food": "Two servings of spaghetti with tomato sauce and two chicken breasts",
+            "time": null,
+            "calories": 600,
+            "protein_g": 50,
+            "carbs_g": 70,
+            "fat_g": 10
+          },
+          {
+            "food": "3 cups of coffee before 11 am",
+            "time": "before 11 am",
+            "calories": 5,
+            "protein_g": 0,
+            "carbs_g": 1,
+            "fat_g": 0
+          },
+          {
+            "food": "3 trader joes nut covered toffee",
+            "time": null,
+            "calories": 210,
+            "protein_g": 3,
+            "carbs_g": 25,
+            "fat_g": 15
+          },
+          {
+            "food": "1 mandarin",
+            "time": null,
+            "calories": 31,
+            "protein_g": 0,
+            "carbs_g": 8,
+            "fat_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2025-12-17T18:45:29.823023"
+  "last_updated": "2025-12-18T09:34:11.854929"
 }

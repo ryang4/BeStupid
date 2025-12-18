@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Configs on Ryan Galliher</title>
-    <link>http://localhost:1313/config/</link>
+    <link>https://ryan-galliher.com/config/</link>
     <description>Recent content in Configs on Ryan Galliher</description>
     <generator>Hugo -- 0.152.2</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 27 Nov 2023 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/config/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://ryan-galliher.com/config/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Protocol 2023-W48: Base Building</title>
-      <link>http://localhost:1313/config/protocol_2025-12-08/</link>
+      <link>https://ryan-galliher.com/config/protocol_2025-12-08/</link>
       <pubDate>Mon, 27 Nov 2023 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/config/protocol_2025-12-08/</guid>
+      <guid>https://ryan-galliher.com/config/protocol_2025-12-08/</guid>
       <description>&lt;h2 id=&#34;-weekly-schedule&#34;&gt;📅 Weekly Schedule&lt;/h2&gt;
 &lt;table&gt;
   &lt;thead&gt;
@@ -56,10 +56,78 @@
 &lt;p&gt;&lt;strong&gt;Cardio Volume:&lt;/strong&gt;&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Protocol 2023-W01: Base Building</title>
+      <link>https://ryan-galliher.com/config/protocol_2025-12-15/</link>
+      <pubDate>Sun, 01 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>https://ryan-galliher.com/config/protocol_2025-12-15/</guid>
+      <description>&lt;h2 id=&#34;-weekly-schedule&#34;&gt;📅 Weekly Schedule&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Day&lt;/th&gt;
+          &lt;th&gt;Type&lt;/th&gt;
+          &lt;th&gt;Workout&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Monday&lt;/td&gt;
+          &lt;td&gt;Recovery&lt;/td&gt;
+          &lt;td&gt;Rest or light stretching/yoga (30 min)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Tuesday&lt;/td&gt;
+          &lt;td&gt;Swim&lt;/td&gt;
+          &lt;td&gt;800m swim with technique drills (focus on breathing and form)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Wednesday&lt;/td&gt;
+          &lt;td&gt;Bike&lt;/td&gt;
+          &lt;td&gt;30 min bike + 20 min run + content creation session (1 hour)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Thursday&lt;/td&gt;
+          &lt;td&gt;Strength&lt;/td&gt;
+          &lt;td&gt;Lower body: Deadlift 3x5, Squat 3x5, Leg Press 3x10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Friday&lt;/td&gt;
+          &lt;td&gt;Run&lt;/td&gt;
+          &lt;td&gt;4 miles easy run (HR &amp;lt;150)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Saturday&lt;/td&gt;
+          &lt;td&gt;Brick&lt;/td&gt;
+          &lt;td&gt;60 min indoor trainer, focus on cadence (85-95 RPM)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Sunday&lt;/td&gt;
+          &lt;td&gt;Long Run&lt;/td&gt;
+          &lt;td&gt;6 miles easy run (HR &amp;lt;150)&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;-training-goals&#34;&gt;🎯 Training Goals&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Establish a consistent swim routine focusing on technique&lt;/li&gt;
+&lt;li&gt;Build a solid cycling base with proper form and cadence&lt;/li&gt;
+&lt;li&gt;Maintain running endurance without increasing intensity&lt;/li&gt;
+&lt;li&gt;Preserve compound lift strength (300 lb deadlift, 225 lb squat)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;-startup-goals&#34;&gt;🚀 Startup Goals&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Complete core features of MVP by January 2026&lt;/li&gt;
+&lt;li&gt;Acquire 10 beta users by February 2026&lt;/li&gt;
+&lt;li&gt;Generate first $1 in revenue by February 2026&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;-weekly-targets&#34;&gt;📊 Weekly Targets&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Cardio Volume:&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
       <title></title>
-      <link>http://localhost:1313/config/ryan/</link>
+      <link>https://ryan-galliher.com/config/ryan/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/config/ryan/</guid>
+      <guid>https://ryan-galliher.com/config/ryan/</guid>
       <description>&lt;h1 id=&#34;-ai-agent-instructions&#34;&gt;🧠 AI AGENT INSTRUCTIONS&lt;/h1&gt;
 &lt;p&gt;Hi agent! Your job is to help me live the best version of my life. This repository contains the logs of my days in simple text format.&lt;/p&gt;
 &lt;h2 id=&#34;mission&#34;&gt;Mission&lt;/h2&gt;

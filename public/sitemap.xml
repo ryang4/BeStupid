@@ -2,35 +2,52 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/logs/2025-12-13/</loc>
+    <loc>https://ryan-galliher.com/logs/2025-12-17/</loc>
+    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/tags/log/</loc>
+    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/</loc>
+    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/</loc>
+    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/tags/</loc>
+    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-16/</loc>
+    <lastmod>2025-12-16T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-15/</loc>
+    <lastmod>2025-12-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-14/</loc>
+    <lastmod>2025-12-14T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-13/</loc>
     <lastmod>2025-12-13T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/log/</loc>
-    <lastmod>2025-12-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/logs/</loc>
-    <lastmod>2025-12-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/</loc>
-    <lastmod>2025-12-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/tags/</loc>
-    <lastmod>2025-12-13T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:1313/logs/2025-12-12/</loc>
+    <loc>https://ryan-galliher.com/logs/2025-12-12/</loc>
     <lastmod>2025-12-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/config/</loc>
+    <loc>https://ryan-galliher.com/config/</loc>
     <lastmod>2023-11-27T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/protocol/</loc>
+    <loc>https://ryan-galliher.com/tags/protocol/</loc>
     <lastmod>2023-11-27T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/config/protocol_2025-12-08/</loc>
+    <loc>https://ryan-galliher.com/config/protocol_2025-12-08/</loc>
     <lastmod>2023-11-27T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/config/ryan/</loc>
+    <loc>https://ryan-galliher.com/config/protocol_2025-12-15/</loc>
+    <lastmod>2023-01-01T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>https://ryan-galliher.com/config/ryan/</loc>
+  </url><url>
+    <loc>https://ryan-galliher.com/categories/</loc>
+  </url><url>
+    <loc>https://ryan-galliher.com/metrics/</loc>
   </url>
 </urlset>

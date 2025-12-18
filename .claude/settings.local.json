@@ -24,7 +24,8 @@
       "Bash(dir:*)",
       "Bash(git config:*)",
       "Bash(python scripts/metrics_extractor.py:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

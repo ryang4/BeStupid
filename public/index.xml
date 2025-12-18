@@ -6,8 +6,345 @@
     <description>Recent content on Ryan Galliher</description>
     <generator>Hugo -- 0.152.2</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 13 Dec 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 17 Dec 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>2025-12-17: [Brick Day]</title>
+      <link>http://localhost:1313/logs/2025-12-17/</link>
+      <pubDate>Wed, 17 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-17/</guid>
+      <description>&lt;h2 id=&#34;planned-workout&#34;&gt;Planned Workout&lt;/h2&gt;
+&lt;p&gt;30 min bike + 20 min run + content creation session (1 hour)&lt;/p&gt;
+&lt;h2 id=&#34;daily-briefing&#34;&gt;Daily Briefing&lt;/h2&gt;
+&lt;p&gt;Your sleep has been consistently below 7 hours over the past few days, indicating fatigue. Focus on maintaining a steady pace and form during the bike and run. Hydrate well before and after the session.&lt;/p&gt;
+&lt;h2 id=&#34;todays-todos&#34;&gt;Today&amp;rsquo;s Todos&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Complete 30 minutes of indoor cycling at 85-95 RPM&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Complete 20 minutes of easy running (HR &amp;lt;150)&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Hydrate well before and after the session&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Stretch for 10 minutes post-workout, focusing on quads and calves&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Write a short reflection on the brick workout and how it felt&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Review and update the MVP feature list for today&amp;rsquo;s deep work session&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Allocate 2 hours for deep work on the MVP core features&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Review GTM and free trial strategy, create diagram&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Coding agent is running in browser for linting. 2 days left to get this done, time to grind.&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Write 100 words&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Film content whenever you workout or think of something.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;daily-stats&#34;&gt;Daily Stats&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;249&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5:49&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;7.3&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Morning Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bedtime Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;training-output&#34;&gt;Training Output&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bike (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;8.54/30:00&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;116&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1.45/20:00&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;140&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;fuel-log&#34;&gt;Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>2025-12-16: [Swim Day]</title>
+      <link>http://localhost:1313/logs/2025-12-16/</link>
+      <pubDate>Tue, 16 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-16/</guid>
+      <description>&lt;h2 id=&#34;planned-workout&#34;&gt;Planned Workout&lt;/h2&gt;
+&lt;p&gt;800m swim with technique drills (focus on breathing and form)&lt;/p&gt;
+&lt;h2 id=&#34;daily-briefing&#34;&gt;Daily Briefing&lt;/h2&gt;
+&lt;p&gt;Your sleep has been consistently below 7 hours over the past few days, indicating fatigue. Focus on technique and form during today&amp;rsquo;s swim, and avoid pushing too hard.&lt;/p&gt;
+&lt;h2 id=&#34;todays-todos&#34;&gt;Today&amp;rsquo;s Todos&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Complete 800m swim with technique drills&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Focus on breathing and form during the swim&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Hydrate well before and after the swim&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Stretch for 10 minutes post-swim, focusing on shoulders and core&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Write a short reflection on the swim and how it felt&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Review and update the MVP feature list for today&amp;rsquo;s deep work session. Functionally this task is basically my daily standup. I should be spending more time reviewing tasks from the previous day and mapping to the current day each morning.&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Allocate 2 hours for deep work on the MVP core features&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;daily-stats&#34;&gt;Daily Stats&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;244&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;6:08&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;7.4&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Morning Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bedtime Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;6&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;training-output&#34;&gt;Training Output&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Swim (m)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;750m/33:39&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;117&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;fuel-log&#34;&gt;Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;
+4.5 trader joes toffeee nut bars 12pm
+4 eggs and 2 thin sliced whole wheat bread with guac 10am with cofee
+3 servings tollhouse pita chips 12 pm with guac
+Trader joes multi grain bread with 50g peanut butter and 30g raspberry jam
+More coffee 1pm
+Trader joes apple cider 5pm.
+1 chicken breast 6pm.
+spaghetti noodles with sauce 6pm, two servings.
+8 asparagus.
+Tea, 10pm.
+1 cup of bean stew 11:59pm.
+10 potato chips 11:59pm.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>2025-12-15: [Recovery Day]</title>
+      <link>http://localhost:1313/logs/2025-12-15/</link>
+      <pubDate>Mon, 15 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-15/</guid>
+      <description>&lt;h2 id=&#34;planned-workout&#34;&gt;Planned Workout&lt;/h2&gt;
+&lt;p&gt;Rest or light stretching/yoga (30 min)&lt;/p&gt;
+&lt;h2 id=&#34;daily-briefing&#34;&gt;Daily Briefing&lt;/h2&gt;
+&lt;p&gt;Your sleep has been consistently below 7 hours over the past few days, indicating fatigue. Take today off or do a light 30-minute yoga/stretching session to recover.&lt;/p&gt;
+&lt;h2 id=&#34;todays-todos&#34;&gt;Today&amp;rsquo;s Todos&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Complete 30 minutes of light stretching or yoga&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Hydrate well before and after the session&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Write a short reflection on how you feel after the recovery session&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Review and update the MVP feature list for today&amp;rsquo;s deep work session&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Allocate 2 hours for deep work on the MVP core features&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Create a GTM / Outreach plan for startup growth &amp;ndash; specifically onboarding new users&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Clean up supabase security issues&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Create automated linting tools&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Create automated security tools&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Research and/or skills for claude context management&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Write / create content one hour&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Fix and / or create new shortcut for obsidian flow&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Create workflow to take daily standup notes and turn into notes/features/miro board&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Merge other nextJS fix PR if necessary&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;daily-stats&#34;&gt;Daily Stats&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;6:30&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5.5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Morning Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;3&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bedtime Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;fuel-log&#34;&gt;Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;
+3 eggs with hot sauce and thin sliced whole wheat aldi bread with raspberry jam 10am.
+margherita pizza, ~1200 calories with ~55 grams protein, ~250 grams carbs, ~50 grams fat 12pm.
+3 trader joes nut toffee treats. 12pm.
+10 tollhouse pita chips eaten throughout the day.
+Coffee 10am, americano 12:30pm.
+Ketchup potato chips from trader joes 10am.
+Guac, 2 tbsp, 9pm.
+Madarain, 4pm.
+1 cup mushroom rissotto cooked 6pm.
+5 oz salmon 5pm.
+Peanut butter and jelly sandwich trader joes multigrain bread 6pm.
+Two cups of whole milk.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>2025-12-14: [Run Day]</title>
+      <link>http://localhost:1313/logs/2025-12-14/</link>
+      <pubDate>Sun, 14 Dec 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/logs/2025-12-14/</guid>
+      <description>&lt;h2 id=&#34;planned-workout&#34;&gt;Planned Workout&lt;/h2&gt;
+&lt;p&gt;6 miles at Zone 2 (HR &amp;lt;150)&lt;/p&gt;
+&lt;h2 id=&#34;daily-briefing&#34;&gt;Daily Briefing&lt;/h2&gt;
+&lt;p&gt;Your sleep has been consistently below 7 hours over the past few days, indicating fatigue. Stick to the planned 6-mile run at Zone 2, but focus on maintaining a steady pace and heart rate below 150. Hydrate well before and after the run.&lt;/p&gt;
+&lt;h2 id=&#34;todays-todos&#34;&gt;Today&amp;rsquo;s Todos&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Complete 6 miles at Zone 2 (HR &amp;lt;150)&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Track heart rate and pace using Garmin Vivoactive 5&lt;/li&gt;
+&lt;li&gt;&lt;input checked=&#34;&#34; disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Hydrate well before and after the run&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Stretch for 10 minutes post-run, focusing on quads and calves&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Write a short reflection on the run and how it felt&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Review and update the MVP feature list for today&amp;rsquo;s deep work session&lt;/li&gt;
+&lt;li&gt;&lt;input disabled=&#34;&#34; type=&#34;checkbox&#34;&gt; Allocate 2 hours for deep work on the MVP core features&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;daily-stats&#34;&gt;Daily Stats&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Metric&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Value&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Notes&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Weight (lbs)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;0&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Hours&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5:17&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Sleep Quality&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;6.6&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Morning Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;1-10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Bedtime Mood&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;5&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;training-output&#34;&gt;Training Output&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Activity&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;Dist/Time&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;HR / Watts&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Run (mi)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;6/1:15&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;142&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;fuel-log&#34;&gt;Fuel Log&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Describe your food here for the AI&amp;hellip;&lt;/em&gt;
+two slices thin sliced Aldi whole wheat toast with blackberry and raspberry jam. 4 eggs with parmesean and hot suace. 2 cups coffee.
+turkey sandwich with mayonaisse, mustard, 4 slices of trader joes deli turkey and aldi thin sliced whole wheat bread.
+6 trader joes nut covered toffee logs.
+5 ounces of various cheeses. two servings of crackers. 8 olives. think cut of sourdough bread with jam and butter.
+La colombe vanilla latte.
+0 sugar monster drink, 16 oz.
+1/4 cup of dip with hummus, cucumber, feta, pesto, sun dried tomatoes, onion, black olives.
+3 beers (yuengling, holiday, ipa) and one apple cider spiked.
+Half a slice of cheesecake.
+Spin draft.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>2025-12-13: [Brick Day]</title>
       <link>http://localhost:1313/logs/2025-12-13/</link>
@@ -219,6 +556,74 @@
 &lt;p&gt;&lt;strong&gt;Cardio Volume:&lt;/strong&gt;&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Protocol 2023-W01: Base Building</title>
+      <link>http://localhost:1313/config/protocol_2025-12-15/</link>
+      <pubDate>Sun, 01 Jan 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/config/protocol_2025-12-15/</guid>
+      <description>&lt;h2 id=&#34;-weekly-schedule&#34;&gt;📅 Weekly Schedule&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;Day&lt;/th&gt;
+          &lt;th&gt;Type&lt;/th&gt;
+          &lt;th&gt;Workout&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Monday&lt;/td&gt;
+          &lt;td&gt;Recovery&lt;/td&gt;
+          &lt;td&gt;Rest or light stretching/yoga (30 min)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Tuesday&lt;/td&gt;
+          &lt;td&gt;Swim&lt;/td&gt;
+          &lt;td&gt;800m swim with technique drills (focus on breathing and form)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Wednesday&lt;/td&gt;
+          &lt;td&gt;Bike&lt;/td&gt;
+          &lt;td&gt;30 min bike + 20 min run + content creation session (1 hour)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Thursday&lt;/td&gt;
+          &lt;td&gt;Strength&lt;/td&gt;
+          &lt;td&gt;Lower body: Deadlift 3x5, Squat 3x5, Leg Press 3x10&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Friday&lt;/td&gt;
+          &lt;td&gt;Run&lt;/td&gt;
+          &lt;td&gt;4 miles easy run (HR &amp;lt;150)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Saturday&lt;/td&gt;
+          &lt;td&gt;Brick&lt;/td&gt;
+          &lt;td&gt;60 min indoor trainer, focus on cadence (85-95 RPM)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Sunday&lt;/td&gt;
+          &lt;td&gt;Long Run&lt;/td&gt;
+          &lt;td&gt;6 miles easy run (HR &amp;lt;150)&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;-training-goals&#34;&gt;🎯 Training Goals&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Establish a consistent swim routine focusing on technique&lt;/li&gt;
+&lt;li&gt;Build a solid cycling base with proper form and cadence&lt;/li&gt;
+&lt;li&gt;Maintain running endurance without increasing intensity&lt;/li&gt;
+&lt;li&gt;Preserve compound lift strength (300 lb deadlift, 225 lb squat)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;-startup-goals&#34;&gt;🚀 Startup Goals&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Complete core features of MVP by January 2026&lt;/li&gt;
+&lt;li&gt;Acquire 10 beta users by February 2026&lt;/li&gt;
+&lt;li&gt;Generate first $1 in revenue by February 2026&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;-weekly-targets&#34;&gt;📊 Weekly Targets&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;Cardio Volume:&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
       <title></title>
       <link>http://localhost:1313/config/ryan/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -230,6 +635,14 @@
 &lt;h2 id=&#34;current-focus&#34;&gt;Current Focus&lt;/h2&gt;
 &lt;p&gt;&lt;strong&gt;Primary:&lt;/strong&gt; Triathlon training (swim/bike/run) while maintaining strength
 &lt;strong&gt;Secondary:&lt;/strong&gt; Launch startup MVP + create content to dogfood the product&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Training Metrics</title>
+      <link>http://localhost:1313/metrics/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/metrics/</guid>
+      <description>&lt;p&gt;This page visualizes daily training metrics extracted from my training logs.
+Data is automatically updated from daily log entries.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
