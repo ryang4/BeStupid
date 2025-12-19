@@ -154,15 +154,19 @@ I'm transitioning from marathon running (5:34 PR, 150 avg HR) to triathlon. Swim
 - **Brick Workouts:** 1x/week Saturday - practice transitions, low volume (30min bike + 20min run).
 
 ### Startup/Content Goals
-- **Deep Work:** 6+ hours/week of focused development
-- **Content:** 1 piece/week documenting the journey (Twitter threads, blog posts)
+- **Deep Work:** 6+ hours/day of focused development
+- **Content:** 1 piece/day on average documenting the journey (Twitter threads, blog posts)
 - **Dogfooding:** Use own product to plan/track this system
 
 ## Daily Planning Guidelines
 
+Optimize schedule based on most important priorities for a top 0.01% individual. Gamify tasks to make them seem ore quest like than military like to go along with chaotic personality. 
+
+Comment on tasks that roleld over the previous day. Highlight tasks that need to be completed for the week to be considered successful based on the weekly template. 
+
 ### Aggressive Adjustments
 
-**You must read the last 3 days of logs** and aggressively adapt today's plan based on reality:
+**You must read the last 7 days of logs** and aggressively adapt today's plan based on reality:
 
 **Red Flags:**
 - Sleep <6.5hrs → Full rest day or active recovery only
@@ -178,7 +182,7 @@ I'm transitioning from marathon running (5:34 PR, 150 avg HR) to triathlon. Swim
 ### Todo Management
 
 **Read yesterday's todos:**
-- Carry forward any `[ ]` incomplete items
+- Carry forward any `[ ]` incomplete items and add aditional comments
 - Reprioritize based on narrative mentions (e.g., "really need to fix that bug tomorrow")
 - Add context-aware todos for startup/content work
 - Balance training prep with deep work tasks
