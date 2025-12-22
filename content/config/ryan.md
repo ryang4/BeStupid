@@ -59,16 +59,16 @@ goals:
       time_bound: "Project 1: February 2026, Project 2: April 2026, Project 3: June 2026. Production feature: September 2026"
 
   secondary:
-    - name: "Maintain compound lift strength"
-      specific: "Preserve strength PRs (300+ DL, 225+ squat, 155+ bench) while increasing triathlon volume"
+    - name: "Maintain full body strength"
+      specific: "Execute consistent 2x/week full body workouts while increasing triathlon volume"
       measurable:
-        - "2 strength sessions per week minimum"
-        - "Test maxes quarterly: maintain or improve current PRs"
-        - "Track volume: 3x5 for DL/squat, 3x8 for bench"
+        - "2 full body strength sessions per week minimum (Tuesday/Friday)"
+        - "Progressive overload on key lifts: bench press, rows, shoulder press"
+        - "Track all exercises: sets, reps, weight"
         - "Deload week every 4th week to manage fatigue"
-      achievable: "Strategic programming with lower volume but maintained intensity; proven to preserve strength during endurance training"
-      relevant: "Prevents muscle loss, supports injury prevention, maintains hard-earned progress"
-      time_bound: "Ongoing through 2026 with quarterly PR tests (March, June, September, December)"
+      achievable: "Full body approach allows frequency while managing recovery for triathlon training"
+      relevant: "Prevents muscle loss, supports injury prevention, maintains balanced strength"
+      time_bound: "Ongoing through 2026 with monthly progress reviews"
 
     - name: "Create weekly content to dogfood startup and document progress with triathlons and machine learning progress"
       specific: "Publish 1 piece of content weekly documenting training, startup building, or ML learning"
@@ -133,7 +133,7 @@ I'm transitioning from marathon running (5:34 PR, 150 avg HR) to triathlon. Swim
 
 2. **Consistency > Intensity** - 85% compliance at moderate intensity beats 50% compliance going hard. Adjust plans based on reality, not idealism.
 
-3. **Strength Preservation** - Even during aerobic training, maintain compound lifts 2x/week minimum. I've worked hard for 300lb deadlift and 225lb squat - don't let them regress.
+3. **Strength Preservation** - Even during aerobic training, maintain full body workouts 2x/week minimum (Tuesday/Friday). Focus on balanced development with compound movements.
 
 4. **Startup Integration** - Training should enhance, not compete with, deep work capacity. Schedule deep work blocks when mental energy is highest (usually after easy training days).
 
@@ -150,7 +150,15 @@ I'm transitioning from marathon running (5:34 PR, 150 avg HR) to triathlon. Swim
 - **Swim:** Focus on technique drills (beginner). Start with 800-1000m/week, build slowly.
 - **Bike:** Indoor trainer for now, focus on form + cadence (85-95rpm). 60-90min/week.
 - **Run:** Leverage running base but keep intensity low (Zone 2, HR <150). 8-12mi/week.
-- **Strength:** 2x/week - Lower body (Mon/Thu) + Upper body split. Maintain current PRs.
+- **Strength:** 2x/week full body workouts (Tuesday/Friday or similar spacing). Template:
+  - Close grip bench press 3x7 @ 115
+  - Cable seated row 3x10 @ 130
+  - Barbell shoulder press 3x7 @ 85
+  - Assisted pull up 3x2 @ 50
+  - Dumbbell lying tricep extension 3x8 @ 20
+  - Dumbbell incline curl 3x7 @ 20
+  - Walking lunges 3x7 @ 20
+  - Lying leg curl 3x9 @ 125
 - **Brick Workouts:** 1x/week Saturday - practice transitions, low volume (30min bike + 20min run).
 
 ### Startup/Content Goals
@@ -200,7 +208,7 @@ Be **direct and actionable**. Examples:
 🚨 **Critical:**
 - Compliance dropping <70% for 2+ weeks → Major adjustment needed
 - Sleep <6hrs for 3+ days → Force rest week
-- Multiple missed strength sessions → Losing muscle, reprioritize immediately
+- Multiple missed strength sessions → Falling behind on 2x/week goal, reprioritize immediately
 - Mentions of pain (not soreness) → Stop and assess
 
 ⚠️ **Warning:**
@@ -219,7 +227,7 @@ Be **direct and actionable**. Examples:
 
 **Monthly Trends:**
 - Weight: Stable or trending down (target: 235 by month 3)
-- Strength: PRs maintained or improving
+- Strength: Full body workouts completed 8x/month, progressive overload on key lifts
 - Triathlon: Progressive volume increase without injury
 - Startup: Measurable feature progress
 

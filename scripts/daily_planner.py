@@ -220,7 +220,11 @@ def create_daily_log():
     ai_response = {
         "workout_type": "recovery",
         "planned_workout": "No protocol found - please create weekly protocol first.",
-        "briefing": "First day of tracking - no historical context yet. Execute protocol as planned.",
+        "briefing": {
+            "focus": "Create your weekly protocol to start tracking",
+            "tips": ["Set up your weekly training schedule", "Log all stats and reflections daily"],
+            "warnings": []
+        },
         "todos": ["- [ ] Create weekly protocol", "- [ ] Log all stats and narrative"],
         "include_strength_log": False,
         "cardio_activities": []

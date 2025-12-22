@@ -8,7 +8,20 @@ tags: ["log"]
 {{ planned_workout }}
 
 ## Daily Briefing
-{{ briefing }}
+
+**Today's Focus:** {{ briefing.focus }}
+
+{% if briefing.warnings %}
+> **Alerts:**
+{% for warning in briefing.warnings %}
+> - {{ warning }}
+{% endfor %}
+{% endif %}
+
+**Tips:**
+{% for tip in briefing.tips %}
+- {{ tip }}
+{% endfor %}
 
 ## Today's Todos
 {{ todos_markdown }}
@@ -56,3 +69,9 @@ tags: ["log"]
 ## Daily Reflection
 *What is one thing you learned today, one thing went well, and one thing that went poorly*
 
+## Top 3 for Tomorrow
+*Before bed, write the 3 most important things you need to accomplish tomorrow:*
+
+1.
+2.
+3.

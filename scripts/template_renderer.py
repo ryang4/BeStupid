@@ -39,7 +39,7 @@ def render_daily_log(
     date_str: str,
     workout_type: str,
     planned_workout: str,
-    briefing: str,
+    briefing,
     todos: list,
     include_strength_log: bool = False,
     cardio_activities: list = None,
@@ -52,7 +52,10 @@ def render_daily_log(
         date_str: Date in YYYY-MM-DD format
         workout_type: One of: strength, swim, bike, run, brick, recovery
         planned_workout: Full workout description
-        briefing: AI-generated daily briefing
+        briefing: AI-generated daily briefing dict with:
+                  - focus: str (today's main focus)
+                  - tips: list of str (actionable tips)
+                  - warnings: list of str (alerts, can be empty)
         todos: List of todo strings (with "- [ ]" prefix)
         include_strength_log: Whether to show strength log section
         cardio_activities: List of cardio types: ["swim", "bike", "run"]
@@ -62,6 +65,14 @@ def render_daily_log(
         str: Complete daily log markdown
     """
     cardio_activities = cardio_activities or []
+
+    # Handle backwards compatibility if briefing is still a string
+    if isinstance(briefing, str):
+        briefing = {
+            "focus": briefing,
+            "tips": [],
+            "warnings": []
+        }
 
     return render_template(
         "daily_log.md",

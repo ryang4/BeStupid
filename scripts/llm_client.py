@@ -330,7 +330,7 @@ def generate_daily_briefing(goals, protocol, last_3_days, day_name):
         dict with keys:
             - workout_type: str (strength|swim|bike|run|brick|recovery)
             - planned_workout: str
-            - briefing: str
+            - briefing: dict with focus, tips, warnings
             - todos: list of strings
             - include_strength_log: bool
             - cardio_activities: list of strings (subset of ["swim", "bike", "run"])
@@ -364,12 +364,21 @@ def generate_daily_briefing(goals, protocol, last_3_days, day_name):
 2. **Determine workout type and which log sections are needed**
 3. **Analyze the last 3 days** (especially yesterday) to adjust the plan if needed
 4. **Generate specific, actionable todos**
+5. **Generate a structured daily briefing** with focus areas, tips, and warnings
 
 Return response as JSON with EXACTLY this structure:
 {{
   "workout_type": "strength|swim|bike|run|brick|recovery",
   "planned_workout": "Full workout description from protocol",
-  "briefing": "2-3 direct sentences with specific adjustments",
+  "briefing": {{
+    "focus": "ONE primary thing to focus on today (1 sentence, be specific)",
+    "tips": [
+      "Actionable tip based on recent performance data",
+      "Another specific tip or technique cue",
+      "Recovery/nutrition tip if relevant"
+    ],
+    "warnings": ["Alert about sleep debt, missed workouts, or concerning trends (empty array if none)"]
+  }},
   "todos": [
     "- [ ] Specific action item 1",
     "- [ ] Specific action item 2"
@@ -404,9 +413,18 @@ CRITICAL RULES:
    - Include 5-7 items covering: workout tasks, startup work, recovery
    - Carry forward incomplete items from yesterday
 
-5. **briefing**: Reference specific data from recent logs
-   ✅ "Yesterday's 6mi run at 8:30 pace shows good recovery. Push deadlifts to 305 today."
-   ❌ "Consider how you feel before working out."
+5. **briefing**: Must be a structured object with:
+   - **focus**: ONE clear priority for today. Be aggressive and specific.
+     ✅ "Lock in 6 hours sleep tonight - you're running a deficit"
+     ✅ "Hit 305lb deadlift PR - your recovery metrics support it"
+     ❌ "Try to have a good day"
+   - **tips**: 2-4 actionable items. Reference specific data from logs.
+     ✅ "Your HR was 145 avg on yesterday's easy run - keep today under 140"
+     ✅ "You skipped stretching 3 days in a row - do 10 min post-workout TODAY"
+     ❌ "Remember to stay hydrated"
+   - **warnings**: Only include if there's a real concern. Empty array if things look good.
+     ✅ "Sleep has been under 6.5hrs for 3 days - consider cutting volume 20%"
+     ✅ "Missed 2 workouts this week - don't skip today"
 """
 
     messages = [{"role": "user", "content": prompt}]
@@ -437,7 +455,11 @@ CRITICAL RULES:
         return {
             "workout_type": "recovery",
             "planned_workout": f"Check protocol for {day_name}'s workout",
-            "briefing": "Error generating briefing - check LLM output",
+            "briefing": {
+                "focus": "Execute today's protocol as planned",
+                "tips": ["Review your weekly protocol for today's workout"],
+                "warnings": ["Error generating AI briefing - check LLM output"]
+            },
             "todos": yesterday_todos if yesterday_todos else ["- [ ] Review today's protocol"],
             "include_strength_log": False,
             "cardio_activities": []

@@ -346,7 +346,442 @@
       "extraction_notes": [
         "Fuel log found but macro estimation failed"
       ]
+    },
+    {
+      "date": "2025-12-19",
+      "extracted_at": "2025-12-20T00:56:07.642641",
+      "sleep": {
+        "hours": 6.27,
+        "quality": 7.8
+      },
+      "weight_lbs": 246.8,
+      "mood": {
+        "morning": 3.0,
+        "bedtime": 3.0
+      },
+      "training": {
+        "workout_type": "run",
+        "activities": [
+          {
+            "type": "run",
+            "distance": 4.0,
+            "distance_unit": "mi",
+            "duration_minutes": 53.52,
+            "avg_hr": 137,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 5,
+        "completion_rate": 0.71
+      },
+      "nutrition": {
+        "calories": 1560,
+        "protein_g": 55,
+        "carbs_g": 205,
+        "fat_g": 56,
+        "line_items": [
+          {
+            "food": "230 g Fage granola",
+            "time": null,
+            "calories": 345,
+            "protein_g": 8,
+            "carbs_g": 69,
+            "fat_g": 9
+          },
+          {
+            "food": "40g high protein wegmans granola",
+            "time": null,
+            "calories": 160,
+            "protein_g": 10,
+            "carbs_g": 20,
+            "fat_g": 4
+          },
+          {
+            "food": "25 blue berries",
+            "time": null,
+            "calories": 20,
+            "protein_g": 0,
+            "carbs_g": 5,
+            "fat_g": 0
+          },
+          {
+            "food": "1 tsp trader joes honey",
+            "time": null,
+            "calories": 21,
+            "protein_g": 0,
+            "carbs_g": 6,
+            "fat_g": 0
+          },
+          {
+            "food": "3 bags of cape cod potato chips",
+            "time": null,
+            "calories": 450,
+            "protein_g": 6,
+            "carbs_g": 45,
+            "fat_g": 27
+          },
+          {
+            "food": "1 half coke 1 half diet coke",
+            "time": null,
+            "calories": 60,
+            "protein_g": 0,
+            "carbs_g": 15,
+            "fat_g": 0
+          },
+          {
+            "food": "1 cup of pasta salad",
+            "time": null,
+            "calories": 350,
+            "protein_g": 8,
+            "carbs_g": 50,
+            "fat_g": 15
+          },
+          {
+            "food": "3 servings fusili pasta",
+            "time": null,
+            "calories": 600,
+            "protein_g": 24,
+            "carbs_g": 120,
+            "fat_g": 2
+          },
+          {
+            "food": "1 large chicken breast",
+            "time": null,
+            "calories": 231,
+            "protein_g": 43,
+            "carbs_g": 0,
+            "fat_g": 5
+          },
+          {
+            "food": "alfredo sauce (just butter and parmesan)",
+            "time": null,
+            "calories": 120,
+            "protein_g": 5,
+            "carbs_g": 2,
+            "fat_g": 10
+          },
+          {
+            "food": "1/2 trader joes veggie pizza",
+            "time": null,
+            "calories": 373,
+            "protein_g": 15,
+            "carbs_g": 49,
+            "fat_g": 13
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2025-12-20",
+      "extracted_at": "2025-12-21T11:13:35.275066",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "brick",
+        "activities": [
+          {
+            "type": "bike",
+            "distance": 12.0,
+            "distance_unit": "mi",
+            "duration_minutes": 45,
+            "avg_hr": null,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 5,
+        "completion_rate": 0.71
+      },
+      "nutrition": {
+        "calories": 2285,
+        "protein_g": 65,
+        "carbs_g": 279,
+        "fat_g": 88,
+        "line_items": [
+          {
+            "food": "bagel with cream cheese",
+            "time": "9:15",
+            "calories": 350,
+            "protein_g": 10,
+            "carbs_g": 50,
+            "fat_g": 12
+          },
+          {
+            "food": "slice of bacon",
+            "time": "9:30",
+            "calories": 40,
+            "protein_g": 3,
+            "carbs_g": 0,
+            "fat_g": 3
+          },
+          {
+            "food": "grocery store croissant",
+            "time": "9:30",
+            "calories": 230,
+            "protein_g": 5,
+            "carbs_g": 25,
+            "fat_g": 13
+          },
+          {
+            "food": "two glasses of orange juice",
+            "time": "9:30",
+            "calories": 240,
+            "protein_g": 2,
+            "carbs_g": 60,
+            "fat_g": 0
+          },
+          {
+            "food": "two cups of gatorade",
+            "time": "9:30",
+            "calories": 100,
+            "protein_g": 0,
+            "carbs_g": 26,
+            "fat_g": 0
+          },
+          {
+            "food": "bag of cheeze its 300 calories",
+            "time": "12:45",
+            "calories": 300,
+            "protein_g": 3,
+            "carbs_g": 37,
+            "fat_g": 18
+          },
+          {
+            "food": "bag of cheetos 140 calories",
+            "time": "16:45",
+            "calories": 140,
+            "protein_g": 2,
+            "carbs_g": 19,
+            "fat_g": 8
+          },
+          {
+            "food": "200g fage non fat greek yogurt",
+            "time": "17:00",
+            "calories": 100,
+            "protein_g": 20,
+            "carbs_g": 10,
+            "fat_g": 0
+          },
+          {
+            "food": "40g wegmans high protein granola",
+            "time": "17:00",
+            "calories": 160,
+            "protein_g": 10,
+            "carbs_g": 18,
+            "fat_g": 6
+          },
+          {
+            "food": "25 blueberries",
+            "time": "17:00",
+            "calories": 17,
+            "protein_g": 0,
+            "carbs_g": 4,
+            "fat_g": 0
+          },
+          {
+            "food": "1 tsp honey",
+            "time": "17:00",
+            "calories": 21,
+            "protein_g": 0,
+            "carbs_g": 6,
+            "fat_g": 0
+          },
+          {
+            "food": "chiang mai lo mein with chicken and curry",
+            "time": "20:15",
+            "calories": 500,
+            "protein_g": 20,
+            "carbs_g": 60,
+            "fat_g": 20
+          },
+          {
+            "food": "3 beers",
+            "time": "21:00",
+            "calories": 427,
+            "protein_g": 2,
+            "carbs_g": 39,
+            "fat_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2025-12-21",
+      "extracted_at": "2025-12-22T01:28:02.781745",
+      "sleep": {
+        "hours": 9.0,
+        "quality": 8.5
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 6.0,
+        "bedtime": 4.0
+      },
+      "training": {
+        "workout_type": "run",
+        "activities": [
+          {
+            "type": "run",
+            "distance": 6.01,
+            "distance_unit": "mi",
+            "duration_minutes": 79,
+            "avg_hr": 133,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 9,
+        "completed": 7,
+        "completion_rate": 0.78
+      },
+      "nutrition": {
+        "calories": 2644,
+        "protein_g": 101,
+        "carbs_g": 348,
+        "fat_g": 116,
+        "line_items": [
+          {
+            "food": "wegmans bagel",
+            "time": "10:30am",
+            "calories": 300,
+            "protein_g": 10,
+            "carbs_g": 55,
+            "fat_g": 3
+          },
+          {
+            "food": "philadelphia cream cheese",
+            "time": "10:30am",
+            "calories": 100,
+            "protein_g": 2,
+            "carbs_g": 1,
+            "fat_g": 10
+          },
+          {
+            "food": "two eggs",
+            "time": "10:30am",
+            "calories": 140,
+            "protein_g": 12,
+            "carbs_g": 1,
+            "fat_g": 10
+          },
+          {
+            "food": "two cups of coffee",
+            "time": "10:30am",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "monster energy",
+            "time": "12:00am",
+            "calories": 210,
+            "protein_g": 2,
+            "carbs_g": 54,
+            "fat_g": 0
+          },
+          {
+            "food": "fage yogurt 200g",
+            "time": "12:30",
+            "calories": 160,
+            "protein_g": 16,
+            "carbs_g": 12,
+            "fat_g": 0
+          },
+          {
+            "food": "granola 30g",
+            "time": "12:30",
+            "calories": 120,
+            "protein_g": 2,
+            "carbs_g": 18,
+            "fat_g": 4
+          },
+          {
+            "food": "honey 1 tsp",
+            "time": "12:30",
+            "calories": 21,
+            "protein_g": 0,
+            "carbs_g": 6,
+            "fat_g": 0
+          },
+          {
+            "food": "two slices trader joes multigrain bread",
+            "time": "13:00",
+            "calories": 200,
+            "protein_g": 8,
+            "carbs_g": 38,
+            "fat_g": 2
+          },
+          {
+            "food": "four slices deli turkey",
+            "time": "13:00",
+            "calories": 120,
+            "protein_g": 24,
+            "carbs_g": 0,
+            "fat_g": 2
+          },
+          {
+            "food": "four trader joes nut covered toffee",
+            "time": "17:00",
+            "calories": 320,
+            "protein_g": 4,
+            "carbs_g": 28,
+            "fat_g": 20
+          },
+          {
+            "food": "3 trader joes herbacious bites",
+            "time": "17:00",
+            "calories": 150,
+            "protein_g": 3,
+            "carbs_g": 15,
+            "fat_g": 8
+          },
+          {
+            "food": "3 slices of baguette",
+            "time": "23:59",
+            "calories": 210,
+            "protein_g": 6,
+            "carbs_g": 42,
+            "fat_g": 2
+          },
+          {
+            "food": "1 tbsp chicken pate",
+            "time": "23:59",
+            "calories": 50,
+            "protein_g": 3,
+            "carbs_g": 1,
+            "fat_g": 4
+          },
+          {
+            "food": "2 cups vegetable stew made with 3 small russet potatoes, 1 cup roasted sweet potatoes, 2 large carrots, 1 onion, 1 fennel bulb, 5 cloves of garlic, and 1 large chicken breast",
+            "time": null,
+            "calories": 383,
+            "protein_g": 32,
+            "carbs_g": 60,
+            "fat_g": 5
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2025-12-19T13:01:54.416499"
+  "last_updated": "2025-12-22T01:28:34.525092"
 }
