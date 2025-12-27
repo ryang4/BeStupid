@@ -781,7 +781,360 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2025-12-22",
+      "extracted_at": "2025-12-23T10:51:16.884789",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "recovery",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
+    },
+    {
+      "date": "2025-12-23",
+      "extracted_at": "2025-12-24T12:58:37.035170",
+      "sleep": {
+        "hours": 5.0,
+        "quality": 6.3
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 2.0,
+        "bedtime": 7.0
+      },
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 13,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "nutrition": {
+        "calories": 2580,
+        "protein_g": 110,
+        "carbs_g": 220,
+        "fat_g": 130,
+        "line_items": [
+          {
+            "food": "pure protein bar",
+            "time": null,
+            "calories": 200,
+            "protein_g": 20,
+            "carbs_g": 15,
+            "fat_g": 5
+          },
+          {
+            "food": "chik fil a sandwich",
+            "time": null,
+            "calories": 440,
+            "protein_g": 42,
+            "carbs_g": 48,
+            "fat_g": 23
+          },
+          {
+            "food": "bag of cheese its",
+            "time": null,
+            "calories": 160,
+            "protein_g": 2,
+            "carbs_g": 20,
+            "fat_g": 9
+          },
+          {
+            "food": "almond bunches of oats",
+            "time": null,
+            "calories": 120,
+            "protein_g": 3,
+            "carbs_g": 18,
+            "fat_g": 6
+          },
+          {
+            "food": "wegmans high protein granola",
+            "time": null,
+            "calories": 150,
+            "protein_g": 10,
+            "carbs_g": 20,
+            "fat_g": 5
+          },
+          {
+            "food": "peanut butter and jelly sandwich",
+            "time": null,
+            "calories": 350,
+            "protein_g": 10,
+            "carbs_g": 45,
+            "fat_g": 15
+          },
+          {
+            "food": "spoonful of peanut butter",
+            "time": null,
+            "calories": 90,
+            "protein_g": 4,
+            "carbs_g": 3,
+            "fat_g": 8
+          },
+          {
+            "food": "monster",
+            "time": null,
+            "calories": 210,
+            "protein_g": 2,
+            "carbs_g": 54,
+            "fat_g": 0
+          },
+          {
+            "food": "3 coffees",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "two whiskey cocktails",
+            "time": null,
+            "calories": 200,
+            "protein_g": 0,
+            "carbs_g": 12,
+            "fat_g": 0
+          },
+          {
+            "food": "3 pita breads",
+            "time": null,
+            "calories": 360,
+            "protein_g": 12,
+            "carbs_g": 72,
+            "fat_g": 6
+          },
+          {
+            "food": "grilled napa cabbage with tahini and parmesan sauce",
+            "time": null,
+            "calories": 150,
+            "protein_g": 5,
+            "carbs_g": 10,
+            "fat_g": 10
+          },
+          {
+            "food": "duck sausage",
+            "time": null,
+            "calories": 150,
+            "protein_g": 15,
+            "carbs_g": 0,
+            "fat_g": 12
+          },
+          {
+            "food": "wagyu beef 2 oz",
+            "time": null,
+            "calories": 150,
+            "protein_g": 20,
+            "carbs_g": 0,
+            "fat_g": 10
+          },
+          {
+            "food": "strawberry sorbet",
+            "time": null,
+            "calories": 120,
+            "protein_g": 1,
+            "carbs_g": 30,
+            "fat_g": 0
+          },
+          {
+            "food": "2 trader joes nut covered toffees",
+            "time": null,
+            "calories": 240,
+            "protein_g": 4,
+            "carbs_g": 20,
+            "fat_g": 15
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2025-12-24",
+      "extracted_at": "2025-12-25T10:29:19.879753",
+      "sleep": {
+        "hours": 5.28,
+        "quality": 6.6
+      },
+      "weight_lbs": 247.8,
+      "mood": {
+        "morning": 4.0,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "bike",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 11,
+        "completed": 4,
+        "completion_rate": 0.36
+      },
+      "nutrition": {
+        "calories": 2493,
+        "protein_g": 112,
+        "carbs_g": 177,
+        "fat_g": 165,
+        "line_items": [
+          {
+            "food": "1/2 jalapeno bagel",
+            "time": null,
+            "calories": 150,
+            "protein_g": 5,
+            "carbs_g": 30,
+            "fat_g": 1
+          },
+          {
+            "food": "1 oz cream cheese",
+            "time": null,
+            "calories": 99,
+            "protein_g": 2,
+            "carbs_g": 1,
+            "fat_g": 10
+          },
+          {
+            "food": "2 large eggs",
+            "time": null,
+            "calories": 140,
+            "protein_g": 12,
+            "carbs_g": 1,
+            "fat_g": 10
+          },
+          {
+            "food": "20 M&Ms",
+            "time": null,
+            "calories": 210,
+            "protein_g": 3,
+            "carbs_g": 27,
+            "fat_g": 11
+          },
+          {
+            "food": "2 cups of coffee",
+            "time": null,
+            "calories": 2,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "trader joes rosemary nuts",
+            "time": null,
+            "calories": 160,
+            "protein_g": 4,
+            "carbs_g": 5,
+            "fat_g": 14
+          },
+          {
+            "food": "slice of deli provolone cheese",
+            "time": null,
+            "calories": 110,
+            "protein_g": 7,
+            "carbs_g": 1,
+            "fat_g": 9
+          },
+          {
+            "food": "m8ms",
+            "time": null,
+            "calories": 210,
+            "protein_g": 3,
+            "carbs_g": 27,
+            "fat_g": 11
+          },
+          {
+            "food": "3 oz cheddar cheese",
+            "time": null,
+            "calories": 330,
+            "protein_g": 21,
+            "carbs_g": 1,
+            "fat_g": 28
+          },
+          {
+            "food": "15 gluten free crackers",
+            "time": null,
+            "calories": 150,
+            "protein_g": 3,
+            "carbs_g": 27,
+            "fat_g": 4
+          },
+          {
+            "food": "10 pieces beef salami",
+            "time": null,
+            "calories": 250,
+            "protein_g": 15,
+            "carbs_g": 1,
+            "fat_g": 21
+          },
+          {
+            "food": "1/2 new york strip steak cooked in butter",
+            "time": null,
+            "calories": 450,
+            "protein_g": 35,
+            "carbs_g": 0,
+            "fat_g": 30
+          },
+          {
+            "food": "1 baked potato with cheese and butter",
+            "time": null,
+            "calories": 350,
+            "protein_g": 10,
+            "carbs_g": 45,
+            "fat_g": 15
+          },
+          {
+            "food": "arugula salad with pomegranate seeds, sweet potato, and goat cheese",
+            "time": null,
+            "calories": 300,
+            "protein_g": 10,
+            "carbs_g": 35,
+            "fat_g": 15
+          },
+          {
+            "food": "egg nog ice cream",
+            "time": null,
+            "calories": 200,
+            "protein_g": 4,
+            "carbs_g": 25,
+            "fat_g": 12
+          },
+          {
+            "food": "trader joes cookies with jam",
+            "time": null,
+            "calories": 200,
+            "protein_g": 2,
+            "carbs_g": 30,
+            "fat_g": 9
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2025-12-22T01:28:34.525092"
+  "last_updated": "2025-12-26T15:21:50.944019"
 }

@@ -10,6 +10,7 @@ Uses Ollama (qwen) to read last 3 days and provide context-aware guidance.
 """
 
 import os
+import re
 import sys
 import frontmatter
 from datetime import datetime, timedelta
@@ -117,6 +118,66 @@ def read_last_n_days(n=3):
     return logs
 
 
+def get_yesterday_top_3():
+    """
+    Extract 'Top 3 for Tomorrow' items from yesterday's log.
+
+    Parses the numbered list (1. 2. 3.) from the "## Top 3 for Tomorrow" section
+    and converts them to checkbox format for today's todos.
+
+    Returns:
+        list: List of todo strings in "- [ ] Task" format, or empty list if none found
+    """
+    yesterday = datetime.now() - timedelta(days=1)
+    date_str = yesterday.strftime("%Y-%m-%d")
+    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
+
+    if not os.path.exists(log_path):
+        print(f"   No log found for yesterday ({date_str})")
+        return []
+
+    try:
+        with open(log_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Find the "## Top 3 for Tomorrow" section
+        if "## Top 3 for Tomorrow" not in content:
+            print(f"   No 'Top 3 for Tomorrow' section in yesterday's log")
+            return []
+
+        # Get text after the header
+        top3_start = content.index("## Top 3 for Tomorrow") + len("## Top 3 for Tomorrow")
+        remaining = content[top3_start:]
+
+        # Find the next section header (or end of file)
+        next_section = remaining.find("\n## ")
+        if next_section != -1:
+            top3_text = remaining[:next_section].strip()
+        else:
+            top3_text = remaining.strip()
+
+        # Parse numbered items (1. 2. 3.)
+        todos = []
+        for line in top3_text.split('\n'):
+            # Match lines starting with "1.", "2.", "3." etc.
+            match = re.match(r'^\d+\.\s+(.+)$', line.strip())
+            if match:
+                task = match.group(1).strip()
+                if task:  # Only add non-empty tasks
+                    todos.append(f"- [ ] {task}")
+
+        if todos:
+            print(f"   Found {len(todos)} items from yesterday's Top 3")
+        else:
+            print(f"   Top 3 section exists but no items found")
+
+        return todos
+
+    except Exception as e:
+        print(f"⚠️  Error extracting Top 3: {e}")
+        return []
+
+
 def get_yesterday_macros():
     """
     Read yesterday's log and estimate macros from the Fuel Log section.
@@ -207,7 +268,11 @@ def create_daily_log():
     if yesterday_macros:
         print(f"   Estimated: {yesterday_macros['calories']} cal, {yesterday_macros['protein_g']}g protein")
 
-    # 1. Get full weekly protocol
+    # 1b. Get yesterday's Top 3 for Tomorrow
+    print("Checking yesterday's Top 3 for Tomorrow...")
+    yesterday_top_3 = get_yesterday_top_3()
+
+    # 2. Get full weekly protocol
     print("Reading weekly protocol...")
     full_protocol = get_weekly_protocol()
 
@@ -249,27 +314,30 @@ def create_daily_log():
             print(f"\nWarning: Error generating AI briefing: {e}")
             print("   Using fallback briefing")
 
-    # 4. Build markdown using Jinja2 template
+    # 4. Combine yesterday's Top 3 with AI-generated todos (Top 3 first)
+    ai_todos = ai_response.get('todos', ['- [ ] Review today\'s protocol'])
+    combined_todos = yesterday_top_3 + ai_todos
+
+    # 5. Build markdown using Jinja2 template
     content = render_daily_log(
         date_str=date_str,
         workout_type=ai_response.get('workout_type', 'recovery'),
         planned_workout=ai_response.get('planned_workout', 'No workout scheduled'),
         briefing=ai_response.get('briefing', 'Execute protocol as planned.'),
-        todos=ai_response.get('todos', ['- [ ] Review today\'s protocol']),
+        todos=combined_todos,
         include_strength_log=ai_response.get('include_strength_log', False),
         cardio_activities=ai_response.get('cardio_activities', []),
         yesterday_macros=yesterday_macros,
     )
 
-    # 5. Write file (no folder creation needed)
+    # 6. Write file (no folder creation needed)
     with open(file_path, "w", encoding='utf-8') as f:
         f.write(content)
 
-    # 6. Print summary
+    # 7. Print summary
     workout_type = ai_response.get('workout_type', 'recovery')
     planned_workout = ai_response.get('planned_workout', '')
     briefing = ai_response.get('briefing', '')
-    todos = ai_response.get('todos', [])
     include_strength = ai_response.get('include_strength_log', False)
     cardio = ai_response.get('cardio_activities', [])
 
@@ -278,7 +346,7 @@ def create_daily_log():
     print(f"   - Type: {workout_type}")
     print(f"   - Workout: {planned_workout[:50]}...")
     print(f"   - Briefing: {briefing[:50]}...")
-    print(f"   - Todos: {len(todos)} items")
+    print(f"   - Todos: {len(combined_todos)} items ({len(yesterday_top_3)} from Top 3, {len(ai_todos)} AI-generated)")
     print(f"   - Sections: {'Strength ' if include_strength else ''}{', '.join(cardio) if cardio else 'None'}")
 
 
