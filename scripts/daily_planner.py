@@ -231,6 +231,29 @@ def get_yesterday_macros():
         return None
 
 
+def load_habits_config():
+    """
+    Load habit definitions from the habits config file.
+
+    Returns:
+        list: List of habit dicts with id and name, or empty list if not found
+    """
+    habits_path = os.path.join(PROTOCOL_DIR, "habits.md")
+
+    if not os.path.exists(habits_path):
+        print("   No habits.md config found")
+        return []
+
+    try:
+        post = frontmatter.load(habits_path)
+        habits = post.metadata.get('habits', [])
+        print(f"   Loaded {len(habits)} habits from config")
+        return habits
+    except Exception as e:
+        print(f"⚠️  Error loading habits config: {e}")
+        return []
+
+
 def create_daily_log():
     """
     Generate today's daily log with AI-powered briefing and dynamic sections.
@@ -271,6 +294,10 @@ def create_daily_log():
     # 1b. Get yesterday's Top 3 for Tomorrow
     print("Checking yesterday's Top 3 for Tomorrow...")
     yesterday_top_3 = get_yesterday_top_3()
+
+    # 1c. Load habits config
+    print("Loading habits config...")
+    habits = load_habits_config()
 
     # 2. Get full weekly protocol
     print("Reading weekly protocol...")
@@ -328,6 +355,7 @@ def create_daily_log():
         include_strength_log=ai_response.get('include_strength_log', False),
         cardio_activities=ai_response.get('cardio_activities', []),
         yesterday_macros=yesterday_macros,
+        habits=habits,
     )
 
     # 6. Write file (no folder creation needed)

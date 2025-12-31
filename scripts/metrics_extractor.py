@@ -19,6 +19,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 METRICS_FILE = os.path.join(PROJECT_ROOT, "data", "daily_metrics.json")
 LOGS_DIR = os.path.join(PROJECT_ROOT, "content", "logs")
+HABITS_CONFIG = os.path.join(PROJECT_ROOT, "content", "config", "habits.md")
 
 
 def normalize_sleep_hours(value: str) -> Optional[float]:
@@ -333,6 +334,251 @@ def calculate_todo_completion(content: str) -> dict:
     }
 
 
+def load_habits_config() -> list:
+    """
+    Load habit definitions from the habits config file.
+
+    Returns:
+        list: List of habit dicts with id and name
+    """
+    if not os.path.exists(HABITS_CONFIG):
+        return []
+
+    try:
+        post = frontmatter.load(HABITS_CONFIG)
+        return post.metadata.get('habits', [])
+    except Exception:
+        return []
+
+
+def parse_habits_section(content: str, habit_config: list) -> dict:
+    """
+    Parse the Daily Habits markdown section.
+
+    Args:
+        content: Full markdown content of the log
+        habit_config: List of habit dicts from config
+
+    Returns:
+        dict with completed, missed, completion_rate, details
+    """
+    result = {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+    }
+
+    if not habit_config:
+        return result
+
+    # Build name -> id mapping
+    name_to_id = {h['name'].lower(): h['id'] for h in habit_config}
+
+    # Find Daily Habits section
+    match = re.search(r"##\s*Daily Habits.*?\n(.*?)(?=\n##|\Z)", content, re.DOTALL | re.IGNORECASE)
+    if not match:
+        return result
+
+    section = match.group(1)
+
+    # Parse checkbox lines
+    for line in section.split("\n"):
+        line = line.strip()
+
+        # Match checked: - [x] or - [X]
+        checked_match = re.match(r"- \[[xX]\]\s+(.+)", line)
+        if checked_match:
+            habit_name = checked_match.group(1).strip().lower()
+            habit_id = name_to_id.get(habit_name)
+            if habit_id:
+                result["completed"].append(habit_id)
+                result["details"][habit_id] = True
+            continue
+
+        # Match unchecked: - [ ]
+        unchecked_match = re.match(r"- \[ \]\s+(.+)", line)
+        if unchecked_match:
+            habit_name = unchecked_match.group(1).strip().lower()
+            habit_id = name_to_id.get(habit_name)
+            if habit_id:
+                result["missed"].append(habit_id)
+                result["details"][habit_id] = False
+
+    total = len(result["completed"]) + len(result["missed"])
+    if total > 0:
+        result["completion_rate"] = round(len(result["completed"]) / total, 2)
+
+    return result
+
+
+def calculate_habit_streaks(entries: list, habit_config: list) -> dict:
+    """
+    Calculate current and longest streaks for each habit.
+
+    Args:
+        entries: List of daily_metrics entries (sorted by date ascending)
+        habit_config: List of habit dicts from config
+
+    Returns:
+        dict: {habit_id: {"current": int, "longest": int}}
+    """
+    streaks = {}
+
+    if not habit_config:
+        return streaks
+
+    # Sort entries by date descending (most recent first)
+    sorted_entries = sorted(entries, key=lambda x: x["date"], reverse=True)
+
+    for habit in habit_config:
+        habit_id = habit["id"]
+        current_streak = 0
+        longest_streak = 0
+        temp_streak = 0
+        counting_current = True
+
+        for entry in sorted_entries:
+            habits_data = entry.get("habits", {})
+            details = habits_data.get("details", {})
+
+            if details.get(habit_id, False):
+                temp_streak += 1
+                if counting_current:
+                    current_streak = temp_streak
+            else:
+                # Streak broken
+                longest_streak = max(longest_streak, temp_streak)
+                temp_streak = 0
+                counting_current = False  # Stop counting current after first miss
+
+        # Final check for longest
+        longest_streak = max(longest_streak, temp_streak)
+
+        streaks[habit_id] = {
+            "current": current_streak,
+            "longest": longest_streak
+        }
+
+    return streaks
+
+
+def calculate_weekly_summaries(entries: list, habit_config: list) -> dict:
+    """
+    Aggregate habit data by ISO week.
+
+    Args:
+        entries: List of daily_metrics entries
+        habit_config: List of habit dicts from config
+
+    Returns:
+        dict: {"2025-W52": {"meditation": 0.71, "reading": 0.57, ...}, ...}
+    """
+    summaries = {}
+
+    if not habit_config or not entries:
+        return summaries
+
+    # Group entries by ISO week
+    weeks = {}
+    for entry in entries:
+        date_obj = datetime.strptime(entry["date"], "%Y-%m-%d")
+        year, week_num, _ = date_obj.isocalendar()
+        week_key = f"{year}-W{week_num:02d}"
+
+        if week_key not in weeks:
+            weeks[week_key] = []
+        weeks[week_key].append(entry)
+
+    # Calculate per-habit completion rate for each week
+    habit_ids = [h["id"] for h in habit_config]
+
+    for week_key, week_entries in weeks.items():
+        week_summary = {}
+
+        for habit_id in habit_ids:
+            completed_count = 0
+            total_count = 0
+
+            for entry in week_entries:
+                habits_data = entry.get("habits", {})
+                details = habits_data.get("details", {})
+
+                # Only count if the habit was tracked that day
+                if habit_id in details:
+                    total_count += 1
+                    if details[habit_id]:
+                        completed_count += 1
+
+            if total_count > 0:
+                week_summary[habit_id] = round(completed_count / total_count, 2)
+            else:
+                week_summary[habit_id] = None
+
+        # Also add overall completion rate for the week
+        total_habits = 0
+        completed_habits = 0
+        for entry in week_entries:
+            habits_data = entry.get("habits", {})
+            completed_habits += len(habits_data.get("completed", []))
+            completed_habits += len(habits_data.get("missed", []))
+            total_habits += len(habits_data.get("completed", [])) + len(habits_data.get("missed", []))
+
+        week_summary["_overall"] = round(completed_habits / total_habits, 2) if total_habits > 0 else None
+
+        summaries[week_key] = week_summary
+
+    return summaries
+
+
+def calculate_habit_trends(weekly_summaries: dict, habit_config: list) -> dict:
+    """
+    Determine if each habit is improving, stable, or declining.
+
+    Compares the most recent 2 weeks to determine trend direction.
+
+    Args:
+        weekly_summaries: Output from calculate_weekly_summaries()
+        habit_config: List of habit dicts from config
+
+    Returns:
+        dict: {habit_id: "improving" | "stable" | "declining" | "insufficient_data"}
+    """
+    trends = {}
+
+    if not habit_config or not weekly_summaries:
+        return trends
+
+    # Sort weeks chronologically (most recent last)
+    sorted_weeks = sorted(weekly_summaries.keys())
+
+    if len(sorted_weeks) < 2:
+        # Not enough data for trend analysis
+        for habit in habit_config:
+            trends[habit["id"]] = "insufficient_data"
+        return trends
+
+    # Get last 2 weeks
+    current_week = weekly_summaries[sorted_weeks[-1]]
+    previous_week = weekly_summaries[sorted_weeks[-2]]
+
+    for habit in habit_config:
+        habit_id = habit["id"]
+        current_rate = current_week.get(habit_id)
+        previous_rate = previous_week.get(habit_id)
+
+        if current_rate is None or previous_rate is None:
+            trends[habit_id] = "insufficient_data"
+        elif current_rate > previous_rate + 0.1:  # >10% improvement
+            trends[habit_id] = "improving"
+        elif current_rate < previous_rate - 0.1:  # >10% decline
+            trends[habit_id] = "declining"
+        else:
+            trends[habit_id] = "stable"
+
+    return trends
+
+
 def extract_workout_type_from_title(content: str) -> str:
     """
     Extract workout type from the daily log title.
@@ -441,6 +687,17 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
         notes.append(f"Todo parsing failed: {e}")
         result["todos"] = {"total": 0, "completed": 0, "completion_rate": 0}
 
+    # Parse habits
+    try:
+        habit_config = load_habits_config()
+        if habit_config:
+            result["habits"] = parse_habits_section(content, habit_config)
+        else:
+            result["habits"] = {"completed": [], "missed": [], "completion_rate": 0, "details": {}}
+    except Exception as e:
+        notes.append(f"Habit parsing failed: {e}")
+        result["habits"] = {"completed": [], "missed": [], "completion_rate": 0, "details": {}}
+
     # Extract and estimate nutrition from Fuel Log
     try:
         fuel_log = extract_fuel_log(content)
@@ -519,6 +776,13 @@ def append_to_metrics_file(entry: dict) -> bool:
         # Append new entry
         data["entries"].append(entry)
         data["last_updated"] = datetime.now().isoformat()
+
+        # Calculate and store habit analytics
+        habit_config = load_habits_config()
+        if habit_config:
+            data["streaks"] = calculate_habit_streaks(data["entries"], habit_config)
+            data["weekly_summaries"] = calculate_weekly_summaries(data["entries"], habit_config)
+            data["trends"] = calculate_habit_trends(data["weekly_summaries"], habit_config)
 
         # Write atomically (write to temp, then rename)
         temp_path = METRICS_FILE + ".tmp"

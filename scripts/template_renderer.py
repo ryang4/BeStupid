@@ -44,6 +44,7 @@ def render_daily_log(
     include_strength_log: bool = False,
     cardio_activities: list = None,
     yesterday_macros: dict = None,
+    habits: list = None,
 ) -> str:
     """
     Render daily log template with LLM-generated content.
@@ -60,11 +61,13 @@ def render_daily_log(
         include_strength_log: Whether to show strength log section
         cardio_activities: List of cardio types: ["swim", "bike", "run"]
         yesterday_macros: Dict with calories, protein_g, carbs_g, fat_g (or None)
+        habits: List of habit dicts with id and name (from habits.md config)
 
     Returns:
         str: Complete daily log markdown
     """
     cardio_activities = cardio_activities or []
+    habits = habits or []
 
     # Handle backwards compatibility if briefing is still a string
     if isinstance(briefing, str):
@@ -86,4 +89,5 @@ def render_daily_log(
         cardio_activities=cardio_activities,
         has_cardio=bool(cardio_activities),
         yesterday_macros=yesterday_macros,
+        habits=habits,
     )

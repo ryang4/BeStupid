@@ -52,11 +52,28 @@
       </div>
     </div>
 
-    <!-- Training Chart -->
+    <!-- Cardio Chart -->
     <div class="chart-wrapper">
-      <h2>Training Volume</h2>
+      <h2>Cardio Volume</h2>
       <div class="chart-container">
-        <canvas id="trainingChart" role="img" aria-label="Training volume chart showing distance covered per day"></canvas>
+        <canvas id="cardioChart" role="img" aria-label="Cardio volume chart showing swim, bike, and run distances"></canvas>
+      </div>
+    </div>
+
+    <!-- Strength Chart -->
+    <div class="chart-wrapper">
+      <h2>Strength Volume</h2>
+      <div class="chart-container">
+        <canvas id="strengthChart" role="img" aria-label="Strength volume chart showing total weight lifted"></canvas>
+      </div>
+    </div>
+
+    <!-- Habits Chart -->
+    <div class="chart-wrapper habits-wrapper">
+      <h2>Habit Streaks</h2>
+      <div id="habit-streaks-container"></div>
+      <div class="chart-container">
+        <canvas id="habitsChart" role="img" aria-label="Habit completion rate over time"></canvas>
       </div>
     </div>
 
@@ -143,16 +160,68 @@
       grid-template-columns: repeat(2, 1fr);
     }
 
-    /* Full width for nutrition and training charts */
+    /* Full width for nutrition, cardio, strength, and habits charts */
     .chart-wrapper:nth-child(5),  /* Nutrition */
-    .chart-wrapper:nth-child(6) { /* Training */
+    .chart-wrapper:nth-child(6),  /* Cardio */
+    .chart-wrapper:nth-child(7),  /* Strength */
+    .chart-wrapper:nth-child(8) { /* Habits */
       grid-column: 1 / -1;
     }
 
     .chart-wrapper:nth-child(5) .chart-container,
-    .chart-wrapper:nth-child(6) .chart-container {
+    .chart-wrapper:nth-child(6) .chart-container,
+    .chart-wrapper:nth-child(7) .chart-container,
+    .chart-wrapper:nth-child(8) .chart-container {
       height: 380px;
     }
+  }
+
+  /* Habit streak cards */
+  .habit-streak-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .streak-card {
+    background: rgba(58, 65, 104, 0.3);
+    border: 1px solid rgba(58, 65, 104, 0.4);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .streak-card:hover {
+    background: rgba(58, 65, 104, 0.4);
+    border-color: rgba(58, 65, 104, 0.6);
+  }
+
+  .streak-card .habit-name {
+    font-size: 0.8em;
+    color: #a0a0a0;
+    margin-bottom: 8px;
+    text-transform: capitalize;
+  }
+
+  .streak-card .current-streak {
+    font-size: 2.2em;
+    font-weight: 700;
+    color: #51cf66;
+    line-height: 1;
+  }
+
+  .streak-card .streak-label {
+    font-size: 0.7em;
+    color: #a0a0a0;
+    margin-top: 4px;
+  }
+
+  .streak-card .longest-streak {
+    font-size: 0.75em;
+    color: #748ffc;
+    margin-top: 8px;
   }
 
   /* Tablet optimization */
@@ -166,7 +235,9 @@
     }
 
     .chart-wrapper:nth-child(5) .chart-container,
-    .chart-wrapper:nth-child(6) .chart-container {
+    .chart-wrapper:nth-child(6) .chart-container,
+    .chart-wrapper:nth-child(7) .chart-container,
+    .chart-wrapper:nth-child(8) .chart-container {
       height: 360px;
     }
   }
@@ -650,44 +721,300 @@
       }
     });
 
-    // 6. Training Chart (Total distance per day)
-    const trainingData = entries.map(e => {
-      if (!e.training?.activities || e.training.activities.length === 0) {
+    // 6. Cardio Chart (Swim, Bike, Run - separate lines)
+    // Extract data by activity type
+    const swimData = entries.map(e => {
+      if (!e.training?.activities) return null;
+      const swim = e.training.activities.find(a => a.type === 'swim');
+      return swim ? swim.distance : null;
+    });
+
+    const bikeData = entries.map(e => {
+      if (!e.training?.activities) return null;
+      const bike = e.training.activities.find(a => a.type === 'bike');
+      return bike ? bike.distance : null;
+    });
+
+    const runData = entries.map(e => {
+      if (!e.training?.activities) return null;
+      const run = e.training.activities.find(a => a.type === 'run');
+      return run ? run.distance : null;
+    });
+
+    new Chart(document.getElementById('cardioChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Swim (m)',
+            data: swimData,
+            borderColor: '#4dabf7',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(77, 171, 247, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(77, 171, 247, 0.2)');
+              gradient.addColorStop(1, 'rgba(77, 171, 247, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#4dabf7',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+            yAxisID: 'y1'
+          },
+          {
+            label: 'Bike (mi)',
+            data: bikeData,
+            borderColor: '#51cf66',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(81, 207, 102, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(81, 207, 102, 0.2)');
+              gradient.addColorStop(1, 'rgba(81, 207, 102, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#51cf66',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Run (mi)',
+            data: runData,
+            borderColor: '#ff6b6b',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(255, 107, 107, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(255, 107, 107, 0.2)');
+              gradient.addColorStop(1, 'rgba(255, 107, 107, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#ff6b6b',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+            yAxisID: 'y'
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          x: commonOptions.scales.x,
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: 'Miles', color: '#a0a0a0' },
+            ticks: {
+              color: '#a0a0a0',
+              font: { size: 10 },
+              padding: 8
+            },
+            grid: {
+              color: 'rgba(58, 65, 104, 0.2)',
+              lineWidth: 1,
+              drawBorder: false
+            }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: 'Meters (swim)', color: '#a0a0a0' },
+            ticks: {
+              color: '#4dabf7',
+              font: { size: 10 },
+              padding: 8
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+          }
+        },
+        plugins: {
+          ...commonOptions.plugins,
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            callbacks: {
+              ...commonOptions.plugins.tooltip.callbacks,
+              label: function(context) {
+                const unit = context.dataset.label.includes('(m)') ? 'm' : 'mi';
+                return context.dataset.label.split(' ')[0] + ': ' + (context.parsed.y?.toFixed(1) || 'N/A') + ' ' + unit;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 7. Strength Chart (Total volume lifted per day)
+    const strengthData = entries.map(e => {
+      if (!e.training?.strength_exercises || e.training.strength_exercises.length === 0) {
         return null;
       }
-      // Sum total distance, convert all to meters
-      return e.training.activities.reduce((sum, activity) => {
-        const distance = activity.distance || 0;
-        // Assuming distance_unit is 'm' or 'km'
-        const meters = activity.distance_unit === 'km' ? distance * 1000 : distance;
-        return sum + meters;
+      // Sum total volume: sets × reps × weight
+      return e.training.strength_exercises.reduce((sum, ex) => {
+        const sets = ex.sets || 0;
+        const reps = ex.reps || 0;
+        const weight = ex.weight_lbs || 0;
+        return sum + (sets * reps * weight);
       }, 0);
     });
 
-    new Chart(document.getElementById('trainingChart'), {
+    new Chart(document.getElementById('strengthChart'), {
+      type: 'bar',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Volume (lbs)',
+          data: strengthData,
+          backgroundColor: 'rgba(139, 92, 246, 0.7)',
+          borderColor: '#8b5cf6',
+          borderWidth: 2,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        ...commonOptions,
+        plugins: {
+          ...commonOptions.plugins,
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            callbacks: {
+              ...commonOptions.plugins.tooltip.callbacks,
+              label: function(context) {
+                const value = context.parsed.y;
+                if (!value) return 'No strength training';
+                return 'Volume: ' + value.toLocaleString() + ' lbs';
+              },
+              afterLabel: function(context) {
+                const entry = entries[context.dataIndex];
+                if (entry.training?.strength_exercises?.length) {
+                  return entry.training.strength_exercises.length + ' exercises';
+                }
+                return '';
+              }
+            }
+          }
+        },
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            title: { display: true, text: 'Total Volume (lbs)', color: '#a0a0a0' },
+            ticks: {
+              ...commonOptions.scales.y.ticks,
+              callback: function(value) {
+                return value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 8. Habits Chart (Streak cards + completion rate)
+    const streaks = metricsData.streaks || {};
+    const trends = metricsData.trends || {};
+    const streakContainer = document.getElementById('habit-streaks-container');
+
+    // Trend indicator helper
+    const getTrendIndicator = (trend) => {
+      switch(trend) {
+        case 'improving': return { symbol: '↑', color: '#51cf66', label: 'improving' };
+        case 'declining': return { symbol: '↓', color: '#ff6b6b', label: 'declining' };
+        case 'stable': return { symbol: '→', color: '#ffc107', label: 'stable' };
+        default: return { symbol: '·', color: '#a0a0a0', label: 'no data' };
+      }
+    };
+
+    // Render streak cards if we have streak data
+    if (Object.keys(streaks).length > 0) {
+      let cardsHtml = '<div class="habit-streak-cards">';
+
+      Object.entries(streaks).forEach(([habitId, data]) => {
+        const displayName = habitId.replace(/_/g, ' ');
+        const trend = getTrendIndicator(trends[habitId]);
+        cardsHtml += `
+          <div class="streak-card">
+            <div class="habit-name">${displayName}</div>
+            <div class="current-streak">${data.current}</div>
+            <div class="streak-label">day streak</div>
+            <div class="longest-streak">Best: ${data.longest} days</div>
+            <div class="trend-indicator" style="color: ${trend.color}; margin-top: 8px; font-size: 0.9em;">
+              ${trend.symbol} ${trend.label}
+            </div>
+          </div>
+        `;
+      });
+
+      cardsHtml += '</div>';
+      streakContainer.innerHTML = cardsHtml;
+    } else {
+      streakContainer.innerHTML = '<p style="color: #a0a0a0; text-align: center;">No habit data yet. Start tracking habits to see streaks!</p>';
+    }
+
+    // Habit completion rate line chart
+    const habitCompletionData = entries.map(e =>
+      e.habits?.completion_rate != null ? e.habits.completion_rate * 100 : null
+    );
+
+    new Chart(document.getElementById('habitsChart'), {
       type: 'line',
       data: {
         labels: dates,
         datasets: [{
-          label: 'Total Distance (meters)',
-          data: trainingData,
-          borderColor: '#339af0',
+          label: 'Completion Rate (%)',
+          data: habitCompletionData,
+          borderColor: '#51cf66',
           borderWidth: 2.5,
           borderCapStyle: 'round',
           borderJoinStyle: 'round',
           backgroundColor: function(context) {
             const chart = context.chart;
             const {ctx, chartArea} = chart;
-            if (!chartArea) return 'rgba(51, 154, 240, 0.1)';
+            if (!chartArea) return 'rgba(81, 207, 102, 0.1)';
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, 'rgba(51, 154, 240, 0.2)');
-            gradient.addColorStop(1, 'rgba(51, 154, 240, 0.0)');
+            gradient.addColorStop(0, 'rgba(81, 207, 102, 0.2)');
+            gradient.addColorStop(1, 'rgba(81, 207, 102, 0.0)');
             return gradient;
           },
           pointRadius: 3.5,
           pointHoverRadius: 6,
           pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#339af0',
+          pointBorderColor: '#51cf66',
           pointBorderWidth: 2,
           pointHoverBorderWidth: 3,
           tension: 0.4,
@@ -697,22 +1024,16 @@
       },
       options: {
         ...commonOptions,
-        plugins: {
-          ...commonOptions.plugins,
-          legend: {
-            display: false
-          },
-          tooltip: {
-            ...commonOptions.plugins.tooltip,
-            callbacks: {
-              ...commonOptions.plugins.tooltip.callbacks,
-              afterLabel: function(context) {
-                const entry = entries[context.dataIndex];
-                if (entry.training?.workout_type) {
-                  return 'Type: ' + entry.training.workout_type;
-                }
-                return '';
-              }
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            min: 0,
+            max: 100,
+            title: { display: true, text: 'Completion %', color: '#a0a0a0' },
+            ticks: {
+              ...commonOptions.scales.y.ticks,
+              callback: function(value) { return value + '%'; }
             }
           }
         }

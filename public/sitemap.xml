@@ -2,19 +2,49 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://ryan-galliher.com/logs/2025-12-17/</loc>
-    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+    <loc>https://ryan-galliher.com/logs/2025-12-27/</loc>
+    <lastmod>2025-12-27T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ryan-galliher.com/tags/log/</loc>
-    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-27T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ryan-galliher.com/logs/</loc>
-    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-27T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ryan-galliher.com/</loc>
-    <lastmod>2025-12-17T00:00:00+00:00</lastmod>
+    <lastmod>2025-12-27T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ryan-galliher.com/tags/</loc>
+    <lastmod>2025-12-27T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-26/</loc>
+    <lastmod>2025-12-26T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-25/</loc>
+    <lastmod>2025-12-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-24/</loc>
+    <lastmod>2025-12-24T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-23/</loc>
+    <lastmod>2025-12-23T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-22/</loc>
+    <lastmod>2025-12-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-21/</loc>
+    <lastmod>2025-12-21T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-20/</loc>
+    <lastmod>2025-12-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-19/</loc>
+    <lastmod>2025-12-19T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-18/</loc>
+    <lastmod>2025-12-18T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/logs/2025-12-17/</loc>
     <lastmod>2025-12-17T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ryan-galliher.com/logs/2025-12-16/</loc>
@@ -41,8 +71,13 @@
     <loc>https://ryan-galliher.com/config/protocol_2025-12-08/</loc>
     <lastmod>2023-11-27T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://ryan-galliher.com/config/protocol_2025-12-22/</loc>
+    <lastmod>2023-10-01T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://ryan-galliher.com/config/protocol_2025-12-15/</loc>
     <lastmod>2023-01-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ryan-galliher.com/config/habits/</loc>
   </url><url>
     <loc>https://ryan-galliher.com/config/ryan/</loc>
   </url><url>

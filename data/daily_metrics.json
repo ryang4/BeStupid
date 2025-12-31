@@ -1134,7 +1134,156 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2025-12-26",
+      "extracted_at": "2025-12-27T10:40:10.630655",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": [
+          {
+            "exercise": "dumbbell bench press",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 60.0
+          },
+          {
+            "exercise": "dumbbell bent over row",
+            "sets": 3,
+            "reps": 9,
+            "weight_lbs": 65.0
+          },
+          {
+            "exercise": "cable tricep pushdown",
+            "sets": 3,
+            "reps": 7,
+            "weight_lbs": 140.0
+          },
+          {
+            "exercise": "cable bicep curls",
+            "sets": 3,
+            "reps": 7,
+            "weight_lbs": 100.0
+          },
+          {
+            "exercise": "dumbbell lat raises",
+            "sets": 3,
+            "reps": 9,
+            "weight_lbs": 10.0
+          },
+          {
+            "exercise": "leg press",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 280.0
+          }
+        ]
+      },
+      "todos": {
+        "total": 14,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "nutrition": {
+        "calories": 4578,
+        "protein_g": 152,
+        "carbs_g": 486,
+        "fat_g": 222,
+        "line_items": [
+          {
+            "food": "plain bagel with cream cheese and two eggs",
+            "time": null,
+            "calories": 450,
+            "protein_g": 20,
+            "carbs_g": 45,
+            "fat_g": 25
+          },
+          {
+            "food": "three ribeye steak tacos with salsa and cojita cheese",
+            "time": null,
+            "calories": 750,
+            "protein_g": 45,
+            "carbs_g": 30,
+            "fat_g": 50
+          },
+          {
+            "food": "30 tortilla chips with salsa",
+            "time": null,
+            "calories": 300,
+            "protein_g": 3,
+            "carbs_g": 45,
+            "fat_g": 15
+          },
+          {
+            "food": "2 cups honey bunches of oats cereal with whole milk",
+            "time": null,
+            "calories": 600,
+            "protein_g": 15,
+            "carbs_g": 90,
+            "fat_g": 20
+          },
+          {
+            "food": "beef stew with potatoes and carrots",
+            "time": null,
+            "calories": 400,
+            "protein_g": 30,
+            "carbs_g": 40,
+            "fat_g": 15
+          },
+          {
+            "food": "3 slices multi grain bread",
+            "time": null,
+            "calories": 270,
+            "protein_g": 10,
+            "carbs_g": 45,
+            "fat_g": 5
+          },
+          {
+            "food": "ham and cheddar cracker lunchable",
+            "time": null,
+            "calories": 300,
+            "protein_g": 15,
+            "carbs_g": 30,
+            "fat_g": 20
+          },
+          {
+            "food": "lidl kombucha",
+            "time": null,
+            "calories": 30,
+            "protein_g": 0,
+            "carbs_g": 10,
+            "fat_g": 0
+          },
+          {
+            "food": "clif bar",
+            "time": null,
+            "calories": 240,
+            "protein_g": 9,
+            "carbs_g": 35,
+            "fat_g": 8
+          },
+          {
+            "food": "two trader joes toffee",
+            "time": null,
+            "calories": 240,
+            "protein_g": 2,
+            "carbs_g": 30,
+            "fat_g": 14
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2025-12-26T15:21:50.944019"
+  "last_updated": "2025-12-27T10:40:34.224083"
 }

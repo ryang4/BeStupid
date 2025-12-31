@@ -159,9 +159,26 @@ Data is automatically updated from daily log entries.</p>
 
     
     <div class="chart-wrapper">
-      <h2>Training Volume</h2>
+      <h2>Cardio Volume</h2>
       <div class="chart-container">
-        <canvas id="trainingChart" role="img" aria-label="Training volume chart showing distance covered per day"></canvas>
+        <canvas id="cardioChart" role="img" aria-label="Cardio volume chart showing swim, bike, and run distances"></canvas>
+      </div>
+    </div>
+
+    
+    <div class="chart-wrapper">
+      <h2>Strength Volume</h2>
+      <div class="chart-container">
+        <canvas id="strengthChart" role="img" aria-label="Strength volume chart showing total weight lifted"></canvas>
+      </div>
+    </div>
+
+    
+    <div class="chart-wrapper habits-wrapper">
+      <h2>Habit Streaks</h2>
+      <div id="habit-streaks-container"></div>
+      <div class="chart-container">
+        <canvas id="habitsChart" role="img" aria-label="Habit completion rate over time"></canvas>
       </div>
     </div>
 
@@ -250,14 +267,66 @@ Data is automatically updated from daily log entries.</p>
 
      
     .chart-wrapper:nth-child(5),   
-    .chart-wrapper:nth-child(6) {  
+    .chart-wrapper:nth-child(6),   
+    .chart-wrapper:nth-child(7),   
+    .chart-wrapper:nth-child(8) {  
       grid-column: 1 / -1;
     }
 
     .chart-wrapper:nth-child(5) .chart-container,
-    .chart-wrapper:nth-child(6) .chart-container {
+    .chart-wrapper:nth-child(6) .chart-container,
+    .chart-wrapper:nth-child(7) .chart-container,
+    .chart-wrapper:nth-child(8) .chart-container {
       height: 380px;
     }
+  }
+
+   
+  .habit-streak-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .streak-card {
+    background: rgba(58, 65, 104, 0.3);
+    border: 1px solid rgba(58, 65, 104, 0.4);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+
+  .streak-card:hover {
+    background: rgba(58, 65, 104, 0.4);
+    border-color: rgba(58, 65, 104, 0.6);
+  }
+
+  .streak-card .habit-name {
+    font-size: 0.8em;
+    color: #a0a0a0;
+    margin-bottom: 8px;
+    text-transform: capitalize;
+  }
+
+  .streak-card .current-streak {
+    font-size: 2.2em;
+    font-weight: 700;
+    color: #51cf66;
+    line-height: 1;
+  }
+
+  .streak-card .streak-label {
+    font-size: 0.7em;
+    color: #a0a0a0;
+    margin-top: 4px;
+  }
+
+  .streak-card .longest-streak {
+    font-size: 0.75em;
+    color: #748ffc;
+    margin-top: 8px;
   }
 
    
@@ -271,7 +340,9 @@ Data is automatically updated from daily log entries.</p>
     }
 
     .chart-wrapper:nth-child(5) .chart-container,
-    .chart-wrapper:nth-child(6) .chart-container {
+    .chart-wrapper:nth-child(6) .chart-container,
+    .chart-wrapper:nth-child(7) .chart-container,
+    .chart-wrapper:nth-child(8) .chart-container {
       height: 360px;
     }
   }
@@ -301,7 +372,7 @@ Data is automatically updated from daily log entries.</p>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     
-    const metricsData = JSON.parse("{\"entries\":[{\"date\":\"2025-12-15\",\"extracted_at\":\"2025-12-16T20:17:19.620475\",\"extraction_notes\":[],\"mood\":{\"bedtime\":5,\"morning\":3},\"nutrition\":{\"calories\":null,\"carbs_g\":null,\"fat_g\":null,\"protein_g\":null},\"sleep\":{\"hours\":6.5,\"quality\":5.5},\"todos\":{\"completed\":6,\"completion_rate\":0.43,\"total\":14},\"training\":{\"activities\":[],\"strength_exercises\":[],\"workout_type\":\"recovery\"},\"weight_lbs\":null},{\"date\":\"2025-12-16\",\"extracted_at\":\"2025-12-17T18:45:06.504563\",\"extraction_notes\":[],\"mood\":{\"bedtime\":6,\"morning\":5},\"nutrition\":{\"calories\":2720,\"carbs_g\":380,\"fat_g\":120,\"line_items\":[{\"calories\":450,\"carbs_g\":54,\"fat_g\":27,\"food\":\"4.5 trader joes toffee nut bars\",\"protein_g\":6,\"time\":\"12pm\"},{\"calories\":450,\"carbs_g\":34,\"fat_g\":24,\"food\":\"4 eggs and 2 thin sliced whole wheat bread with guac\",\"protein_g\":28,\"time\":\"10am\"},{\"calories\":450,\"carbs_g\":60,\"fat_g\":24,\"food\":\"3 servings tollhouse pita chips\",\"protein_g\":6,\"time\":\"12pm\"},{\"calories\":500,\"carbs_g\":55,\"fat_g\":28,\"food\":\"Trader joes multi grain bread with 50g peanut butter and 30g raspberry jam\",\"protein_g\":15,\"time\":null},{\"calories\":0,\"carbs_g\":0,\"fat_g\":0,\"food\":\"More coffee\",\"protein_g\":0,\"time\":\"1pm\"},{\"calories\":120,\"carbs_g\":30,\"fat_g\":0,\"food\":\"Trader joes apple cider\",\"protein_g\":0,\"time\":\"5pm\"},{\"calories\":220,\"carbs_g\":0,\"fat_g\":5,\"food\":\"1 chicken breast\",\"protein_g\":35,\"time\":\"6pm\"},{\"calories\":600,\"carbs_g\":120,\"fat_g\":10,\"food\":\"spaghetti noodles with sauce, two servings\",\"protein_g\":20,\"time\":\"6pm\"},{\"calories\":64,\"carbs_g\":12,\"fat_g\":1,\"food\":\"8 asparagus\",\"protein_g\":5,\"time\":null},{\"calories\":0,\"carbs_g\":0,\"fat_g\":0,\"food\":\"Tea\",\"protein_g\":0,\"time\":\"10pm\"},{\"calories\":250,\"carbs_g\":40,\"fat_g\":6,\"food\":\"1 cup of bean stew\",\"protein_g\":15,\"time\":\"11:59pm\"},{\"calories\":150,\"carbs_g\":15,\"fat_g\":10,\"food\":\"10 potato chips\",\"protein_g\":2,\"time\":\"11:59pm\"}],\"protein_g\":85},\"sleep\":{\"hours\":6.13,\"quality\":7.4},\"todos\":{\"completed\":7,\"completion_rate\":1,\"total\":7},\"training\":{\"activities\":[{\"avg_hr\":117,\"avg_watts\":null,\"distance\":750,\"distance_unit\":\"m\",\"duration_minutes\":33.65,\"type\":\"swim\"}],\"strength_exercises\":[],\"workout_type\":\"swim\"},\"weight_lbs\":244}],\"last_updated\":\"2025-12-17T18:45:29.823023\",\"version\":\"1.0\"}");
+    const metricsData = JSON.parse("{\"entries\":[{\"date\":\"2025-12-15\",\"extracted_at\":\"2025-12-16T20:17:19.620475\",\"extraction_notes\":[],\"mood\":{\"bedtime\":5,\"morning\":3},\"nutrition\":{\"calories\":null,\"carbs_g\":null,\"fat_g\":null,\"protein_g\":null},\"sleep\":{\"hours\":6.5,\"quality\":5.5},\"todos\":{\"completed\":6,\"completion_rate\":0.43,\"total\":14},\"training\":{\"activities\":[],\"strength_exercises\":[],\"workout_type\":\"recovery\"},\"weight_lbs\":null},{\"date\":\"2025-12-16\",\"extracted_at\":\"2025-12-17T18:45:06.504563\",\"extraction_notes\":[],\"mood\":{\"bedtime\":6,\"morning\":5},\"nutrition\":{\"calories\":2720,\"carbs_g\":380,\"fat_g\":120,\"line_items\":[{\"calories\":450,\"carbs_g\":54,\"fat_g\":27,\"food\":\"4.5 trader joes toffee nut bars\",\"protein_g\":6,\"time\":\"12pm\"},{\"calories\":450,\"carbs_g\":34,\"fat_g\":24,\"food\":\"4 eggs and 2 thin sliced whole wheat bread with guac\",\"protein_g\":28,\"time\":\"10am\"},{\"calories\":450,\"carbs_g\":60,\"fat_g\":24,\"food\":\"3 servings tollhouse pita chips\",\"protein_g\":6,\"time\":\"12pm\"},{\"calories\":500,\"carbs_g\":55,\"fat_g\":28,\"food\":\"Trader joes multi grain bread with 50g peanut butter and 30g raspberry jam\",\"protein_g\":15,\"time\":null},{\"calories\":0,\"carbs_g\":0,\"fat_g\":0,\"food\":\"More coffee\",\"protein_g\":0,\"time\":\"1pm\"},{\"calories\":120,\"carbs_g\":30,\"fat_g\":0,\"food\":\"Trader joes apple cider\",\"protein_g\":0,\"time\":\"5pm\"},{\"calories\":220,\"carbs_g\":0,\"fat_g\":5,\"food\":\"1 chicken breast\",\"protein_g\":35,\"time\":\"6pm\"},{\"calories\":600,\"carbs_g\":120,\"fat_g\":10,\"food\":\"spaghetti noodles with sauce, two servings\",\"protein_g\":20,\"time\":\"6pm\"},{\"calories\":64,\"carbs_g\":12,\"fat_g\":1,\"food\":\"8 asparagus\",\"protein_g\":5,\"time\":null},{\"calories\":0,\"carbs_g\":0,\"fat_g\":0,\"food\":\"Tea\",\"protein_g\":0,\"time\":\"10pm\"},{\"calories\":250,\"carbs_g\":40,\"fat_g\":6,\"food\":\"1 cup of bean stew\",\"protein_g\":15,\"time\":\"11:59pm\"},{\"calories\":150,\"carbs_g\":15,\"fat_g\":10,\"food\":\"10 potato chips\",\"protein_g\":2,\"time\":\"11:59pm\"}],\"protein_g\":85},\"sleep\":{\"hours\":6.13,\"quality\":7.4},\"todos\":{\"completed\":7,\"completion_rate\":1,\"total\":7},\"training\":{\"activities\":[{\"avg_hr\":117,\"avg_watts\":null,\"distance\":750,\"distance_unit\":\"m\",\"duration_minutes\":33.65,\"type\":\"swim\"}],\"strength_exercises\":[],\"workout_type\":\"swim\"},\"weight_lbs\":244},{\"date\":\"2025-12-17\",\"extracted_at\":\"2025-12-18T09:33:45.079910\",\"extraction_notes\":[],\"mood\":{\"bedtime\":5,\"morning\":5},\"nutrition\":{\"calories\":1846,\"carbs_g\":217,\"fat_g\":71,\"line_items\":[{\"calories\":250,\"carbs_g\":40,\"fat_g\":5,\"food\":\"1 cup of Fage non-fat greek yogurth with 25 blueberries, wegmans high protein coconut and chocolate granola 50 grams, and 1 tsp honey\",\"protein_g\":20,\"time\":null},{\"calories\":750,\"carbs_g\":95,\"fat_g\":35,\"food\":\"lots of fuego takis, like 5 servings\",\"protein_g\":10,\"time\":null},{\"calories\":600,\"carbs_g\":70,\"fat_g\":10,\"food\":\"Two servings of spaghetti with tomato sauce and two chicken breasts\",\"protein_g\":50,\"time\":null},{\"calories\":5,\"carbs_g\":1,\"fat_g\":0,\"food\":\"3 cups of coffee before 11 am\",\"protein_g\":0,\"time\":\"before 11 am\"},{\"calories\":210,\"carbs_g\":25,\"fat_g\":15,\"food\":\"3 trader joes nut covered toffee\",\"protein_g\":3,\"time\":null},{\"calories\":31,\"carbs_g\":8,\"fat_g\":0,\"food\":\"1 mandarin\",\"protein_g\":0,\"time\":null}],\"protein_g\":96},\"sleep\":{\"hours\":5.82,\"quality\":7.3},\"todos\":{\"completed\":5,\"completion_rate\":0.45,\"total\":11},\"training\":{\"activities\":[{\"avg_hr\":116,\"avg_watts\":null,\"distance\":8.54,\"distance_unit\":\"mi\",\"duration_minutes\":30,\"type\":\"bike\"},{\"avg_hr\":140,\"avg_watts\":null,\"distance\":1.45,\"distance_unit\":\"mi\",\"duration_minutes\":20,\"type\":\"run\"}],\"strength_exercises\":[],\"workout_type\":\"brick\"},\"weight_lbs\":249},{\"date\":\"2025-12-18\",\"extracted_at\":\"2025-12-19T12:56:53.873536\",\"extraction_notes\":[\"Fuel log found but macro estimation failed\"],\"mood\":{\"bedtime\":3,\"morning\":4},\"nutrition\":{\"calories\":null,\"carbs_g\":null,\"fat_g\":null,\"line_items\":[],\"protein_g\":null},\"sleep\":{\"hours\":5.98,\"quality\":7.3},\"todos\":{\"completed\":5,\"completion_rate\":0.71,\"total\":7},\"training\":{\"activities\":[],\"strength_exercises\":[{\"exercise\":\"close grip bench press\",\"reps\":7,\"sets\":3,\"weight_lbs\":115},{\"exercise\":\"cable seated row\",\"reps\":10,\"sets\":3,\"weight_lbs\":130},{\"exercise\":\"barbell shoulder press\",\"reps\":7,\"sets\":3,\"weight_lbs\":85},{\"exercise\":\"assisted pull up\",\"reps\":2,\"sets\":3,\"weight_lbs\":50},{\"exercise\":\"dumbbell lying tricep extenstion\",\"reps\":8,\"sets\":3,\"weight_lbs\":20},{\"exercise\":\"dumbbell incline curl\",\"reps\":7,\"sets\":3,\"weight_lbs\":20},{\"exercise\":\"walking lunges\",\"reps\":7,\"sets\":3,\"weight_lbs\":20},{\"exercise\":\"lying leg curl\",\"reps\":9,\"sets\":3,\"weight_lbs\":125}],\"workout_type\":\"strength\"},\"weight_lbs\":245},{\"date\":\"2025-12-19\",\"extracted_at\":\"2025-12-20T00:56:07.642641\",\"extraction_notes\":[],\"mood\":{\"bedtime\":3,\"morning\":3},\"nutrition\":{\"calories\":1560,\"carbs_g\":205,\"fat_g\":56,\"line_items\":[{\"calories\":345,\"carbs_g\":69,\"fat_g\":9,\"food\":\"230 g Fage granola\",\"protein_g\":8,\"time\":null},{\"calories\":160,\"carbs_g\":20,\"fat_g\":4,\"food\":\"40g high protein wegmans granola\",\"protein_g\":10,\"time\":null},{\"calories\":20,\"carbs_g\":5,\"fat_g\":0,\"food\":\"25 blue berries\",\"protein_g\":0,\"time\":null},{\"calories\":21,\"carbs_g\":6,\"fat_g\":0,\"food\":\"1 tsp trader joes honey\",\"protein_g\":0,\"time\":null},{\"calories\":450,\"carbs_g\":45,\"fat_g\":27,\"food\":\"3 bags of cape cod potato chips\",\"protein_g\":6,\"time\":null},{\"calories\":60,\"carbs_g\":15,\"fat_g\":0,\"food\":\"1 half coke 1 half diet coke\",\"protein_g\":0,\"time\":null},{\"calories\":350,\"carbs_g\":50,\"fat_g\":15,\"food\":\"1 cup of pasta salad\",\"protein_g\":8,\"time\":null},{\"calories\":600,\"carbs_g\":120,\"fat_g\":2,\"food\":\"3 servings fusili pasta\",\"protein_g\":24,\"time\":null},{\"calories\":231,\"carbs_g\":0,\"fat_g\":5,\"food\":\"1 large chicken breast\",\"protein_g\":43,\"time\":null},{\"calories\":120,\"carbs_g\":2,\"fat_g\":10,\"food\":\"alfredo sauce (just butter and parmesan)\",\"protein_g\":5,\"time\":null},{\"calories\":373,\"carbs_g\":49,\"fat_g\":13,\"food\":\"1/2 trader joes veggie pizza\",\"protein_g\":15,\"time\":null}],\"protein_g\":55},\"sleep\":{\"hours\":6.27,\"quality\":7.8},\"todos\":{\"completed\":5,\"completion_rate\":0.71,\"total\":7},\"training\":{\"activities\":[{\"avg_hr\":137,\"avg_watts\":null,\"distance\":4,\"distance_unit\":\"mi\",\"duration_minutes\":53.52,\"type\":\"run\"}],\"strength_exercises\":[],\"workout_type\":\"run\"},\"weight_lbs\":246.8},{\"date\":\"2025-12-20\",\"extracted_at\":\"2025-12-21T11:13:35.275066\",\"extraction_notes\":[],\"mood\":{\"bedtime\":null,\"morning\":null},\"nutrition\":{\"calories\":2285,\"carbs_g\":279,\"fat_g\":88,\"line_items\":[{\"calories\":350,\"carbs_g\":50,\"fat_g\":12,\"food\":\"bagel with cream cheese\",\"protein_g\":10,\"time\":\"9:15\"},{\"calories\":40,\"carbs_g\":0,\"fat_g\":3,\"food\":\"slice of bacon\",\"protein_g\":3,\"time\":\"9:30\"},{\"calories\":230,\"carbs_g\":25,\"fat_g\":13,\"food\":\"grocery store croissant\",\"protein_g\":5,\"time\":\"9:30\"},{\"calories\":240,\"carbs_g\":60,\"fat_g\":0,\"food\":\"two glasses of orange juice\",\"protein_g\":2,\"time\":\"9:30\"},{\"calories\":100,\"carbs_g\":26,\"fat_g\":0,\"food\":\"two cups of gatorade\",\"protein_g\":0,\"time\":\"9:30\"},{\"calories\":300,\"carbs_g\":37,\"fat_g\":18,\"food\":\"bag of cheeze its 300 calories\",\"protein_g\":3,\"time\":\"12:45\"},{\"calories\":140,\"carbs_g\":19,\"fat_g\":8,\"food\":\"bag of cheetos 140 calories\",\"protein_g\":2,\"time\":\"16:45\"},{\"calories\":100,\"carbs_g\":10,\"fat_g\":0,\"food\":\"200g fage non fat greek yogurt\",\"protein_g\":20,\"time\":\"17:00\"},{\"calories\":160,\"carbs_g\":18,\"fat_g\":6,\"food\":\"40g wegmans high protein granola\",\"protein_g\":10,\"time\":\"17:00\"},{\"calories\":17,\"carbs_g\":4,\"fat_g\":0,\"food\":\"25 blueberries\",\"protein_g\":0,\"time\":\"17:00\"},{\"calories\":21,\"carbs_g\":6,\"fat_g\":0,\"food\":\"1 tsp honey\",\"protein_g\":0,\"time\":\"17:00\"},{\"calories\":500,\"carbs_g\":60,\"fat_g\":20,\"food\":\"chiang mai lo mein with chicken and curry\",\"protein_g\":20,\"time\":\"20:15\"},{\"calories\":427,\"carbs_g\":39,\"fat_g\":0,\"food\":\"3 beers\",\"protein_g\":2,\"time\":\"21:00\"}],\"protein_g\":65},\"sleep\":{\"hours\":null,\"quality\":null},\"todos\":{\"completed\":5,\"completion_rate\":0.71,\"total\":7},\"training\":{\"activities\":[{\"avg_hr\":null,\"avg_watts\":null,\"distance\":12,\"distance_unit\":\"mi\",\"duration_minutes\":45,\"type\":\"bike\"}],\"strength_exercises\":[],\"workout_type\":\"brick\"},\"weight_lbs\":null},{\"date\":\"2025-12-21\",\"extracted_at\":\"2025-12-22T01:28:02.781745\",\"extraction_notes\":[],\"mood\":{\"bedtime\":4,\"morning\":6},\"nutrition\":{\"calories\":2644,\"carbs_g\":348,\"fat_g\":116,\"line_items\":[{\"calories\":300,\"carbs_g\":55,\"fat_g\":3,\"food\":\"wegmans bagel\",\"protein_g\":10,\"time\":\"10:30am\"},{\"calories\":100,\"carbs_g\":1,\"fat_g\":10,\"food\":\"philadelphia cream cheese\",\"protein_g\":2,\"time\":\"10:30am\"},{\"calories\":140,\"carbs_g\":1,\"fat_g\":10,\"food\":\"two eggs\",\"protein_g\":12,\"time\":\"10:30am\"},{\"calories\":0,\"carbs_g\":0,\"fat_g\":0,\"food\":\"two cups of coffee\",\"protein_g\":0,\"time\":\"10:30am\"},{\"calories\":210,\"carbs_g\":54,\"fat_g\":0,\"food\":\"monster energy\",\"protein_g\":2,\"time\":\"12:00am\"},{\"calories\":160,\"carbs_g\":12,\"fat_g\":0,\"food\":\"fage yogurt 200g\",\"protein_g\":16,\"time\":\"12:30\"},{\"calories\":120,\"carbs_g\":18,\"fat_g\":4,\"food\":\"granola 30g\",\"protein_g\":2,\"time\":\"12:30\"},{\"calories\":21,\"carbs_g\":6,\"fat_g\":0,\"food\":\"honey 1 tsp\",\"protein_g\":0,\"time\":\"12:30\"},{\"calories\":200,\"carbs_g\":38,\"fat_g\":2,\"food\":\"two slices trader joes multigrain bread\",\"protein_g\":8,\"time\":\"13:00\"},{\"calories\":120,\"carbs_g\":0,\"fat_g\":2,\"food\":\"four slices deli turkey\",\"protein_g\":24,\"time\":\"13:00\"},{\"calories\":320,\"carbs_g\":28,\"fat_g\":20,\"food\":\"four trader joes nut covered toffee\",\"protein_g\":4,\"time\":\"17:00\"},{\"calories\":150,\"carbs_g\":15,\"fat_g\":8,\"food\":\"3 trader joes herbacious bites\",\"protein_g\":3,\"time\":\"17:00\"},{\"calories\":210,\"carbs_g\":42,\"fat_g\":2,\"food\":\"3 slices of baguette\",\"protein_g\":6,\"time\":\"23:59\"},{\"calories\":50,\"carbs_g\":1,\"fat_g\":4,\"food\":\"1 tbsp chicken pate\",\"protein_g\":3,\"time\":\"23:59\"},{\"calories\":383,\"carbs_g\":60,\"fat_g\":5,\"food\":\"2 cups vegetable stew made with 3 small russet potatoes, 1 cup roasted sweet potatoes, 2 large carrots, 1 onion, 1 fennel bulb, 5 cloves of garlic, and 1 large chicken breast\",\"protein_g\":32,\"time\":null}],\"protein_g\":101},\"sleep\":{\"hours\":9,\"quality\":8.5},\"todos\":{\"completed\":7,\"completion_rate\":0.78,\"total\":9},\"training\":{\"activities\":[{\"avg_hr\":133,\"avg_watts\":null,\"distance\":6.01,\"distance_unit\":\"mi\",\"duration_minutes\":79,\"type\":\"run\"}],\"strength_exercises\":[],\"workout_type\":\"run\"},\"weight_lbs\":null},{\"date\":\"2025-12-22\",\"extracted_at\":\"2025-12-23T10:51:16.884789\",\"extraction_notes\":[\"No fuel log found\"],\"mood\":{\"bedtime\":null,\"morning\":null},\"nutrition\":{\"calories\":null,\"carbs_g\":null,\"fat_g\":null,\"line_items\":[],\"protein_g\":null},\"sleep\":{\"hours\":null,\"quality\":null},\"todos\":{\"completed\":0,\"completion_rate\":0,\"total\":7},\"training\":{\"activities\":[],\"strength_exercises\":[],\"workout_type\":\"recovery\"},\"weight_lbs\":null},{\"date\":\"2025-12-23\",\"extracted_at\":\"2025-12-24T12:58:37.035170\",\"extraction_notes\":[],\"mood\":{\"bedtime\":7,\"morning\":2},\"nutrition\":{\"calories\":2580,\"carbs_g\":220,\"fat_g\":130,\"line_items\":[{\"calories\":200,\"carbs_g\":15,\"fat_g\":5,\"food\":\"pure protein bar\",\"protein_g\":20,\"time\":null},{\"calories\":440,\"carbs_g\":48,\"fat_g\":23,\"food\":\"chik fil a sandwich\",\"protein_g\":42,\"time\":null},{\"calories\":160,\"carbs_g\":20,\"fat_g\":9,\"food\":\"bag of cheese its\",\"protein_g\":2,\"time\":null},{\"calories\":120,\"carbs_g\":18,\"fat_g\":6,\"food\":\"almond bunches of oats\",\"protein_g\":3,\"time\":null},{\"calories\":150,\"carbs_g\":20,\"fat_g\":5,\"food\":\"wegmans high protein granola\",\"protein_g\":10,\"time\":null},{\"calories\":350,\"carbs_g\":45,\"fat_g\":15,\"food\":\"peanut butter and jelly sandwich\",\"protein_g\":10,\"time\":null},{\"calories\":90,\"carbs_g\":3,\"fat_g\":8,\"food\":\"spoonful of peanut butter\",\"protein_g\":4,\"time\":null},{\"calories\":210,\"carbs_g\":54,\"fat_g\":0,\"food\":\"monster\",\"protein_g\":2,\"time\":null},{\"calories\":0,\"carbs_g\":0,\"fat_g\":0,\"food\":\"3 coffees\",\"protein_g\":0,\"time\":null},{\"calories\":200,\"carbs_g\":12,\"fat_g\":0,\"food\":\"two whiskey cocktails\",\"protein_g\":0,\"time\":null},{\"calories\":360,\"carbs_g\":72,\"fat_g\":6,\"food\":\"3 pita breads\",\"protein_g\":12,\"time\":null},{\"calories\":150,\"carbs_g\":10,\"fat_g\":10,\"food\":\"grilled napa cabbage with tahini and parmesan sauce\",\"protein_g\":5,\"time\":null},{\"calories\":150,\"carbs_g\":0,\"fat_g\":12,\"food\":\"duck sausage\",\"protein_g\":15,\"time\":null},{\"calories\":150,\"carbs_g\":0,\"fat_g\":10,\"food\":\"wagyu beef 2 oz\",\"protein_g\":20,\"time\":null},{\"calories\":120,\"carbs_g\":30,\"fat_g\":0,\"food\":\"strawberry sorbet\",\"protein_g\":1,\"time\":null},{\"calories\":240,\"carbs_g\":20,\"fat_g\":15,\"food\":\"2 trader joes nut covered toffees\",\"protein_g\":4,\"time\":null}],\"protein_g\":110},\"sleep\":{\"hours\":5,\"quality\":6.3},\"todos\":{\"completed\":0,\"completion_rate\":0,\"total\":13},\"training\":{\"activities\":[],\"strength_exercises\":[],\"workout_type\":\"strength\"},\"weight_lbs\":null},{\"date\":\"2025-12-24\",\"extracted_at\":\"2025-12-25T10:29:19.879753\",\"extraction_notes\":[],\"mood\":{\"bedtime\":null,\"morning\":4},\"nutrition\":{\"calories\":2493,\"carbs_g\":177,\"fat_g\":165,\"line_items\":[{\"calories\":150,\"carbs_g\":30,\"fat_g\":1,\"food\":\"1/2 jalapeno bagel\",\"protein_g\":5,\"time\":null},{\"calories\":99,\"carbs_g\":1,\"fat_g\":10,\"food\":\"1 oz cream cheese\",\"protein_g\":2,\"time\":null},{\"calories\":140,\"carbs_g\":1,\"fat_g\":10,\"food\":\"2 large eggs\",\"protein_g\":12,\"time\":null},{\"calories\":210,\"carbs_g\":27,\"fat_g\":11,\"food\":\"20 M\\u0026Ms\",\"protein_g\":3,\"time\":null},{\"calories\":2,\"carbs_g\":0,\"fat_g\":0,\"food\":\"2 cups of coffee\",\"protein_g\":0,\"time\":null},{\"calories\":160,\"carbs_g\":5,\"fat_g\":14,\"food\":\"trader joes rosemary nuts\",\"protein_g\":4,\"time\":null},{\"calories\":110,\"carbs_g\":1,\"fat_g\":9,\"food\":\"slice of deli provolone cheese\",\"protein_g\":7,\"time\":null},{\"calories\":210,\"carbs_g\":27,\"fat_g\":11,\"food\":\"m8ms\",\"protein_g\":3,\"time\":null},{\"calories\":330,\"carbs_g\":1,\"fat_g\":28,\"food\":\"3 oz cheddar cheese\",\"protein_g\":21,\"time\":null},{\"calories\":150,\"carbs_g\":27,\"fat_g\":4,\"food\":\"15 gluten free crackers\",\"protein_g\":3,\"time\":null},{\"calories\":250,\"carbs_g\":1,\"fat_g\":21,\"food\":\"10 pieces beef salami\",\"protein_g\":15,\"time\":null},{\"calories\":450,\"carbs_g\":0,\"fat_g\":30,\"food\":\"1/2 new york strip steak cooked in butter\",\"protein_g\":35,\"time\":null},{\"calories\":350,\"carbs_g\":45,\"fat_g\":15,\"food\":\"1 baked potato with cheese and butter\",\"protein_g\":10,\"time\":null},{\"calories\":300,\"carbs_g\":35,\"fat_g\":15,\"food\":\"arugula salad with pomegranate seeds, sweet potato, and goat cheese\",\"protein_g\":10,\"time\":null},{\"calories\":200,\"carbs_g\":25,\"fat_g\":12,\"food\":\"egg nog ice cream\",\"protein_g\":4,\"time\":null},{\"calories\":200,\"carbs_g\":30,\"fat_g\":9,\"food\":\"trader joes cookies with jam\",\"protein_g\":2,\"time\":null}],\"protein_g\":112},\"sleep\":{\"hours\":5.28,\"quality\":6.6},\"todos\":{\"completed\":4,\"completion_rate\":0.36,\"total\":11},\"training\":{\"activities\":[],\"strength_exercises\":[],\"workout_type\":\"bike\"},\"weight_lbs\":247.8},{\"date\":\"2025-12-26\",\"extracted_at\":\"2025-12-27T10:40:10.630655\",\"extraction_notes\":[],\"mood\":{\"bedtime\":null,\"morning\":null},\"nutrition\":{\"calories\":4578,\"carbs_g\":486,\"fat_g\":222,\"line_items\":[{\"calories\":450,\"carbs_g\":45,\"fat_g\":25,\"food\":\"plain bagel with cream cheese and two eggs\",\"protein_g\":20,\"time\":null},{\"calories\":750,\"carbs_g\":30,\"fat_g\":50,\"food\":\"three ribeye steak tacos with salsa and cojita cheese\",\"protein_g\":45,\"time\":null},{\"calories\":300,\"carbs_g\":45,\"fat_g\":15,\"food\":\"30 tortilla chips with salsa\",\"protein_g\":3,\"time\":null},{\"calories\":600,\"carbs_g\":90,\"fat_g\":20,\"food\":\"2 cups honey bunches of oats cereal with whole milk\",\"protein_g\":15,\"time\":null},{\"calories\":400,\"carbs_g\":40,\"fat_g\":15,\"food\":\"beef stew with potatoes and carrots\",\"protein_g\":30,\"time\":null},{\"calories\":270,\"carbs_g\":45,\"fat_g\":5,\"food\":\"3 slices multi grain bread\",\"protein_g\":10,\"time\":null},{\"calories\":300,\"carbs_g\":30,\"fat_g\":20,\"food\":\"ham and cheddar cracker lunchable\",\"protein_g\":15,\"time\":null},{\"calories\":30,\"carbs_g\":10,\"fat_g\":0,\"food\":\"lidl kombucha\",\"protein_g\":0,\"time\":null},{\"calories\":240,\"carbs_g\":35,\"fat_g\":8,\"food\":\"clif bar\",\"protein_g\":9,\"time\":null},{\"calories\":240,\"carbs_g\":30,\"fat_g\":14,\"food\":\"two trader joes toffee\",\"protein_g\":2,\"time\":null}],\"protein_g\":152},\"sleep\":{\"hours\":null,\"quality\":null},\"todos\":{\"completed\":0,\"completion_rate\":0,\"total\":14},\"training\":{\"activities\":[],\"strength_exercises\":[{\"exercise\":\"dumbbell bench press\",\"reps\":8,\"sets\":3,\"weight_lbs\":60},{\"exercise\":\"dumbbell bent over row\",\"reps\":9,\"sets\":3,\"weight_lbs\":65},{\"exercise\":\"cable tricep pushdown\",\"reps\":7,\"sets\":3,\"weight_lbs\":140},{\"exercise\":\"cable bicep curls\",\"reps\":7,\"sets\":3,\"weight_lbs\":100},{\"exercise\":\"dumbbell lat raises\",\"reps\":9,\"sets\":3,\"weight_lbs\":10},{\"exercise\":\"leg press\",\"reps\":10,\"sets\":3,\"weight_lbs\":280}],\"workout_type\":\"strength\"},\"weight_lbs\":null}],\"last_updated\":\"2025-12-27T10:40:34.224083\",\"version\":\"1.0\"}");
 
     
     const entries = metricsData.entries.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -756,43 +827,284 @@ Data is automatically updated from daily log entries.</p>
     });
 
     
-    const trainingData = entries.map(e => {
-      if (!e.training?.activities || e.training.activities.length === 0) {
+    
+    const swimData = entries.map(e => {
+      if (!e.training?.activities) return null;
+      const swim = e.training.activities.find(a => a.type === 'swim');
+      return swim ? swim.distance : null;
+    });
+
+    const bikeData = entries.map(e => {
+      if (!e.training?.activities) return null;
+      const bike = e.training.activities.find(a => a.type === 'bike');
+      return bike ? bike.distance : null;
+    });
+
+    const runData = entries.map(e => {
+      if (!e.training?.activities) return null;
+      const run = e.training.activities.find(a => a.type === 'run');
+      return run ? run.distance : null;
+    });
+
+    new Chart(document.getElementById('cardioChart'), {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Swim (m)',
+            data: swimData,
+            borderColor: '#4dabf7',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(77, 171, 247, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(77, 171, 247, 0.2)');
+              gradient.addColorStop(1, 'rgba(77, 171, 247, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#4dabf7',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+            yAxisID: 'y1'
+          },
+          {
+            label: 'Bike (mi)',
+            data: bikeData,
+            borderColor: '#51cf66',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(81, 207, 102, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(81, 207, 102, 0.2)');
+              gradient.addColorStop(1, 'rgba(81, 207, 102, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#51cf66',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+            yAxisID: 'y'
+          },
+          {
+            label: 'Run (mi)',
+            data: runData,
+            borderColor: '#ff6b6b',
+            borderWidth: 2.5,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round',
+            backgroundColor: function(context) {
+              const chart = context.chart;
+              const {ctx, chartArea} = chart;
+              if (!chartArea) return 'rgba(255, 107, 107, 0.1)';
+              const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              gradient.addColorStop(0, 'rgba(255, 107, 107, 0.2)');
+              gradient.addColorStop(1, 'rgba(255, 107, 107, 0.0)');
+              return gradient;
+            },
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#ff6b6b',
+            pointBorderWidth: 2,
+            pointHoverBorderWidth: 3,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+            yAxisID: 'y'
+          }
+        ]
+      },
+      options: {
+        ...commonOptions,
+        scales: {
+          x: commonOptions.scales.x,
+          y: {
+            type: 'linear',
+            position: 'left',
+            title: { display: true, text: 'Miles', color: '#a0a0a0' },
+            ticks: {
+              color: '#a0a0a0',
+              font: { size: 10 },
+              padding: 8
+            },
+            grid: {
+              color: 'rgba(58, 65, 104, 0.2)',
+              lineWidth: 1,
+              drawBorder: false
+            }
+          },
+          y1: {
+            type: 'linear',
+            position: 'right',
+            title: { display: true, text: 'Meters (swim)', color: '#a0a0a0' },
+            ticks: {
+              color: '#4dabf7',
+              font: { size: 10 },
+              padding: 8
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+          }
+        },
+        plugins: {
+          ...commonOptions.plugins,
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            callbacks: {
+              ...commonOptions.plugins.tooltip.callbacks,
+              label: function(context) {
+                const unit = context.dataset.label.includes('(m)') ? 'm' : 'mi';
+                return context.dataset.label.split(' ')[0] + ': ' + (context.parsed.y?.toFixed(1) || 'N/A') + ' ' + unit;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    
+    const strengthData = entries.map(e => {
+      if (!e.training?.strength_exercises || e.training.strength_exercises.length === 0) {
         return null;
       }
       
-      return e.training.activities.reduce((sum, activity) => {
-        const distance = activity.distance || 0;
-        
-        const meters = activity.distance_unit === 'km' ? distance * 1000 : distance;
-        return sum + meters;
+      return e.training.strength_exercises.reduce((sum, ex) => {
+        const sets = ex.sets || 0;
+        const reps = ex.reps || 0;
+        const weight = ex.weight_lbs || 0;
+        return sum + (sets * reps * weight);
       }, 0);
     });
 
-    new Chart(document.getElementById('trainingChart'), {
+    new Chart(document.getElementById('strengthChart'), {
+      type: 'bar',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: 'Volume (lbs)',
+          data: strengthData,
+          backgroundColor: 'rgba(139, 92, 246, 0.7)',
+          borderColor: '#8b5cf6',
+          borderWidth: 2,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        ...commonOptions,
+        plugins: {
+          ...commonOptions.plugins,
+          tooltip: {
+            ...commonOptions.plugins.tooltip,
+            callbacks: {
+              ...commonOptions.plugins.tooltip.callbacks,
+              label: function(context) {
+                const value = context.parsed.y;
+                if (!value) return 'No strength training';
+                return 'Volume: ' + value.toLocaleString() + ' lbs';
+              },
+              afterLabel: function(context) {
+                const entry = entries[context.dataIndex];
+                if (entry.training?.strength_exercises?.length) {
+                  return entry.training.strength_exercises.length + ' exercises';
+                }
+                return '';
+              }
+            }
+          }
+        },
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            title: { display: true, text: 'Total Volume (lbs)', color: '#a0a0a0' },
+            ticks: {
+              ...commonOptions.scales.y.ticks,
+              callback: function(value) {
+                return value.toLocaleString();
+              }
+            }
+          }
+        }
+      }
+    });
+
+    
+    const streaks = metricsData.streaks || {};
+    const streakContainer = document.getElementById('habit-streaks-container');
+
+    
+    if (Object.keys(streaks).length > 0) {
+      let cardsHtml = '<div class="habit-streak-cards">';
+
+      Object.entries(streaks).forEach(([habitId, data]) => {
+        const displayName = habitId.replace(/_/g, ' ');
+        cardsHtml += `
+          <div class="streak-card">
+            <div class="habit-name">${displayName}</div>
+            <div class="current-streak">${data.current}</div>
+            <div class="streak-label">day streak</div>
+            <div class="longest-streak">Best: ${data.longest} days</div>
+          </div>
+        `;
+      });
+
+      cardsHtml += '</div>';
+      streakContainer.innerHTML = cardsHtml;
+    } else {
+      streakContainer.innerHTML = '<p style="color: #a0a0a0; text-align: center;">No habit data yet. Start tracking habits to see streaks!</p>';
+    }
+
+    
+    const habitCompletionData = entries.map(e =>
+      e.habits?.completion_rate != null ? e.habits.completion_rate * 100 : null
+    );
+
+    new Chart(document.getElementById('habitsChart'), {
       type: 'line',
       data: {
         labels: dates,
         datasets: [{
-          label: 'Total Distance (meters)',
-          data: trainingData,
-          borderColor: '#339af0',
+          label: 'Completion Rate (%)',
+          data: habitCompletionData,
+          borderColor: '#51cf66',
           borderWidth: 2.5,
           borderCapStyle: 'round',
           borderJoinStyle: 'round',
           backgroundColor: function(context) {
             const chart = context.chart;
             const {ctx, chartArea} = chart;
-            if (!chartArea) return 'rgba(51, 154, 240, 0.1)';
+            if (!chartArea) return 'rgba(81, 207, 102, 0.1)';
             const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            gradient.addColorStop(0, 'rgba(51, 154, 240, 0.2)');
-            gradient.addColorStop(1, 'rgba(51, 154, 240, 0.0)');
+            gradient.addColorStop(0, 'rgba(81, 207, 102, 0.2)');
+            gradient.addColorStop(1, 'rgba(81, 207, 102, 0.0)');
             return gradient;
           },
           pointRadius: 3.5,
           pointHoverRadius: 6,
           pointBackgroundColor: '#ffffff',
-          pointBorderColor: '#339af0',
+          pointBorderColor: '#51cf66',
           pointBorderWidth: 2,
           pointHoverBorderWidth: 3,
           tension: 0.4,
@@ -802,22 +1114,16 @@ Data is automatically updated from daily log entries.</p>
       },
       options: {
         ...commonOptions,
-        plugins: {
-          ...commonOptions.plugins,
-          legend: {
-            display: false
-          },
-          tooltip: {
-            ...commonOptions.plugins.tooltip,
-            callbacks: {
-              ...commonOptions.plugins.tooltip.callbacks,
-              afterLabel: function(context) {
-                const entry = entries[context.dataIndex];
-                if (entry.training?.workout_type) {
-                  return 'Type: ' + entry.training.workout_type;
-                }
-                return '';
-              }
+        scales: {
+          ...commonOptions.scales,
+          y: {
+            ...commonOptions.scales.y,
+            min: 0,
+            max: 100,
+            title: { display: true, text: 'Completion %', color: '#a0a0a0' },
+            ticks: {
+              ...commonOptions.scales.y.ticks,
+              callback: function(value) { return value + '%'; }
             }
           }
         }

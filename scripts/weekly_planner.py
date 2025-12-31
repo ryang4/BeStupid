@@ -7,7 +7,9 @@ Outputs: protocol_YYYY-WXX_DRAFT.md for human review
 
 Usage:
     python weekly_planner.py                    # Generate next week
+    python weekly_planner.py --this-week        # Generate for current week
     python weekly_planner.py --week 50          # Generate specific week
+    python weekly_planner.py --date 2025-12-29  # Generate for specific Monday
     python weekly_planner.py --finalize         # Remove _DRAFT suffix
 """
 
@@ -42,6 +44,22 @@ def get_next_week():
     next_monday = today + timedelta(days=days_until_monday)
     year, week, _ = next_monday.isocalendar()
     monday_str = next_monday.strftime("%Y-%m-%d")
+    return year, week, monday_str
+
+
+def get_this_week():
+    """
+    Calculate the current week's Monday date.
+
+    Returns:
+        tuple: (year, week_number, monday_date_str)
+    """
+    today = datetime.now()
+    # Find most recent Monday (including today if Monday)
+    days_since_monday = today.weekday()  # Monday=0, Sunday=6
+    this_monday = today - timedelta(days=days_since_monday)
+    year, week, _ = this_monday.isocalendar()
+    monday_str = this_monday.strftime("%Y-%m-%d")
     return year, week, monday_str
 
 
@@ -131,6 +149,8 @@ def main():
     parser = argparse.ArgumentParser(description="Generate weekly training protocol")
     parser.add_argument('--week', type=int, help='Specific week number to generate')
     parser.add_argument('--date', type=str, help='Specific Monday date (YYYY-MM-DD) to generate')
+    parser.add_argument('--this-week', action='store_true', dest='this_week',
+                       help='Generate for current week (most recent Monday)')
     parser.add_argument('--finalize', action='store_true', help='Remove _DRAFT suffix from latest protocol')
     args = parser.parse_args()
 
@@ -163,6 +183,8 @@ def main():
         week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
         target_monday = week_1_monday + timedelta(weeks=week - 1)
         monday_str = target_monday.strftime("%Y-%m-%d")
+    elif args.this_week:
+        year, week, monday_str = get_this_week()
     else:
         year, week, monday_str = get_next_week()
 

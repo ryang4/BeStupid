@@ -26,6 +26,12 @@ tags: ["log"]
 ## Today's Todos
 {{ todos_markdown }}
 
+## Daily Habits
+{% for habit in habits %}
+- [ ] {{ habit.name }}
+  - *Setup: {{ habit.setup_action }}*
+{% endfor %}
+
 ## Daily Stats
 <!-- Enter values in the second column. Leave 0 if not applicable. -->
 
