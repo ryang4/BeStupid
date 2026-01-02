@@ -403,15 +403,9 @@ CRITICAL RULES:
    - Recovery → []
 
 4. **todos**: MUST follow these rules:
-   - NEVER use "AND" - split into separate items
-     ❌ "Complete deadlifts and squats"
-     ✅ "Complete 3x5 deadlifts at 300lbs"
-     ✅ "Complete 3x5 squats at 225lbs"
-   - Be SPECIFIC with numbers, weights, distances
-     ❌ "Complete today's workout"
-     ✅ "Complete 800m swim with technique drills"
-   - Include 5-7 items covering: workout tasks, startup work, recovery
-   - Carry forward incomplete items from yesterday
+   - Generate ONLY ONE todo: "- [ ] Perform today's workout"
+   - Do NOT generate any other todos - the user manages their own task list
+   - All other tasks come from carrying forward yesterday's incomplete items (handled separately)
 
 5. **briefing**: Must be a structured object with:
    - **focus**: ONE clear priority for today. Be aggressive and specific.

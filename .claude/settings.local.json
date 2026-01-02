@@ -25,7 +25,11 @@
       "Bash(git config:*)",
       "Bash(python scripts/metrics_extractor.py:*)",
       "Bash(python:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(tree:*)",
+      "Bash(git -C /Users/ryang4/Projects/BeStupid log --oneline -15)",
+      "Bash(wc:*)",
+      "Bash(git -C /Users/ryang4/Projects/BeStupid remote:*)"
     ],
     "deny": [],
     "ask": []
