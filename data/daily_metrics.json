@@ -1651,17 +1651,187 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-01-03",
+      "extracted_at": "2026-01-04T01:20:22.190334",
+      "sleep": {
+        "hours": 6.3,
+        "quality": 6.9
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 5.0,
+        "bedtime": 5.0
+      },
+      "training": {
+        "workout_type": "brick",
+        "activities": [
+          {
+            "type": "bike",
+            "distance": 8.7,
+            "distance_unit": "mi",
+            "duration_minutes": 30.0,
+            "avg_hr": 124,
+            "avg_watts": null
+          },
+          {
+            "type": "run",
+            "distance": 0.8,
+            "distance_unit": "mi",
+            "duration_minutes": 10,
+            "avg_hr": 146,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 2,
+        "completion_rate": 0.29
+      },
+      "habits": {
+        "completed": [
+          "reading",
+          "no_phone_am"
+        ],
+        "missed": [
+          "stretching",
+          "journal"
+        ],
+        "completion_rate": 0.5,
+        "details": {
+          "reading": true,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": true
+        }
+      },
+      "nutrition": {
+        "calories": 2487,
+        "protein_g": 92,
+        "carbs_g": 338,
+        "fat_g": 108,
+        "line_items": [
+          {
+            "food": "kodiak pancakes 2/3 cup",
+            "time": "10:00",
+            "calories": 200,
+            "protein_g": 10,
+            "carbs_g": 35,
+            "fat_g": 5
+          },
+          {
+            "food": "50 blueberries",
+            "time": "10:00",
+            "calories": 80,
+            "protein_g": 1,
+            "carbs_g": 20,
+            "fat_g": 0
+          },
+          {
+            "food": "1 large banana",
+            "time": "10:00",
+            "calories": 120,
+            "protein_g": 1,
+            "carbs_g": 31,
+            "fat_g": 0
+          },
+          {
+            "food": "1 somsa beef",
+            "time": "10:00",
+            "calories": 250,
+            "protein_g": 10,
+            "carbs_g": 20,
+            "fat_g": 15
+          },
+          {
+            "food": "2 tbsp 100% maple syrup",
+            "time": "10:00",
+            "calories": 100,
+            "protein_g": 0,
+            "carbs_g": 27,
+            "fat_g": 0
+          },
+          {
+            "food": "1 bag kirkland trail mix snack",
+            "time": "16:00",
+            "calories": 250,
+            "protein_g": 5,
+            "carbs_g": 20,
+            "fat_g": 18
+          },
+          {
+            "food": "1 protein shake with 1 scoop vanilla optimum nutrition whey protein, 1 serving trader joes ground flaxseed, 20g 100% peanut butter, 1 cup almond milk, 60g kirkland frozen berries",
+            "time": "19:00",
+            "calories": 450,
+            "protein_g": 30,
+            "carbs_g": 35,
+            "fat_g": 25
+          },
+          {
+            "food": "2/3 cup shredded beet salad with fried potatoes and light mayo",
+            "time": "19:00",
+            "calories": 200,
+            "protein_g": 3,
+            "carbs_g": 25,
+            "fat_g": 12
+          },
+          {
+            "food": "2/3 cup plov",
+            "time": "19:00",
+            "calories": 200,
+            "protein_g": 5,
+            "carbs_g": 35,
+            "fat_g": 7
+          },
+          {
+            "food": "3oz beef",
+            "time": "19:00",
+            "calories": 200,
+            "protein_g": 18,
+            "carbs_g": 0,
+            "fat_g": 12
+          },
+          {
+            "food": "1 boiled golden potato",
+            "time": "19:00",
+            "calories": 150,
+            "protein_g": 4,
+            "carbs_g": 35,
+            "fat_g": 0
+          },
+          {
+            "food": "2 tbsp butter",
+            "time": "19:00",
+            "calories": 200,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 22
+          },
+          {
+            "food": "1 serving narin",
+            "time": "19:00",
+            "calories": 220,
+            "protein_g": 6,
+            "carbs_g": 40,
+            "fat_g": 6
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-01-03T13:06:53.033105",
+  "last_updated": "2026-01-04T01:20:56.378256",
   "streaks": {
     "meditation": {
       "current": 0,
       "longest": 0
     },
     "reading": {
-      "current": 0,
-      "longest": 0
+      "current": 1,
+      "longest": 1
     },
     "stretching": {
       "current": 0,
@@ -1672,11 +1842,11 @@
       "longest": 0
     },
     "no_phone_am": {
-      "current": 2,
-      "longest": 2
+      "current": 3,
+      "longest": 3
     },
     "content": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     }
   },
@@ -1701,7 +1871,7 @@
     },
     "2026-W01": {
       "meditation": 0.0,
-      "reading": 0.0,
+      "reading": 0.33,
       "stretching": 0.0,
       "journal": 0.0,
       "no_phone_am": 1.0,
