@@ -1,10 +1,10 @@
 ---
 habits:
   - id: meditation
-    name: Morning meditation (10min)
+    name: Morning meditation
     setup_action: "Place meditation cushion by bed before sleep"
   - id: reading
-    name: Read 30 minutes
+    name: Read 10 minutes
     setup_action: "Keep book on nightstand with bookmark visible"
   - id: stretching
     name: Stretch 10 minutes
@@ -16,7 +16,7 @@ habits:
     name: No phone first hour
     setup_action: "Charge phone in another room overnight"
   - id: content
-    name: Create content one hour
+    name: Create content 10 minutes
     setup_action: "Need ideas here"
 ---
 

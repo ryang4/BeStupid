@@ -118,6 +118,63 @@ def read_last_n_days(n=3):
     return logs
 
 
+def get_yesterday_incomplete_todos():
+    """
+    Extract incomplete todos from yesterday's "Today's Todos" section.
+
+    Finds all unchecked items (- [ ]) and returns them for rollover.
+
+    Returns:
+        list: List of incomplete todo strings in "- [ ] Task" format
+    """
+    yesterday = datetime.now() - timedelta(days=1)
+    date_str = yesterday.strftime("%Y-%m-%d")
+    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
+
+    if not os.path.exists(log_path):
+        print(f"   No log found for yesterday ({date_str})")
+        return []
+
+    try:
+        with open(log_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Find the "## Today's Todos" section
+        if "## Today's Todos" not in content:
+            print(f"   No 'Today's Todos' section in yesterday's log")
+            return []
+
+        # Get text after the header
+        todos_start = content.index("## Today's Todos") + len("## Today's Todos")
+        remaining = content[todos_start:]
+
+        # Find the next section header (or end of file)
+        next_section = remaining.find("\n## ")
+        if next_section != -1:
+            todos_text = remaining[:next_section].strip()
+        else:
+            todos_text = remaining.strip()
+
+        # Parse incomplete todos (- [ ] items)
+        incomplete_todos = []
+        for line in todos_text.split('\n'):
+            line = line.strip()
+            # Match unchecked todo items: - [ ] Task
+            if line.startswith("- [ ]"):
+                incomplete_todos.append(line)
+
+        if incomplete_todos:
+            print(f"   Found {len(incomplete_todos)} incomplete todos from yesterday")
+        else:
+            print(f"   All todos from yesterday were completed!")
+
+        return incomplete_todos
+
+    except Exception as e:
+        print(f"⚠️  Error extracting incomplete todos: {e}")
+        return []
+
+
 def get_yesterday_top_3():
     """
     Extract 'Top 3 for Tomorrow' items from yesterday's log.
@@ -291,7 +348,11 @@ def create_daily_log():
     if yesterday_macros:
         print(f"   Estimated: {yesterday_macros['calories']} cal, {yesterday_macros['protein_g']}g protein")
 
-    # 1b. Get yesterday's Top 3 for Tomorrow
+    # 1b. Get yesterday's incomplete todos (rollover)
+    print("Checking yesterday's incomplete todos...")
+    yesterday_incomplete = get_yesterday_incomplete_todos()
+
+    # 1c. Get yesterday's Top 3 for Tomorrow
     print("Checking yesterday's Top 3 for Tomorrow...")
     yesterday_top_3 = get_yesterday_top_3()
 
@@ -341,9 +402,9 @@ def create_daily_log():
             print(f"\nWarning: Error generating AI briefing: {e}")
             print("   Using fallback briefing")
 
-    # 4. Combine yesterday's Top 3 with AI-generated todos (Top 3 first)
+    # 4. Combine todos: incomplete rollover + Top 3 + AI-generated
     ai_todos = ai_response.get('todos', ['- [ ] Review today\'s protocol'])
-    combined_todos = yesterday_top_3 + ai_todos
+    combined_todos = yesterday_incomplete + yesterday_top_3 + ai_todos
 
     # 5. Build markdown using Jinja2 template
     content = render_daily_log(
@@ -374,7 +435,7 @@ def create_daily_log():
     print(f"   - Type: {workout_type}")
     print(f"   - Workout: {planned_workout[:50]}...")
     print(f"   - Briefing: {briefing[:50]}...")
-    print(f"   - Todos: {len(combined_todos)} items ({len(yesterday_top_3)} from Top 3, {len(ai_todos)} AI-generated)")
+    print(f"   - Todos: {len(combined_todos)} items ({len(yesterday_incomplete)} rollover, {len(yesterday_top_3)} from Top 3, {len(ai_todos)} AI-generated)")
     print(f"   - Sections: {'Strength ' if include_strength else ''}{', '.join(cardio) if cardio else 'None'}")
 
 
