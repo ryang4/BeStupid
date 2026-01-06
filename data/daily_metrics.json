@@ -1821,17 +1821,237 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-01-04",
+      "extracted_at": "2026-01-05T19:36:06.641060",
+      "sleep": {
+        "hours": 6.0,
+        "quality": 7.0
+      },
+      "weight_lbs": 249.0,
+      "mood": {
+        "morning": 5.0,
+        "bedtime": 4.0
+      },
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 10,
+        "completed": 6,
+        "completion_rate": 0.6
+      },
+      "habits": {
+        "completed": [
+          "reading",
+          "journal",
+          "no_phone_am",
+          "content"
+        ],
+        "missed": [
+          "meditation",
+          "stretching"
+        ],
+        "completion_rate": 0.67,
+        "details": {
+          "meditation": false,
+          "reading": true,
+          "stretching": false,
+          "journal": true,
+          "no_phone_am": true,
+          "content": true
+        }
+      },
+      "nutrition": {
+        "calories": 2718,
+        "protein_g": 116,
+        "carbs_g": 289,
+        "fat_g": 128,
+        "line_items": [
+          {
+            "food": "cliff bar",
+            "time": null,
+            "calories": 240,
+            "protein_g": 9,
+            "carbs_g": 39,
+            "fat_g": 9
+          },
+          {
+            "food": "2 glasses of red wine",
+            "time": null,
+            "calories": 220,
+            "protein_g": 0,
+            "carbs_g": 6,
+            "fat_g": 0
+          },
+          {
+            "food": "1 protein shake with 1 scoop vanilla optimum nutrition whey protein, 1 serving trader joes ground flaxseed, 20g 100% peanut butter, 1 cup almond milk, 60g kirkland frozen berries",
+            "time": null,
+            "calories": 400,
+            "protein_g": 30,
+            "carbs_g": 30,
+            "fat_g": 20
+          },
+          {
+            "food": "3 coffee",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "1 double smash burger with cheese",
+            "time": null,
+            "calories": 700,
+            "protein_g": 40,
+            "carbs_g": 40,
+            "fat_g": 45
+          },
+          {
+            "food": "1 cup sweet potato fries with ketchup",
+            "time": null,
+            "calories": 300,
+            "protein_g": 4,
+            "carbs_g": 45,
+            "fat_g": 12
+          },
+          {
+            "food": "1.5 slices of banana bread with chocolate chips",
+            "time": null,
+            "calories": 250,
+            "protein_g": 3,
+            "carbs_g": 35,
+            "fat_g": 10
+          },
+          {
+            "food": "2 beers",
+            "time": null,
+            "calories": 280,
+            "protein_g": 2,
+            "carbs_g": 20,
+            "fat_g": 0
+          },
+          {
+            "food": "1 golden potato",
+            "time": null,
+            "calories": 130,
+            "protein_g": 3,
+            "carbs_g": 30,
+            "fat_g": 0
+          },
+          {
+            "food": "4 oz of beef",
+            "time": null,
+            "calories": 250,
+            "protein_g": 22,
+            "carbs_g": 0,
+            "fat_g": 15
+          },
+          {
+            "food": "2 slices of beef jerky",
+            "time": null,
+            "calories": 120,
+            "protein_g": 20,
+            "carbs_g": 5,
+            "fat_g": 2
+          },
+          {
+            "food": "2/3 cup of beet salad",
+            "time": null,
+            "calories": 60,
+            "protein_g": 2,
+            "carbs_g": 10,
+            "fat_g": 2
+          },
+          {
+            "food": "1 spoonful of olivier",
+            "time": null,
+            "calories": 100,
+            "protein_g": 3,
+            "carbs_g": 10,
+            "fat_g": 5
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2026-01-05",
+      "extracted_at": "2026-01-06T12:54:47.831403",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "recovery",
+        "activities": [
+          {
+            "type": "run",
+            "distance": 4.0,
+            "distance_unit": "mi",
+            "duration_minutes": 52.05,
+            "avg_hr": 137,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 14,
+        "completed": 8,
+        "completion_rate": 0.57
+      },
+      "habits": {
+        "completed": [
+          "meditation",
+          "reading",
+          "content"
+        ],
+        "missed": [
+          "stretching",
+          "journal",
+          "no_phone_am"
+        ],
+        "completion_rate": 0.5,
+        "details": {
+          "meditation": true,
+          "reading": true,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": false,
+          "content": true
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-01-04T01:20:56.378256",
+  "last_updated": "2026-01-06T12:54:47.833144",
   "streaks": {
     "meditation": {
-      "current": 0,
-      "longest": 0
-    },
-    "reading": {
       "current": 1,
       "longest": 1
+    },
+    "reading": {
+      "current": 3,
+      "longest": 3
     },
     "stretching": {
       "current": 0,
@@ -1839,15 +2059,15 @@
     },
     "journal": {
       "current": 0,
-      "longest": 0
+      "longest": 1
     },
     "no_phone_am": {
-      "current": 3,
-      "longest": 3
+      "current": 0,
+      "longest": 4
     },
     "content": {
-      "current": 0,
-      "longest": 1
+      "current": 2,
+      "longest": 2
     }
   },
   "weekly_summaries": {
@@ -1871,20 +2091,29 @@
     },
     "2026-W01": {
       "meditation": 0.0,
-      "reading": 0.33,
+      "reading": 0.5,
+      "stretching": 0.0,
+      "journal": 0.25,
+      "no_phone_am": 1.0,
+      "content": 0.67,
+      "_overall": 1.0
+    },
+    "2026-W02": {
+      "meditation": 1.0,
+      "reading": 1.0,
       "stretching": 0.0,
       "journal": 0.0,
-      "no_phone_am": 1.0,
-      "content": 0.5,
+      "no_phone_am": 0.0,
+      "content": 1.0,
       "_overall": 1.0
     }
   },
   "trends": {
-    "meditation": "insufficient_data",
-    "reading": "insufficient_data",
-    "stretching": "insufficient_data",
-    "journal": "insufficient_data",
-    "no_phone_am": "insufficient_data",
-    "content": "insufficient_data"
+    "meditation": "improving",
+    "reading": "improving",
+    "stretching": "stable",
+    "journal": "declining",
+    "no_phone_am": "declining",
+    "content": "improving"
   }
 }
