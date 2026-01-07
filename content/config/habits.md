@@ -18,6 +18,9 @@ habits:
   - id: content
     name: Create content 10 minutes
     setup_action: "Need ideas here"
+  - id: clients
+    name: Communicate with clients for one hour
+    setup_action: first time each day we log into the computer, check client comms  
 ---
 
 # Habit Configuration

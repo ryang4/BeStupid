@@ -2041,17 +2041,231 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-01-06",
+      "extracted_at": "2026-01-07T10:01:45.576375",
+      "sleep": {
+        "hours": 6.57,
+        "quality": 7.6
+      },
+      "weight_lbs": 249.0,
+      "mood": {
+        "morning": 6.0,
+        "bedtime": 4.0
+      },
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": [
+          {
+            "exercise": "close grip incline bench press",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 115.0
+          },
+          {
+            "exercise": "cable seated rows",
+            "sets": 3,
+            "reps": 13,
+            "weight_lbs": 120.0
+          },
+          {
+            "exercise": "barbell shoulder press",
+            "sets": 3,
+            "reps": 6,
+            "weight_lbs": 85.0
+          },
+          {
+            "exercise": "assisted pull up",
+            "sets": 3,
+            "reps": 1,
+            "weight_lbs": 50.0
+          },
+          {
+            "exercise": "lying tricep extension",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 20.0
+          },
+          {
+            "exercise": "lying bicep curl",
+            "sets": 3,
+            "reps": 7,
+            "weight_lbs": 20.0
+          },
+          {
+            "exercise": "walking lunges",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 20.0
+          },
+          {
+            "exercise": "lying hamstring curls",
+            "sets": 3,
+            "reps": 7,
+            "weight_lbs": 125.0
+          }
+        ]
+      },
+      "todos": {
+        "total": 16,
+        "completed": 6,
+        "completion_rate": 0.38
+      },
+      "habits": {
+        "completed": [
+          "reading",
+          "no_phone_am",
+          "content"
+        ],
+        "missed": [
+          "meditation",
+          "stretching",
+          "journal"
+        ],
+        "completion_rate": 0.5,
+        "details": {
+          "meditation": false,
+          "reading": true,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": true,
+          "content": true
+        }
+      },
+      "nutrition": {
+        "calories": 2920,
+        "protein_g": 157,
+        "carbs_g": 228,
+        "fat_g": 162,
+        "line_items": [
+          {
+            "food": "5 trader joes herbal cheese bites",
+            "time": null,
+            "calories": 150,
+            "protein_g": 5,
+            "carbs_g": 10,
+            "fat_g": 10
+          },
+          {
+            "food": "1 protein shake with 1 scoop vanilla optimum nutrition whey protein, 1 serving trader joes ground flaxseed, 20g 100% peanut butter, 1 cup almond milk, 60g kirkland frozen berries, trader joes flax seed grounds",
+            "time": null,
+            "calories": 350,
+            "protein_g": 30,
+            "carbs_g": 35,
+            "fat_g": 18
+          },
+          {
+            "food": "1 cup of plov",
+            "time": null,
+            "calories": 250,
+            "protein_g": 6,
+            "carbs_g": 45,
+            "fat_g": 8
+          },
+          {
+            "food": "1/4 trader joes nonfat greek yogurt",
+            "time": null,
+            "calories": 30,
+            "protein_g": 5,
+            "carbs_g": 4,
+            "fat_g": 0
+          },
+          {
+            "food": "2 cups of red wine",
+            "time": null,
+            "calories": 240,
+            "protein_g": 0,
+            "carbs_g": 6,
+            "fat_g": 0
+          },
+          {
+            "food": "2 glasses of champagne",
+            "time": null,
+            "calories": 120,
+            "protein_g": 0,
+            "carbs_g": 3,
+            "fat_g": 0
+          },
+          {
+            "food": "1 salmon fillet",
+            "time": null,
+            "calories": 300,
+            "protein_g": 40,
+            "carbs_g": 0,
+            "fat_g": 18
+          },
+          {
+            "food": "3 small roasted potatoes/fingerlings",
+            "time": null,
+            "calories": 150,
+            "protein_g": 4,
+            "carbs_g": 30,
+            "fat_g": 2
+          },
+          {
+            "food": "1 cup of spinach salad with strawberries and pepitas and olive oil dressing (light)",
+            "time": null,
+            "calories": 200,
+            "protein_g": 5,
+            "carbs_g": 20,
+            "fat_g": 12
+          },
+          {
+            "food": "1 ramen (520 calories total)",
+            "time": null,
+            "calories": 520,
+            "protein_g": 10,
+            "carbs_g": 70,
+            "fat_g": 15
+          },
+          {
+            "food": "230g trader joes nonfat yogurt",
+            "time": null,
+            "calories": 115,
+            "protein_g": 20,
+            "carbs_g": 20,
+            "fat_g": 0
+          },
+          {
+            "food": "15 thin slices beef salami",
+            "time": null,
+            "calories": 150,
+            "protein_g": 15,
+            "carbs_g": 1,
+            "fat_g": 12
+          },
+          {
+            "food": "30 rice crackers",
+            "time": null,
+            "calories": 120,
+            "protein_g": 2,
+            "carbs_g": 25,
+            "fat_g": 2
+          },
+          {
+            "food": "4 oz gouda",
+            "time": null,
+            "calories": 360,
+            "protein_g": 20,
+            "carbs_g": 2,
+            "fat_g": 30
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-01-06T12:54:47.833144",
+  "last_updated": "2026-01-07T10:02:38.238550",
   "streaks": {
     "meditation": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     },
     "reading": {
-      "current": 3,
-      "longest": 3
+      "current": 4,
+      "longest": 4
     },
     "stretching": {
       "current": 0,
@@ -2062,12 +2276,12 @@
       "longest": 1
     },
     "no_phone_am": {
-      "current": 0,
+      "current": 1,
       "longest": 4
     },
     "content": {
-      "current": 2,
-      "longest": 2
+      "current": 3,
+      "longest": 3
     }
   },
   "weekly_summaries": {
@@ -2099,11 +2313,11 @@
       "_overall": 1.0
     },
     "2026-W02": {
-      "meditation": 1.0,
+      "meditation": 0.5,
       "reading": 1.0,
       "stretching": 0.0,
       "journal": 0.0,
-      "no_phone_am": 0.0,
+      "no_phone_am": 0.5,
       "content": 1.0,
       "_overall": 1.0
     }
