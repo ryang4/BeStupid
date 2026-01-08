@@ -2273,7 +2273,7 @@
         "activities": [
           {
             "type": "swim",
-            "distance": 1650800.0,
+            "distance": 800.0,
             "distance_unit": "m",
             "duration_minutes": 34.65,
             "avg_hr": 114,
