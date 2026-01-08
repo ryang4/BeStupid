@@ -15,6 +15,7 @@ Usage:
 
 import os
 import sys
+import json
 import argparse
 import frontmatter
 from datetime import datetime, timedelta
@@ -145,6 +146,166 @@ def read_last_week_logs(year, week):
     return logs
 
 
+# CONFIGURATION
+METRICS_FILE = "data/daily_metrics.json"
+
+
+def get_strength_exercise_history(weeks_back=4):
+    """
+    Aggregate strength exercise data from daily_metrics.json.
+
+    Args:
+        weeks_back: Number of weeks of history to include
+
+    Returns:
+        dict: {
+            "exercises": {
+                "close grip bench press": [
+                    {"date": "2026-01-06", "sets": 3, "reps": 8, "weight": 115, "volume": 2760},
+                    ...
+                ],
+                ...
+            },
+            "summary": {
+                "close grip bench press": {
+                    "sessions": 4,
+                    "max_weight": 115,
+                    "avg_reps": 7.5,
+                    "trend": "stable",
+                    "last_workout": {"date": "2026-01-06", "sets": 3, "reps": 8, "weight": 115}
+                },
+                ...
+            }
+        }
+    """
+    metrics_path = os.path.join(os.path.dirname(__file__), '..', METRICS_FILE)
+
+    if not os.path.exists(metrics_path):
+        return {"exercises": {}, "summary": {}}
+
+    with open(metrics_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    cutoff_date = (datetime.now() - timedelta(weeks=weeks_back)).strftime("%Y-%m-%d")
+
+    exercises = {}
+    for entry in data.get("entries", []):
+        if entry.get("date", "") < cutoff_date:
+            continue
+
+        for ex in entry.get("training", {}).get("strength_exercises", []):
+            name = ex.get("exercise", "").lower().strip()
+            if not name:
+                continue
+
+            if name not in exercises:
+                exercises[name] = []
+
+            sets = ex.get("sets", 0) or 0
+            reps = ex.get("reps", 0) or 0
+            weight = ex.get("weight_lbs", 0) or 0
+
+            exercises[name].append({
+                "date": entry["date"],
+                "sets": sets,
+                "reps": reps,
+                "weight": weight,
+                "volume": sets * reps * weight
+            })
+
+    # Sort each exercise's history by date (most recent first)
+    for name in exercises:
+        exercises[name].sort(key=lambda x: x["date"], reverse=True)
+
+    # Generate summaries
+    summary = {}
+    for name, history in exercises.items():
+        if not history:
+            continue
+
+        summary[name] = {
+            "sessions": len(history),
+            "max_weight": max(h["weight"] for h in history),
+            "avg_reps": sum(h["reps"] for h in history) / len(history),
+            "last_workout": history[0],
+            "trend": calculate_exercise_trend(history)
+        }
+
+    return {"exercises": exercises, "summary": summary}
+
+
+def calculate_exercise_trend(history):
+    """
+    Determine if exercise performance is improving, stable, or declining.
+
+    Compares average volume of last 2 sessions vs previous 2 sessions.
+
+    Args:
+        history: List of workout dicts sorted by date (most recent first)
+
+    Returns:
+        str: "improving", "stable", "declining", or "insufficient_data"
+    """
+    if len(history) < 2:
+        return "insufficient_data"
+
+    # Compare last 2 sessions vs previous 2
+    recent = history[:2]
+    previous = history[2:4] if len(history) >= 4 else history[2:]
+
+    if not previous:
+        return "stable"
+
+    recent_avg_volume = sum(h["volume"] for h in recent) / len(recent)
+    previous_avg_volume = sum(h["volume"] for h in previous) / len(previous)
+
+    if previous_avg_volume == 0:
+        return "stable"
+
+    change = (recent_avg_volume - previous_avg_volume) / previous_avg_volume
+
+    if change > 0.05:
+        return "improving"
+    elif change < -0.05:
+        return "declining"
+    return "stable"
+
+
+def format_exercise_history_for_prompt(exercise_history):
+    """
+    Format exercise history into a readable string for the LLM prompt.
+
+    Args:
+        exercise_history: Dict from get_strength_exercise_history()
+
+    Returns:
+        str: Formatted markdown text for LLM consumption
+    """
+    if not exercise_history or not exercise_history.get("summary"):
+        return "No strength exercise history available."
+
+    lines = []
+    for exercise, data in sorted(exercise_history["summary"].items()):
+        last = data["last_workout"]
+        lines.append(f"### {exercise.title()}")
+        lines.append(f"- **Trend:** {data['trend'].replace('_', ' ').title()}")
+        lines.append(f"- **Sessions tracked:** {data['sessions']}")
+        lines.append(f"- **Last session:** {last['date']} - {last['sets']}x{last['reps']} @ {last['weight']} lbs")
+        lines.append(f"- **Max weight achieved:** {data['max_weight']} lbs")
+
+        # Add progression recommendation
+        if data['trend'] == 'improving':
+            lines.append("- **Recommendation:** Increase weight by 5 lbs or add 1-2 reps")
+        elif data['trend'] == 'declining':
+            lines.append("- **Recommendation:** Hold weight, focus on form and hitting all reps")
+        else:
+            lines.append("- **Recommendation:** Try adding 1 rep per set or 2.5-5 lbs")
+
+        lines.append("")  # Blank line between exercises
+
+    return "\n".join(lines)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate weekly training protocol")
     parser.add_argument('--week', type=int, help='Specific week number to generate')
@@ -206,12 +367,22 @@ def main():
     last_week_logs = read_last_week_logs(year, week)
     print(f"   Found {len(last_week_logs)} daily logs")
 
+    print("Gathering exercise history...")
+    exercise_history = get_strength_exercise_history(weeks_back=4)
+    exercise_count = len(exercise_history.get('summary', {}))
+    print(f"   Found {exercise_count} unique exercises tracked")
+
     # Generate protocol using AI
     print("Generating weekly protocol...")
     print("   (This may take 30-60 seconds...)")
 
     try:
-        protocol_content = generate_weekly_protocol(goals, last_protocol, last_week_logs)
+        protocol_content = generate_weekly_protocol(
+            goals,
+            last_protocol,
+            last_week_logs,
+            exercise_history=exercise_history
+        )
     except RuntimeError as e:
         # This catches when all LLM backends fail
         print(f"\n{e}")

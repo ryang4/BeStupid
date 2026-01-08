@@ -2255,17 +2255,191 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-01-07",
+      "extracted_at": "2026-01-08T01:10:23.910795",
+      "sleep": {
+        "hours": 5.93,
+        "quality": 7.3
+      },
+      "weight_lbs": 249.2,
+      "mood": {
+        "morning": 2.0,
+        "bedtime": 6.0
+      },
+      "training": {
+        "workout_type": "swim",
+        "activities": [
+          {
+            "type": "swim",
+            "distance": 1650800.0,
+            "distance_unit": "m",
+            "duration_minutes": 34.65,
+            "avg_hr": 114,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 17,
+        "completed": 3,
+        "completion_rate": 0.18
+      },
+      "habits": {
+        "completed": [
+          "reading",
+          "no_phone_am",
+          "content"
+        ],
+        "missed": [
+          "meditation",
+          "stretching",
+          "journal"
+        ],
+        "completion_rate": 0.5,
+        "details": {
+          "meditation": false,
+          "reading": true,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": true,
+          "content": true
+        }
+      },
+      "nutrition": {
+        "calories": 2685,
+        "protein_g": 131,
+        "carbs_g": 257,
+        "fat_g": 144,
+        "line_items": [
+          {
+            "food": "peanut butter and jelly sandwich 100% natural peanut butter on dave's killer bread",
+            "time": "10:15am",
+            "calories": 350,
+            "protein_g": 12,
+            "carbs_g": 45,
+            "fat_g": 15
+          },
+          {
+            "food": "2 servings of cheetos",
+            "time": null,
+            "calories": 360,
+            "protein_g": 6,
+            "carbs_g": 44,
+            "fat_g": 18
+          },
+          {
+            "food": "1 serving of tortilla chips",
+            "time": null,
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 15,
+            "fat_g": 7
+          },
+          {
+            "food": "1 daydreaming about donuts TRU bar",
+            "time": null,
+            "calories": 200,
+            "protein_g": 10,
+            "carbs_g": 20,
+            "fat_g": 8
+          },
+          {
+            "food": "1 20g of protein protein bar",
+            "time": null,
+            "calories": 200,
+            "protein_g": 20,
+            "carbs_g": 15,
+            "fat_g": 5
+          },
+          {
+            "food": "1 chicken salad and cracker snack 300 total calories",
+            "time": null,
+            "calories": 300,
+            "protein_g": 20,
+            "carbs_g": 20,
+            "fat_g": 15
+          },
+          {
+            "food": "1 pita bread",
+            "time": null,
+            "calories": 170,
+            "protein_g": 5,
+            "carbs_g": 35,
+            "fat_g": 2
+          },
+          {
+            "food": "1 skirt steak / fajita steak",
+            "time": null,
+            "calories": 400,
+            "protein_g": 50,
+            "carbs_g": 0,
+            "fat_g": 20
+          },
+          {
+            "food": "2 servings of fajita veggies",
+            "time": null,
+            "calories": 100,
+            "protein_g": 4,
+            "carbs_g": 20,
+            "fat_g": 2
+          },
+          {
+            "food": "2 tablespoons sour cream",
+            "time": null,
+            "calories": 40,
+            "protein_g": 1,
+            "carbs_g": 2,
+            "fat_g": 4
+          },
+          {
+            "food": "1/2 cup of guac",
+            "time": null,
+            "calories": 120,
+            "protein_g": 2,
+            "carbs_g": 6,
+            "fat_g": 11
+          },
+          {
+            "food": "2 tablespoons salsa",
+            "time": null,
+            "calories": 20,
+            "protein_g": 1,
+            "carbs_g": 4,
+            "fat_g": 0
+          },
+          {
+            "food": "2 4oz salmon fillets",
+            "time": null,
+            "calories": 400,
+            "protein_g": 40,
+            "carbs_g": 0,
+            "fat_g": 20
+          },
+          {
+            "food": "1/2 cup cooked white rice",
+            "time": null,
+            "calories": 100,
+            "protein_g": 2,
+            "carbs_g": 22,
+            "fat_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-01-07T10:02:38.238550",
+  "last_updated": "2026-01-08T01:10:53.719591",
   "streaks": {
     "meditation": {
       "current": 0,
       "longest": 1
     },
     "reading": {
-      "current": 4,
-      "longest": 4
+      "current": 5,
+      "longest": 5
     },
     "stretching": {
       "current": 0,
@@ -2276,12 +2450,16 @@
       "longest": 1
     },
     "no_phone_am": {
-      "current": 1,
+      "current": 2,
       "longest": 4
     },
     "content": {
-      "current": 3,
-      "longest": 3
+      "current": 4,
+      "longest": 4
+    },
+    "clients": {
+      "current": 0,
+      "longest": 0
     }
   },
   "weekly_summaries": {
@@ -2292,6 +2470,7 @@
       "journal": null,
       "no_phone_am": null,
       "content": null,
+      "clients": null,
       "_overall": null
     },
     "2025-W52": {
@@ -2301,6 +2480,7 @@
       "journal": null,
       "no_phone_am": null,
       "content": null,
+      "clients": null,
       "_overall": null
     },
     "2026-W01": {
@@ -2310,15 +2490,17 @@
       "journal": 0.25,
       "no_phone_am": 1.0,
       "content": 0.67,
+      "clients": null,
       "_overall": 1.0
     },
     "2026-W02": {
-      "meditation": 0.5,
+      "meditation": 0.33,
       "reading": 1.0,
       "stretching": 0.0,
       "journal": 0.0,
-      "no_phone_am": 0.5,
+      "no_phone_am": 0.67,
       "content": 1.0,
+      "clients": null,
       "_overall": 1.0
     }
   },
@@ -2328,6 +2510,7 @@
     "stretching": "stable",
     "journal": "declining",
     "no_phone_am": "declining",
-    "content": "improving"
+    "content": "improving",
+    "clients": "insufficient_data"
   }
 }

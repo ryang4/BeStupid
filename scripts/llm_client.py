@@ -188,7 +188,7 @@ def _call_ollama(messages, format_json=False):
         raise RuntimeError(f"❌ Unexpected error calling Ollama: {str(e)}")
 
 
-def generate_weekly_protocol(goals, last_protocol, last_week_logs):
+def generate_weekly_protocol(goals, last_protocol, last_week_logs, exercise_history=None):
     """
     Generate next week's training protocol.
 
@@ -197,6 +197,8 @@ def generate_weekly_protocol(goals, last_protocol, last_week_logs):
         last_protocol: Last week's protocol markdown (str or None)
         last_week_logs: List of dicts with log data from last week
                         [{"date": "2025-12-01", "content": "...", "stats": {...}}, ...]
+        exercise_history: Dict with exercise history and summaries from weekly_planner.py
+                          {"exercises": {...}, "summary": {...}}
 
     Returns:
         str: Complete markdown protocol for next week
@@ -222,6 +224,45 @@ def generate_weekly_protocol(goals, last_protocol, last_week_logs):
     else:
         analysis = "## First Week - No Historical Data\n\nGenerate baseline protocol based on profile only."
 
+    # Format exercise history for prompt
+    if exercise_history and exercise_history.get("summary"):
+        exercise_lines = []
+        for exercise, data in sorted(exercise_history["summary"].items()):
+            last = data["last_workout"]
+            exercise_lines.append(f"### {exercise.title()}")
+            exercise_lines.append(f"- **Trend:** {data['trend'].replace('_', ' ').title()}")
+            exercise_lines.append(f"- **Sessions tracked:** {data['sessions']}")
+            exercise_lines.append(f"- **Last session:** {last['date']} - {last['sets']}x{last['reps']} @ {last['weight']} lbs")
+            exercise_lines.append(f"- **Max weight achieved:** {data['max_weight']} lbs")
+
+            # Add progression recommendation
+            if data['trend'] == 'improving':
+                exercise_lines.append("- **Recommendation:** Increase weight by 5 lbs or add 1-2 reps")
+            elif data['trend'] == 'declining':
+                exercise_lines.append("- **Recommendation:** Hold weight, focus on form and hitting all reps")
+            else:
+                exercise_lines.append("- **Recommendation:** Try adding 1 rep per set or 2.5-5 lbs")
+            exercise_lines.append("")
+
+        exercise_history_text = "\n".join(exercise_lines)
+        exercise_section = f"""
+# STRENGTH EXERCISE HISTORY (Last 4 Weeks)
+
+{exercise_history_text}
+
+## Progressive Overload Instructions
+Based on the history above:
+1. For exercises with "Improving" trend: Increase weight 2.5-5 lbs
+2. For exercises with "Stable" trend: Add 1-2 reps or try small weight increase
+3. For exercises with "Declining" trend: Reduce weight 5%, focus on form
+4. Rotate accessory exercises every 2-3 weeks for variety
+"""
+    else:
+        exercise_section = """
+# STRENGTH EXERCISE HISTORY
+No historical exercise data available. Use baseline weights from ryan.md profile.
+"""
+
     prompt = f"""You are an elite triathlon coach and productivity advisor helping Ryan achieve top 0.01% performance.
 
 # RYAN'S PROFILE AND GOALS
@@ -231,6 +272,8 @@ def generate_weekly_protocol(goals, last_protocol, last_week_logs):
 {last_protocol if last_protocol else "No previous protocol - this is the first week."}
 
 {analysis}
+
+{exercise_section}
 
 # YOUR TASK
 Generate a complete weekly protocol for the upcoming week in EXACTLY this markdown format.
@@ -309,6 +352,20 @@ CRITICAL RULES:
 6. Saturday = brick workout + content creation
 7. Sunday = long run day (clear schedule, good for endurance)
 8. Monday = recovery/rest day always
+9. HIGH INTENSITY CARDIO: Include exactly ONE high-intensity cardio session per week:
+   - Running intervals: 6x400m @ 5K pace with 90s jog recovery, OR 4x800m @ 10K pace
+   - Cycling intervals: 5x3min at threshold (RPE 8) with 2min easy spin
+   - Schedule on Wednesday or Thursday (NOT on heavy strength days)
+   - Alternate between running and cycling each week
+10. EXERCISE VARIETY: Ensure workout variety compared to last week:
+    - Rotate at least 2 accessory exercises (use variations: incline vs flat, dumbbell vs barbell)
+    - Vary rep ranges: if last week was 3x8, try 4x6 or 3x10 this week
+    - For cardio: if last week was steady-state, include intervals; if intervals, include a tempo run
+    - REFERENCE THE LAST WEEK'S PROTOCOL ABOVE - do not copy it exactly
+11. PROGRESSIVE OVERLOAD: Use the exercise history data to set specific targets:
+    - Reference actual weights/reps from history, not just ryan.md defaults
+    - Apply progression recommendations from the history section above
+    - If no history for an exercise, use ryan.md baseline
 
 Return ONLY the markdown protocol, no extra commentary."""
 
@@ -384,6 +441,14 @@ Return response as JSON with EXACTLY this structure:
     "- [ ] Specific action item 2"
   ],
   "include_strength_log": true or false,
+  "strength_exercises": [
+    {
+      "exercise": "Exercise Name",
+      "sets": 3,
+      "reps": 10,
+      "weight": "100 lbs or bodyweight"
+    }
+  ],
   "cardio_activities": ["swim", "bike", "run"]
 }}
 
@@ -396,7 +461,13 @@ CRITICAL RULES:
    - true ONLY if today involves weightlifting (deadlifts, squats, etc.)
    - false for cardio-only or recovery days
 
-3. **cardio_activities**: List ONLY activities happening today
+3. **strength_exercises**:
+   - If include_strength_log is true, extract EVERY exercise, set, rep, and weight from the protocol.
+   - If the protocol says "3x7 @ 115", sets=3, reps=7, weight="115".
+   - If weight is not specified, use "0" or "bodyweight".
+   - If include_strength_log is false, return an empty array [].
+
+4. **cardio_activities**: List ONLY activities happening today
    - Swim day → ["swim"]
    - Brick workout → ["bike", "run"]
    - Strength day → []

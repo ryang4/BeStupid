@@ -65,8 +65,14 @@ tags: ["log"]
 
 | Exercise | Sets | Reps | Weight (lbs) |
 | :--- | :--- | :--- | :--- |
+{% if strength_exercises %}
+{% for ex in strength_exercises %}
+| {{ ex.exercise }} | {{ ex.sets }} | {{ ex.reps }} | {{ ex.weight }} |
+{% endfor %}
+{% else %}
 | Primary Lift | 0 | 0 | 0 |
 | Accessory 1 | 0 | 0 | 0 |
+{% endif %}
 {% endif %}
 
 ## Fuel Log

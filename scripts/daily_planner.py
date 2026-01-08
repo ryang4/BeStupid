@@ -414,6 +414,7 @@ def create_daily_log():
         briefing=ai_response.get('briefing', 'Execute protocol as planned.'),
         todos=combined_todos,
         include_strength_log=ai_response.get('include_strength_log', False),
+        strength_exercises=ai_response.get('strength_exercises', []),
         cardio_activities=ai_response.get('cardio_activities', []),
         yesterday_macros=yesterday_macros,
         habits=habits,

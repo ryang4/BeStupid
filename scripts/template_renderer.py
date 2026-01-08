@@ -42,6 +42,7 @@ def render_daily_log(
     briefing,
     todos: list,
     include_strength_log: bool = False,
+    strength_exercises: list = None,
     cardio_activities: list = None,
     yesterday_macros: dict = None,
     habits: list = None,
@@ -59,6 +60,7 @@ def render_daily_log(
                   - warnings: list of str (alerts, can be empty)
         todos: List of todo strings (with "- [ ]" prefix)
         include_strength_log: Whether to show strength log section
+        strength_exercises: List of dicts with exercise, sets, reps, weight
         cardio_activities: List of cardio types: ["swim", "bike", "run"]
         yesterday_macros: Dict with calories, protein_g, carbs_g, fat_g (or None)
         habits: List of habit dicts with id and name (from habits.md config)
@@ -68,6 +70,7 @@ def render_daily_log(
     """
     cardio_activities = cardio_activities or []
     habits = habits or []
+    strength_exercises = strength_exercises or []
 
     # Handle backwards compatibility if briefing is still a string
     if isinstance(briefing, str):
@@ -86,6 +89,7 @@ def render_daily_log(
         todos=todos,
         todos_markdown="\n".join(todos),
         include_strength_log=include_strength_log,
+        strength_exercises=strength_exercises,
         cardio_activities=cardio_activities,
         has_cardio=bool(cardio_activities),
         yesterday_macros=yesterday_macros,
