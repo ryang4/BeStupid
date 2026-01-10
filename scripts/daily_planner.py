@@ -21,10 +21,12 @@ from llm_client import generate_daily_briefing, estimate_macros
 from template_renderer import render_daily_log
 
 # CONFIGURATION
-VAULT_DIR = "content/logs"
-PROTOCOL_DIR = "content/config"
-TEMPLATE_DIR = "templates"
-RYAN_CONFIG = "content/config/ryan.md"
+# Use absolute paths based on project root (parent of scripts/)
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+VAULT_DIR = os.path.join(PROJECT_ROOT, "content/logs")
+PROTOCOL_DIR = os.path.join(PROJECT_ROOT, "content/config")
+TEMPLATE_DIR = os.path.join(PROJECT_ROOT, "templates")
+RYAN_CONFIG = os.path.join(PROJECT_ROOT, "content/config/ryan.md")
 
 
 def get_weekly_protocol():
