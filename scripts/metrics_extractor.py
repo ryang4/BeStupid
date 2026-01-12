@@ -704,7 +704,7 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
         if fuel_log:
             macros = estimate_macros(fuel_log)
             if macros:
-                # estimate_macros returns: calories, protein_g, carbs_g, fat_g, line_items
+                # estimate_macros returns: calories, protein_g, carbs_g, fat_g, fiber_g, line_items
                 result["nutrition"] = macros
             else:
                 result["nutrition"] = {
@@ -712,6 +712,7 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
                     "protein_g": None,
                     "carbs_g": None,
                     "fat_g": None,
+                    "fiber_g": None,
                     "line_items": []
                 }
                 notes.append("Fuel log found but macro estimation failed")
@@ -721,6 +722,7 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
                 "protein_g": None,
                 "carbs_g": None,
                 "fat_g": None,
+                "fiber_g": None,
                 "line_items": []
             }
             notes.append("No fuel log found")
@@ -731,6 +733,7 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
             "protein_g": None,
             "carbs_g": None,
             "fat_g": None,
+            "fiber_g": None,
             "line_items": []
         }
 

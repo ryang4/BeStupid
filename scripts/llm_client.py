@@ -552,7 +552,8 @@ Return ONLY a JSON object with this exact structure:
     "calories": <int>,
     "protein_g": <int>,
     "carbs_g": <int>,
-    "fat_g": <int>
+    "fat_g": <int>,
+    "fiber_g": <int>
   }},
   "line_items": [
     {{
@@ -561,7 +562,8 @@ Return ONLY a JSON object with this exact structure:
       "calories": <int>,
       "protein_g": <int>,
       "carbs_g": <int>,
-      "fat_g": <int>
+      "fat_g": <int>,
+      "fiber_g": <int>
     }}
   ]
 }}
@@ -599,6 +601,7 @@ Food log:
             "protein_g": int(total.get("protein_g", total.get("protein", 0))),
             "carbs_g": int(total.get("carbs_g", total.get("carbs", 0))),
             "fat_g": int(total.get("fat_g", total.get("fat", 0))),
+            "fiber_g": int(total.get("fiber_g", total.get("fiber", 0))),
             "line_items": line_items
         }
     except (json.JSONDecodeError, RuntimeError) as e:

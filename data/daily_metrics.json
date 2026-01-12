@@ -2630,15 +2630,159 @@
       "extraction_notes": []
     },
     {
-      "date": "2026-01-09",
-      "extracted_at": "2026-01-10T00:47:04.599104",
+      "date": "2026-01-10",
+      "extracted_at": "2026-01-11T01:26:17.530208",
       "sleep": {
-        "hours": 7.98,
-        "quality": 8.5
+        "hours": 4.0,
+        "quality": 5.0
       },
-      "weight_lbs": 250.2,
+      "weight_lbs": null,
       "mood": {
-        "morning": 7.0,
+        "morning": 2.0,
+        "bedtime": 2.0
+      },
+      "training": {
+        "workout_type": "recovery",
+        "activities": [
+          {
+            "type": "run",
+            "distance": 6.0,
+            "distance_unit": "mi",
+            "duration_minutes": 71,
+            "avg_hr": 144,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 25,
+        "completed": 1,
+        "completion_rate": 0.04
+      },
+      "habits": {
+        "completed": [
+          "no_phone_am"
+        ],
+        "missed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "content",
+          "clients"
+        ],
+        "completion_rate": 0.14,
+        "details": {
+          "meditation": false,
+          "reading": false,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": true,
+          "content": false,
+          "clients": false
+        }
+      },
+      "nutrition": {
+        "calories": 2453,
+        "protein_g": 78,
+        "carbs_g": 292,
+        "fat_g": 133,
+        "line_items": [
+          {
+            "food": "peanut butter sandwich with 7 tbsps of all natural peanut butter, 1 banana, and 4 slices Dave's Killer Bread",
+            "time": null,
+            "calories": 850,
+            "protein_g": 30,
+            "carbs_g": 80,
+            "fat_g": 60
+          },
+          {
+            "food": "one bag of Takis",
+            "time": null,
+            "calories": 250,
+            "protein_g": 3,
+            "carbs_g": 30,
+            "fat_g": 12
+          },
+          {
+            "food": "one Red Bull",
+            "time": null,
+            "calories": 110,
+            "protein_g": 0,
+            "carbs_g": 27,
+            "fat_g": 0
+          },
+          {
+            "food": "110 calories of Mike and Ikes",
+            "time": null,
+            "calories": 110,
+            "protein_g": 1,
+            "carbs_g": 28,
+            "fat_g": 0
+          },
+          {
+            "food": "1 slice of Domino's cheese pizza",
+            "time": null,
+            "calories": 280,
+            "protein_g": 12,
+            "carbs_g": 30,
+            "fat_g": 12
+          },
+          {
+            "food": "15 pretzel sticks",
+            "time": null,
+            "calories": 150,
+            "protein_g": 3,
+            "carbs_g": 25,
+            "fat_g": 4
+          },
+          {
+            "food": "1 Diet Coke",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0
+          },
+          {
+            "food": "20 Primani Uzbek beef dumplings with butter and 1/4 whole fat Greek yogurt",
+            "time": null,
+            "calories": 703,
+            "protein_g": 27,
+            "carbs_g": 72,
+            "fat_g": 33
+          },
+          {
+            "food": "apple",
+            "time": null,
+            "calories": 100,
+            "protein_g": 1,
+            "carbs_g": 25,
+            "fat_g": 0
+          },
+          {
+            "food": "pita chips",
+            "time": null,
+            "calories": 100,
+            "protein_g": 2,
+            "carbs_g": 15,
+            "fat_g": 4
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2026-01-11",
+      "extracted_at": "2026-01-12T00:43:31.769462",
+      "sleep": {
+        "hours": 6.0,
+        "quality": 5.0
+      },
+      "weight_lbs": 250.0,
+      "mood": {
+        "morning": 4.0,
         "bedtime": 2.0
       },
       "training": {
@@ -2647,176 +2791,184 @@
         "strength_exercises": []
       },
       "todos": {
-        "total": 21,
-        "completed": 4,
-        "completion_rate": 0.19
+        "total": 10,
+        "completed": 0,
+        "completion_rate": 0.0
       },
       "habits": {
-        "completed": [
-          "reading",
-          "stretching",
-          "no_phone_am",
-          "content"
-        ],
+        "completed": [],
         "missed": [
           "meditation",
+          "reading",
+          "stretching",
           "journal",
-          "clients"
+          "no_phone_am",
+          "content",
+          "clients",
+          "substack_notes"
         ],
-        "completion_rate": 0.57,
+        "completion_rate": 0.0,
         "details": {
           "meditation": false,
-          "reading": true,
-          "stretching": true,
+          "reading": false,
+          "stretching": false,
           "journal": false,
-          "no_phone_am": true,
-          "content": true,
-          "clients": false
+          "no_phone_am": false,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
         }
       },
       "nutrition": {
-        "calories": 2374,
-        "protein_g": 89,
-        "carbs_g": 296,
-        "fat_g": 116,
+        "calories": 2946,
+        "protein_g": 116,
+        "carbs_g": 368,
+        "fat_g": 129,
+        "fiber_g": 40,
         "line_items": [
           {
-            "food": "1/3 taco bell steak poblano burrito",
+            "food": "2 slices dave's killer bread with 2 pieces of turkey bacon, tomato, and mayo",
             "time": null,
-            "calories": 230,
-            "protein_g": 12,
+            "calories": 350,
+            "protein_g": 20,
+            "carbs_g": 40,
+            "fat_g": 15,
+            "fiber_g": 6
+          },
+          {
+            "food": "1 peanut butter, honey, banana sandwich made on a baguette",
+            "time": null,
+            "calories": 500,
+            "protein_g": 15,
+            "carbs_g": 70,
+            "fat_g": 20,
+            "fiber_g": 8
+          },
+          {
+            "food": "2 coffee",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 serving of ramen (570 cal)",
+            "time": null,
+            "calories": 570,
+            "protein_g": 10,
+            "carbs_g": 70,
+            "fat_g": 18,
+            "fiber_g": 2
+          },
+          {
+            "food": "3 servings of nonfat greek yogurt",
+            "time": null,
+            "calories": 300,
+            "protein_g": 45,
             "carbs_g": 30,
-            "fat_g": 12
+            "fat_g": 0,
+            "fiber_g": 0
           },
           {
-            "food": "2 slices daves killer bread",
+            "food": "1 serving of whole fat greek yogurt",
             "time": null,
-            "calories": 160,
-            "protein_g": 6,
+            "calories": 150,
+            "protein_g": 15,
+            "carbs_g": 10,
+            "fat_g": 8,
+            "fiber_g": 0
+          },
+          {
+            "food": "4 trader joes nut covered tofees",
+            "time": null,
+            "calories": 240,
+            "protein_g": 4,
             "carbs_g": 30,
-            "fat_g": 4
+            "fat_g": 10,
+            "fiber_g": 4
           },
           {
-            "food": "2 tbsps peanut butter",
+            "food": "1 kodiak cakes pancake",
             "time": null,
-            "calories": 190,
-            "protein_g": 8,
-            "carbs_g": 16,
-            "fat_g": 16
+            "calories": 150,
+            "protein_g": 10,
+            "carbs_g": 25,
+            "fat_g": 3,
+            "fiber_g": 4
           },
           {
-            "food": "1 tbsp jam",
+            "food": "1 tbsp maple syrup",
             "time": null,
             "calories": 50,
             "protein_g": 0,
-            "carbs_g": 12,
-            "fat_g": 0
+            "carbs_g": 13,
+            "fat_g": 0,
+            "fiber_g": 0
           },
           {
-            "food": "2 cups lo mein noodles only cooked",
+            "food": "2 more strips of turkey bacon",
+            "time": null,
+            "calories": 80,
+            "protein_g": 10,
+            "carbs_g": 0,
+            "fat_g": 6,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 eggs",
+            "time": null,
+            "calories": 140,
+            "protein_g": 12,
+            "carbs_g": 1,
+            "fat_g": 10,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 servings of Lidl fig and hazelnut granola",
             "time": null,
             "calories": 400,
             "protein_g": 10,
-            "carbs_g": 80,
-            "fat_g": 4
+            "carbs_g": 60,
+            "fat_g": 15,
+            "fiber_g": 10
           },
           {
-            "food": "1 skirt steak",
+            "food": "1 lunchable ham and cheddar (200 cal total)",
             "time": null,
-            "calories": 300,
-            "protein_g": 50,
-            "carbs_g": 0,
-            "fat_g": 18
+            "calories": 200,
+            "protein_g": 15,
+            "carbs_g": 20,
+            "fat_g": 10,
+            "fiber_g": 2
           },
           {
-            "food": "1 protein shake with 30g protein 190 calories",
+            "food": "1 lidl blueberry kombucha",
             "time": null,
-            "calories": 190,
-            "protein_g": 30,
-            "carbs_g": 5,
-            "fat_g": 3
-          },
-          {
-            "food": "1 peanut butter cliff bar",
-            "time": null,
-            "calories": 240,
-            "protein_g": 10,
-            "carbs_g": 32,
-            "fat_g": 12
-          },
-          {
-            "food": "50 grapes",
-            "time": null,
-            "calories": 50,
-            "protein_g": 1,
-            "carbs_g": 12,
-            "fat_g": 0
-          },
-          {
-            "food": "30 pretzel sticks",
-            "time": null,
-            "calories": 150,
-            "protein_g": 3,
-            "carbs_g": 30,
-            "fat_g": 2
-          },
-          {
-            "food": "1 southwest egg / rice / bean burrito, 690 calories",
-            "time": null,
-            "calories": 690,
-            "protein_g": 25,
-            "carbs_g": 90,
-            "fat_g": 25
-          },
-          {
-            "food": "1/2 falafel wrap, 300 calories",
-            "time": null,
-            "calories": 300,
-            "protein_g": 10,
-            "carbs_g": 40,
-            "fat_g": 15
-          },
-          {
-            "food": "coffee",
-            "time": null,
-            "calories": 0,
+            "calories": 30,
             "protein_g": 0,
-            "carbs_g": 0,
-            "fat_g": 0
-          },
-          {
-            "food": "tea",
-            "time": null,
-            "calories": 0,
-            "protein_g": 0,
-            "carbs_g": 0,
-            "fat_g": 0
-          },
-          {
-            "food": "water",
-            "time": null,
-            "calories": 0,
-            "protein_g": 0,
-            "carbs_g": 0,
-            "fat_g": 0
+            "carbs_g": 8,
+            "fat_g": 0,
+            "fiber_g": 0
           }
         ]
       },
       "extraction_notes": []
     }
   ],
-  "last_updated": "2026-01-10T00:47:33.970147",
+  "last_updated": "2026-01-12T00:44:05.746097",
   "streaks": {
     "meditation": {
       "current": 0,
       "longest": 1
     },
     "reading": {
-      "current": 7,
-      "longest": 7
+      "current": 0,
+      "longest": 6
     },
     "stretching": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     },
     "journal": {
@@ -2824,14 +2976,18 @@
       "longest": 1
     },
     "no_phone_am": {
-      "current": 4,
+      "current": 0,
       "longest": 4
     },
     "content": {
-      "current": 1,
+      "current": 0,
       "longest": 4
     },
     "clients": {
+      "current": 0,
+      "longest": 0
+    },
+    "substack_notes": {
       "current": 0,
       "longest": 0
     }
@@ -2845,6 +3001,7 @@
       "no_phone_am": null,
       "content": null,
       "clients": null,
+      "substack_notes": null,
       "_overall": null
     },
     "2025-W52": {
@@ -2855,6 +3012,7 @@
       "no_phone_am": null,
       "content": null,
       "clients": null,
+      "substack_notes": null,
       "_overall": null
     },
     "2026-W01": {
@@ -2865,16 +3023,18 @@
       "no_phone_am": 1.0,
       "content": 0.67,
       "clients": null,
+      "substack_notes": null,
       "_overall": 1.0
     },
     "2026-W02": {
-      "meditation": 0.2,
-      "reading": 1.0,
-      "stretching": 0.4,
+      "meditation": 0.17,
+      "reading": 0.67,
+      "stretching": 0.17,
       "journal": 0.0,
-      "no_phone_am": 0.8,
-      "content": 0.8,
+      "no_phone_am": 0.67,
+      "content": 0.5,
       "clients": 0.0,
+      "substack_notes": 0.0,
       "_overall": 1.0
     }
   },
@@ -2884,7 +3044,8 @@
     "stretching": "improving",
     "journal": "declining",
     "no_phone_am": "declining",
-    "content": "improving",
-    "clients": "insufficient_data"
+    "content": "declining",
+    "clients": "insufficient_data",
+    "substack_notes": "insufficient_data"
   }
 }

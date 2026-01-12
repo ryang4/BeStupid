@@ -21,6 +21,9 @@ habits:
   - id: clients
     name: Communicate with clients for one hour
     setup_action: first time each day we log into the computer, check client comms  
+  - id: substack_notes
+    name: Post one substack note each day
+    setup_action: I can't think of a good setup action for this one 
 ---
 
 # Habit Configuration
