@@ -442,12 +442,12 @@ Return response as JSON with EXACTLY this structure:
   ],
   "include_strength_log": true or false,
   "strength_exercises": [
-    {
+    {{
       "exercise": "Exercise Name",
       "sets": 3,
       "reps": 10,
       "weight": "100 lbs or bodyweight"
-    }
+    }}
   ],
   "cardio_activities": ["swim", "bike", "run"]
 }}

@@ -47,6 +47,7 @@ def get_weekly_protocol():
     # Try new date-based format first
     protocol_file = f"protocol_{monday_str}.md"
     protocol_path = os.path.join(PROTOCOL_DIR, protocol_file)
+    print(f"   Looking for: {protocol_path}")
 
     if os.path.exists(protocol_path):
         try:
@@ -435,7 +436,9 @@ def create_daily_log():
     print("\nSummary:")
     print(f"   - Type: {workout_type}")
     print(f"   - Workout: {planned_workout[:50]}...")
-    print(f"   - Briefing: {briefing[:50]}...")
+    # briefing is a dict with 'focus', 'tips', 'warnings' keys
+    briefing_focus = briefing.get('focus', str(briefing)) if isinstance(briefing, dict) else str(briefing)
+    print(f"   - Briefing: {briefing_focus[:50]}...")
     print(f"   - Todos: {len(combined_todos)} items ({len(yesterday_incomplete)} rollover, {len(yesterday_top_3)} from Top 3, {len(ai_todos)} AI-generated)")
     print(f"   - Sections: {'Strength ' if include_strength else ''}{', '.join(cardio) if cardio else 'None'}")
 

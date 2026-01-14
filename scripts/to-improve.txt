@@ -1,0 +1,4 @@
+- get both A/B workouts into context
+- need to at some point manage the growing context for claude/LLMs
+- progressive overlaod not happening, recommended same routine everytime
+- get git automations working. You can schedule github actions to automate some of this maybe

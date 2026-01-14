@@ -2955,28 +2955,145 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-01-12",
+      "extracted_at": "2026-01-13T00:50:19.989667",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "recovery",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 15,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "no_phone_am",
+          "content",
+          "clients",
+          "substack_notes"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "meditation": false,
+          "reading": false,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": false,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
+    },
+    {
+      "date": "2026-01-13",
+      "extracted_at": "2026-01-14T00:30:59.873817",
+      "sleep": {
+        "hours": 7.27,
+        "quality": 8.5
+      },
+      "weight_lbs": 250.0,
+      "mood": {
+        "morning": 6.0,
+        "bedtime": 6.0
+      },
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 16,
+        "completed": 11,
+        "completion_rate": 0.69
+      },
+      "habits": {
+        "completed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "no_phone_am"
+        ],
+        "missed": [
+          "content",
+          "clients",
+          "substack_notes"
+        ],
+        "completion_rate": 0.62,
+        "details": {
+          "meditation": true,
+          "reading": true,
+          "stretching": true,
+          "journal": true,
+          "no_phone_am": true,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-01-12T00:44:05.746097",
+  "last_updated": "2026-01-14T00:30:59.877824",
   "streaks": {
     "meditation": {
-      "current": 0,
+      "current": 1,
       "longest": 1
     },
     "reading": {
-      "current": 0,
+      "current": 1,
       "longest": 6
     },
     "stretching": {
-      "current": 0,
+      "current": 1,
       "longest": 1
     },
     "journal": {
-      "current": 0,
+      "current": 1,
       "longest": 1
     },
     "no_phone_am": {
-      "current": 0,
+      "current": 1,
       "longest": 4
     },
     "content": {
@@ -3036,16 +3153,27 @@
       "clients": 0.0,
       "substack_notes": 0.0,
       "_overall": 1.0
+    },
+    "2026-W03": {
+      "meditation": 0.5,
+      "reading": 0.5,
+      "stretching": 0.5,
+      "journal": 0.5,
+      "no_phone_am": 0.5,
+      "content": 0.0,
+      "clients": 0.0,
+      "substack_notes": 0.0,
+      "_overall": 1.0
     }
   },
   "trends": {
     "meditation": "improving",
-    "reading": "improving",
+    "reading": "declining",
     "stretching": "improving",
-    "journal": "declining",
+    "journal": "improving",
     "no_phone_am": "declining",
     "content": "declining",
-    "clients": "insufficient_data",
-    "substack_notes": "insufficient_data"
+    "clients": "stable",
+    "substack_notes": "stable"
   }
 }
