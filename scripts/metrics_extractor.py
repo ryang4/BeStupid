@@ -1,8 +1,10 @@
 """
-Metrics Extractor - Standardized data extraction from daily logs.
+Metrics Extractor - Extract structured data from daily logs.
 
-Parses markdown tables and normalizes data formats into structured JSON.
+Parses inline fields (Dataview format) and normalizes data into structured JSON.
 Designed to fail gracefully without breaking the main daily planner flow.
+
+Inline field format: FieldName:: value
 """
 
 import os
@@ -22,6 +24,27 @@ LOGS_DIR = os.path.join(PROJECT_ROOT, "content", "logs")
 HABITS_CONFIG = os.path.join(PROJECT_ROOT, "content", "config", "habits.md")
 
 
+def parse_inline_field(content: str, field_name: str) -> Optional[str]:
+    """
+    Extract value from an inline field.
+
+    Format: FieldName:: value
+
+    Args:
+        content: Full markdown content
+        field_name: Name of the field (case-insensitive)
+
+    Returns:
+        str: Field value, or None if not found
+    """
+    pattern = rf'{re.escape(field_name)}::\s*(.+?)(?:\n|$)'
+    match = re.search(pattern, content, re.IGNORECASE)
+    if match:
+        value = match.group(1).strip()
+        return value if value else None
+    return None
+
+
 def normalize_sleep_hours(value: str) -> Optional[float]:
     """
     Convert various sleep formats to decimal hours.
@@ -35,7 +58,6 @@ def normalize_sleep_hours(value: str) -> Optional[float]:
 
     value = str(value).strip()
 
-    # Check for HH:MM format
     if ":" in value:
         try:
             parts = value.split(":")
@@ -45,7 +67,6 @@ def normalize_sleep_hours(value: str) -> Optional[float]:
         except (ValueError, IndexError):
             return None
 
-    # Already decimal
     try:
         result = float(value)
         return result if result > 0 else None
@@ -68,7 +89,6 @@ def normalize_quality_score(value: str, scale_max: int = 10) -> Optional[float]:
         result = float(str(value).strip())
         if result <= 0:
             return None
-        # If value seems to be a percentage (>10), convert to 1-10 scale
         if result > scale_max:
             result = result / 10
         return round(result, 1)
@@ -76,63 +96,13 @@ def normalize_quality_score(value: str, scale_max: int = 10) -> Optional[float]:
         return None
 
 
-def parse_daily_stats_table(content: str) -> dict:
-    """
-    Parse the Daily Stats markdown table.
-
-    Returns:
-        dict with sleep, weight, mood data
-    """
-    result = {
-        "sleep": {"hours": None, "quality": None},
-        "weight_lbs": None,
-        "mood": {"morning": None, "bedtime": None}
-    }
-
-    # Find Daily Stats section
-    match = re.search(r"##\s*Daily Stats.*?\n(.*?)(?=\n##|\Z)", content, re.DOTALL | re.IGNORECASE)
-    if not match:
-        return result
-
-    section = match.group(1)
-
-    # Parse table rows
-    for line in section.split("\n"):
-        if "|" not in line or "---" in line or "Metric" in line:
-            continue
-
-        cells = [c.strip() for c in line.split("|")]
-        if len(cells) < 3:
-            continue
-
-        metric = cells[1].lower().replace("**", "").strip()
-        value = cells[2].strip()
-
-        if "sleep hours" in metric:
-            result["sleep"]["hours"] = normalize_sleep_hours(value)
-        elif "sleep quality" in metric:
-            result["sleep"]["quality"] = normalize_quality_score(value)
-        elif "weight" in metric:
-            try:
-                w = float(value) if value and value != "0" else None
-                result["weight_lbs"] = w if w and w > 0 else None
-            except ValueError:
-                pass
-        elif "morning mood" in metric:
-            result["mood"]["morning"] = normalize_quality_score(value)
-        elif "bedtime mood" in metric:
-            result["mood"]["bedtime"] = normalize_quality_score(value)
-
-    return result
-
-
 def parse_training_value(value: str) -> tuple[Optional[float], Optional[int]]:
     """
-    Parse training distance/time value.
+    Parse training distance/time value from inline field.
 
-    "6/1:15" -> (6.0, 75)  # distance, duration in minutes
-    "4/20" -> (4.0, 20)
-    "0" or "N/A" -> (None, None)
+    "750m/33:39" -> (750.0, 33.65)  # distance, duration in minutes
+    "4.5/45" -> (4.5, 45)
+    "0" or empty -> (None, None)
 
     Returns:
         tuple of (distance, duration_minutes)
@@ -145,14 +115,11 @@ def parse_training_value(value: str) -> tuple[Optional[float], Optional[int]]:
     if "/" in value:
         parts = value.split("/")
         try:
-            # Remove non-numeric characters (except decimal point) from distance
-            # e.g., "750m" -> "750", "4.5mi" -> "4.5"
             distance_str = re.sub(r'[^\d.]', '', parts[0])
             distance = float(distance_str) if distance_str else None
         except ValueError:
             distance = None
 
-        # Duration could be "20" (minutes) or "1:15" (h:mm) or "33:39" (mm:ss)
         duration_str = parts[1] if len(parts) > 1 else ""
         duration = None
         if duration_str:
@@ -162,13 +129,9 @@ def parse_training_value(value: str) -> tuple[Optional[float], Optional[int]]:
                     first_val = int(first)
                     second_val = int(second)
 
-                    # Heuristic: if first part >= 10, treat as MM:SS, else HH:MM
-                    # (e.g., "33:39" = 33min 39sec, but "1:15" = 1hr 15min)
                     if first_val >= 10:
-                        # MM:SS format - convert to decimal minutes
                         duration = first_val + round(second_val / 60, 2)
                     else:
-                        # HH:MM format - convert to minutes
                         duration = first_val * 60 + second_val
                 except ValueError:
                     pass
@@ -180,16 +143,51 @@ def parse_training_value(value: str) -> tuple[Optional[float], Optional[int]]:
 
         return distance, duration
 
-    # Just a number (distance only)
     try:
         return float(value), None
     except ValueError:
         return None, None
 
 
-def parse_training_output_table(content: str, workout_type: str = "") -> dict:
+def parse_quick_log(content: str) -> dict:
     """
-    Parse Training Output markdown table.
+    Parse the Quick Log inline fields.
+
+    Returns:
+        dict with sleep, weight, mood data
+    """
+    result = {
+        "sleep": {"hours": None, "quality": None},
+        "weight_lbs": None,
+        "mood": {"morning": None, "bedtime": None}
+    }
+
+    weight_val = parse_inline_field(content, "Weight")
+    if weight_val:
+        try:
+            w = float(weight_val)
+            result["weight_lbs"] = w if w > 0 else None
+        except ValueError:
+            pass
+
+    sleep_val = parse_inline_field(content, "Sleep")
+    result["sleep"]["hours"] = normalize_sleep_hours(sleep_val)
+
+    sleep_quality_val = parse_inline_field(content, "Sleep_Quality")
+    result["sleep"]["quality"] = normalize_quality_score(sleep_quality_val)
+
+    mood_am_val = parse_inline_field(content, "Mood_AM")
+    result["mood"]["morning"] = normalize_quality_score(mood_am_val)
+
+    mood_pm_val = parse_inline_field(content, "Mood_PM")
+    result["mood"]["bedtime"] = normalize_quality_score(mood_pm_val)
+
+    return result
+
+
+def parse_training_output(content: str, workout_type: str = "") -> dict:
+    """
+    Parse Training Output inline fields.
 
     Returns:
         dict with workout_type and activities list
@@ -200,71 +198,42 @@ def parse_training_output_table(content: str, workout_type: str = "") -> dict:
         "strength_exercises": []
     }
 
-    # Find Training Output section
-    match = re.search(r"##\s*Training Output.*?\n(.*?)(?=\n##|\Z)", content, re.DOTALL | re.IGNORECASE)
-    if not match:
-        return result
+    activity_types = [
+        ("Swim", "swim", "m"),
+        ("Bike", "bike", "mi"),
+        ("Run", "run", "mi")
+    ]
 
-    section = match.group(1)
+    avg_hr_val = parse_inline_field(content, "Avg_HR")
+    avg_hr = None
+    if avg_hr_val:
+        try:
+            avg_hr = int(float(avg_hr_val))
+        except ValueError:
+            pass
 
-    # Parse table rows
-    for line in section.split("\n"):
-        if "|" not in line or "---" in line or "Activity" in line:
-            continue
-
-        cells = [c.strip() for c in line.split("|")]
-        if len(cells) < 4:
-            continue
-
-        activity_cell = cells[1].lower().replace("**", "").strip()
-        dist_time = cells[2].strip()
-        hr_watts = cells[3].strip()
-
-        # Determine activity type and unit
-        activity_type = None
-        distance_unit = "mi"
-
-        if "swim" in activity_cell:
-            activity_type = "swim"
-            distance_unit = "m"  # Swimming typically in meters
-        elif "bike" in activity_cell:
-            activity_type = "bike"
-        elif "run" in activity_cell:
-            activity_type = "run"
-
-        if activity_type:
-            distance, duration = parse_training_value(dist_time)
-
-            # Parse HR/Watts
-            avg_hr = None
-            avg_watts = None
-            if hr_watts and hr_watts not in ("0", "N/A", ""):
-                try:
-                    # Assume it's HR if < 300, watts if >= 300
-                    val = int(float(hr_watts))
-                    if val < 300:
-                        avg_hr = val
-                    else:
-                        avg_watts = val
-                except ValueError:
-                    pass
-
-            if distance or duration:  # Only add if we have some data
+    for field_name, activity_type, distance_unit in activity_types:
+        field_val = parse_inline_field(content, field_name)
+        if field_val:
+            distance, duration = parse_training_value(field_val)
+            if distance or duration:
                 result["activities"].append({
                     "type": activity_type,
                     "distance": distance,
                     "distance_unit": distance_unit,
                     "duration_minutes": duration,
                     "avg_hr": avg_hr,
-                    "avg_watts": avg_watts
+                    "avg_watts": None
                 })
 
     return result
 
 
-def parse_strength_log_table(content: str) -> list:
+def parse_strength_log(content: str) -> list:
     """
-    Parse Strength Log markdown table if present.
+    Parse Strength Log inline fields.
+
+    Format: Exercise_Name:: 3x10 @ 135
 
     Returns:
         list of exercise dicts
@@ -278,40 +247,28 @@ def parse_strength_log_table(content: str) -> list:
 
     section = match.group(1)
 
-    # Parse table rows
-    for line in section.split("\n"):
-        if "|" not in line or "---" in line or "Exercise" in line:
-            continue
+    # Parse inline fields with format: Name:: sets x reps @ weight
+    pattern = r'(\w[\w\s_]+)::\s*(\d+)\s*x\s*(\d+)\s*@\s*(\d+(?:\.\d+)?)'
 
-        cells = [c.strip() for c in line.split("|")]
-        if len(cells) < 5:
-            continue
+    for line in section.split('\n'):
+        line_match = re.search(pattern, line)
+        if line_match:
+            exercise = line_match.group(1).strip().replace('_', ' ')
+            sets = int(line_match.group(2))
+            reps = int(line_match.group(3))
+            weight = float(line_match.group(4))
 
-        exercise = cells[1].strip()
-
-        # Skip placeholder rows
-        if not exercise or exercise.lower() in ("primary lift", "accessory 1", "accessory 2"):
-            try:
-                # Check if values are all 0
-                if all(cells[i].strip() == "0" for i in [2, 3, 4] if i < len(cells)):
+            # Skip placeholder values
+            if exercise.lower() in ("primary_lift", "primary lift", "accessory_1", "accessory_2"):
+                if sets == 0 and reps == 0 and weight == 0:
                     continue
-            except (IndexError, ValueError):
-                continue
 
-        try:
-            sets = int(cells[2]) if cells[2].strip() and cells[2].strip() != "0" else None
-            reps = int(cells[3]) if cells[3].strip() and cells[3].strip() != "0" else None
-            weight = float(cells[4]) if cells[4].strip() and cells[4].strip() != "0" else None
-
-            if sets or reps or weight:
-                exercises.append({
-                    "exercise": exercise,
-                    "sets": sets,
-                    "reps": reps,
-                    "weight_lbs": weight
-                })
-        except (ValueError, IndexError):
-            continue
+            exercises.append({
+                "exercise": exercise,
+                "sets": sets,
+                "reps": reps,
+                "weight_lbs": weight
+            })
 
     return exercises
 
@@ -372,21 +329,17 @@ def parse_habits_section(content: str, habit_config: list) -> dict:
     if not habit_config:
         return result
 
-    # Build name -> id mapping
     name_to_id = {h['name'].lower(): h['id'] for h in habit_config}
 
-    # Find Daily Habits section
     match = re.search(r"##\s*Daily Habits.*?\n(.*?)(?=\n##|\Z)", content, re.DOTALL | re.IGNORECASE)
     if not match:
         return result
 
     section = match.group(1)
 
-    # Parse checkbox lines
     for line in section.split("\n"):
         line = line.strip()
 
-        # Match checked: - [x] or - [X]
         checked_match = re.match(r"- \[[xX]\]\s+(.+)", line)
         if checked_match:
             habit_name = checked_match.group(1).strip().lower()
@@ -396,7 +349,6 @@ def parse_habits_section(content: str, habit_config: list) -> dict:
                 result["details"][habit_id] = True
             continue
 
-        # Match unchecked: - [ ]
         unchecked_match = re.match(r"- \[ \]\s+(.+)", line)
         if unchecked_match:
             habit_name = unchecked_match.group(1).strip().lower()
@@ -428,7 +380,6 @@ def calculate_habit_streaks(entries: list, habit_config: list) -> dict:
     if not habit_config:
         return streaks
 
-    # Sort entries by date descending (most recent first)
     sorted_entries = sorted(entries, key=lambda x: x["date"], reverse=True)
 
     for habit in habit_config:
@@ -447,12 +398,10 @@ def calculate_habit_streaks(entries: list, habit_config: list) -> dict:
                 if counting_current:
                     current_streak = temp_streak
             else:
-                # Streak broken
                 longest_streak = max(longest_streak, temp_streak)
                 temp_streak = 0
-                counting_current = False  # Stop counting current after first miss
+                counting_current = False
 
-        # Final check for longest
         longest_streak = max(longest_streak, temp_streak)
 
         streaks[habit_id] = {
@@ -467,19 +416,14 @@ def calculate_weekly_summaries(entries: list, habit_config: list) -> dict:
     """
     Aggregate habit data by ISO week.
 
-    Args:
-        entries: List of daily_metrics entries
-        habit_config: List of habit dicts from config
-
     Returns:
-        dict: {"2025-W52": {"meditation": 0.71, "reading": 0.57, ...}, ...}
+        dict: {"2025-W52": {"meditation": 0.71, ...}, ...}
     """
     summaries = {}
 
     if not habit_config or not entries:
         return summaries
 
-    # Group entries by ISO week
     weeks = {}
     for entry in entries:
         date_obj = datetime.strptime(entry["date"], "%Y-%m-%d")
@@ -490,7 +434,6 @@ def calculate_weekly_summaries(entries: list, habit_config: list) -> dict:
             weeks[week_key] = []
         weeks[week_key].append(entry)
 
-    # Calculate per-habit completion rate for each week
     habit_ids = [h["id"] for h in habit_config]
 
     for week_key, week_entries in weeks.items():
@@ -504,7 +447,6 @@ def calculate_weekly_summaries(entries: list, habit_config: list) -> dict:
                 habits_data = entry.get("habits", {})
                 details = habits_data.get("details", {})
 
-                # Only count if the habit was tracked that day
                 if habit_id in details:
                     total_count += 1
                     if details[habit_id]:
@@ -515,13 +457,11 @@ def calculate_weekly_summaries(entries: list, habit_config: list) -> dict:
             else:
                 week_summary[habit_id] = None
 
-        # Also add overall completion rate for the week
         total_habits = 0
         completed_habits = 0
         for entry in week_entries:
             habits_data = entry.get("habits", {})
             completed_habits += len(habits_data.get("completed", []))
-            completed_habits += len(habits_data.get("missed", []))
             total_habits += len(habits_data.get("completed", [])) + len(habits_data.get("missed", []))
 
         week_summary["_overall"] = round(completed_habits / total_habits, 2) if total_habits > 0 else None
@@ -535,12 +475,6 @@ def calculate_habit_trends(weekly_summaries: dict, habit_config: list) -> dict:
     """
     Determine if each habit is improving, stable, or declining.
 
-    Compares the most recent 2 weeks to determine trend direction.
-
-    Args:
-        weekly_summaries: Output from calculate_weekly_summaries()
-        habit_config: List of habit dicts from config
-
     Returns:
         dict: {habit_id: "improving" | "stable" | "declining" | "insufficient_data"}
     """
@@ -549,16 +483,13 @@ def calculate_habit_trends(weekly_summaries: dict, habit_config: list) -> dict:
     if not habit_config or not weekly_summaries:
         return trends
 
-    # Sort weeks chronologically (most recent last)
     sorted_weeks = sorted(weekly_summaries.keys())
 
     if len(sorted_weeks) < 2:
-        # Not enough data for trend analysis
         for habit in habit_config:
             trends[habit["id"]] = "insufficient_data"
         return trends
 
-    # Get last 2 weeks
     current_week = weekly_summaries[sorted_weeks[-1]]
     previous_week = weekly_summaries[sorted_weeks[-2]]
 
@@ -569,9 +500,9 @@ def calculate_habit_trends(weekly_summaries: dict, habit_config: list) -> dict:
 
         if current_rate is None or previous_rate is None:
             trends[habit_id] = "insufficient_data"
-        elif current_rate > previous_rate + 0.1:  # >10% improvement
+        elif current_rate > previous_rate + 0.1:
             trends[habit_id] = "improving"
-        elif current_rate < previous_rate - 0.1:  # >10% decline
+        elif current_rate < previous_rate - 0.1:
             trends[habit_id] = "declining"
         else:
             trends[habit_id] = "stable"
@@ -598,28 +529,22 @@ def extract_fuel_log(content: str) -> Optional[str]:
     Returns:
         str: Fuel log text, or None if not found or empty
     """
-    # Find Fuel Log section
     if "## Fuel Log" not in content:
         return None
 
-    # Get text between "## Fuel Log" and next "##" or end
     fuel_start = content.index("## Fuel Log") + len("## Fuel Log")
     remaining = content[fuel_start:]
 
-    # Find the next section header
     next_section = remaining.find("\n## ")
-    if next_section != -1:
-        fuel_text = remaining[:next_section].strip()
-    else:
-        fuel_text = remaining.strip()
+    fuel_text = remaining[:next_section].strip() if next_section != -1 else remaining.strip()
 
-    # Remove the placeholder line if it exists
-    if fuel_text.startswith("*Describe your food"):
-        # Remove the placeholder line and get the actual content
-        lines = fuel_text.split('\n', 1)
-        fuel_text = lines[1].strip() if len(lines) > 1 else ""
+    # Remove inline fields (calories_so_far, protein_so_far)
+    fuel_text = re.sub(r'^(calories_so_far|protein_so_far)::\s*\d*\s*$', '', fuel_text, flags=re.MULTILINE)
+    fuel_text = fuel_text.strip()
 
-    # Skip if too short to analyze
+    # Remove comments
+    fuel_text = re.sub(r'<!--.*?-->', '', fuel_text, flags=re.DOTALL).strip()
+
     if len(fuel_text) < 10:
         return None
 
@@ -646,7 +571,7 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
     try:
         with open(log_path, 'r', encoding='utf-8') as f:
             content = f.read()
-    except Exception as e:
+    except Exception:
         return None
 
     result = {
@@ -654,12 +579,11 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
         "extracted_at": datetime.now().isoformat()
     }
 
-    # Extract workout type from title
     workout_type = extract_workout_type_from_title(content)
 
-    # Parse daily stats (sleep, weight, mood)
+    # Parse quick log (sleep, weight, mood)
     try:
-        stats = parse_daily_stats_table(content)
+        stats = parse_quick_log(content)
         result["sleep"] = stats["sleep"]
         result["weight_lbs"] = stats["weight_lbs"]
         result["mood"] = stats["mood"]
@@ -671,9 +595,8 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
 
     # Parse training output
     try:
-        training = parse_training_output_table(content, workout_type)
-        # Also parse strength log
-        strength = parse_strength_log_table(content)
+        training = parse_training_output(content, workout_type)
+        strength = parse_strength_log(content)
         training["strength_exercises"] = strength
         result["training"] = training
     except Exception as e:
@@ -704,7 +627,6 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
         if fuel_log:
             macros = estimate_macros(fuel_log)
             if macros:
-                # estimate_macros returns: calories, protein_g, carbs_g, fat_g, fiber_g, line_items
                 result["nutrition"] = macros
             else:
                 result["nutrition"] = {
@@ -753,46 +675,38 @@ def append_to_metrics_file(entry: dict) -> bool:
         bool: True if successfully saved, False otherwise
     """
     try:
-        # Ensure data directory exists
         data_dir = os.path.dirname(METRICS_FILE)
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
 
-        # Load existing data or create new structure
         if os.path.exists(METRICS_FILE):
             try:
                 with open(METRICS_FILE, 'r', encoding='utf-8') as f:
                     data = json.load(f)
             except json.JSONDecodeError:
-                # Corrupted file - backup and start fresh
                 backup_path = METRICS_FILE + ".backup"
                 os.rename(METRICS_FILE, backup_path)
                 data = {"version": "1.0", "entries": []}
         else:
             data = {"version": "1.0", "entries": []}
 
-        # Check for duplicate date
         existing_dates = {e["date"] for e in data.get("entries", [])}
         if entry["date"] in existing_dates:
-            return True  # Already exists, consider it a success
+            return True
 
-        # Append new entry
         data["entries"].append(entry)
         data["last_updated"] = datetime.now().isoformat()
 
-        # Calculate and store habit analytics
         habit_config = load_habits_config()
         if habit_config:
             data["streaks"] = calculate_habit_streaks(data["entries"], habit_config)
             data["weekly_summaries"] = calculate_weekly_summaries(data["entries"], habit_config)
             data["trends"] = calculate_habit_trends(data["weekly_summaries"], habit_config)
 
-        # Write atomically (write to temp, then rename)
         temp_path = METRICS_FILE + ".tmp"
         with open(temp_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
 
-        # On Windows, need to remove existing file first
         if os.path.exists(METRICS_FILE):
             os.remove(METRICS_FILE)
         os.rename(temp_path, METRICS_FILE)
@@ -828,7 +742,6 @@ def extract_and_save_yesterday() -> Optional[dict]:
 
 
 if __name__ == "__main__":
-    # Test extraction with yesterday's log
     print("Testing metrics extraction...")
     result = extract_and_save_yesterday()
     if result:

@@ -30,7 +30,9 @@
       "Bash(git -C /Users/ryang4/Projects/BeStupid log --oneline -15)",
       "Bash(wc:*)",
       "Bash(git -C /Users/ryang4/Projects/BeStupid remote:*)",
-      "Bash(git -C /Users/ryang4/Projects/BeStupid log --oneline -20)"
+      "Bash(git -C /Users/ryang4/Projects/BeStupid log --oneline -20)",
+      "Bash(xargs -I {} bash -c 'echo \"\"=== {} ===\"\" && head -5 {}')",
+      "Bash(git -C /Users/ryang4/Projects/BeStupid log --oneline)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,71 @@
+name: Estimate Calories
+
+on:
+  workflow_dispatch:
+    inputs:
+      food:
+        description: 'Food description to estimate'
+        required: true
+        type: string
+      append_to_log:
+        description: 'Append to today''s fuel log'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  estimate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'scripts/requirements.txt'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Estimate macros
+        id: estimate
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLM_BACKEND: huggingface
+        run: |
+          if [ "${{ inputs.append_to_log }}" == "true" ]; then
+            python scripts/calorie_estimator.py "${{ inputs.food }}" --json --append --running-total > result.json
+          else
+            python scripts/calorie_estimator.py "${{ inputs.food }}" --json --running-total > result.json
+          fi
+          cat result.json
+          echo "result=$(cat result.json | jq -c .)" >> $GITHUB_OUTPUT
+
+      - name: Commit changes (if appended)
+        if: inputs.append_to_log
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Add food entry: ${{ inputs.food }}"
+          file_pattern: 'content/logs/*.md'
+          commit_user_name: 'GitHub Actions'
+          commit_user_email: 'actions@github.com'
+
+      - name: Display result
+        run: |
+          echo "### Calorie Estimation Result" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Food:** ${{ inputs.food }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat result.json | jq -r '"| Metric | Value |
+          |--------|-------|
+          | Calories | \(.calories) |
+          | Protein | \(.protein_g)g |
+          | Carbs | \(.carbs_g)g |
+          | Fat | \(.fat_g)g |"' >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,100 @@
+/* Mobile-friendly CSS for Obsidian daily logs */
+
+/* Larger checkboxes for easier tapping on mobile */
+.markdown-preview-view input[type="checkbox"],
+.markdown-source-view input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+/* Larger tap targets for checkbox list items */
+.markdown-preview-view .task-list-item,
+.markdown-source-view .task-list-item {
+  padding: 8px 0;
+  line-height: 1.6;
+}
+
+/* More spacing between inline fields for easier editing */
+.markdown-preview-view .inline-field,
+.markdown-source-view [data-dataview-type] {
+  padding: 4px 0;
+  display: block;
+}
+
+/* Larger font for inline field values */
+.markdown-preview-view .inline-field-value {
+  font-size: 1.1em;
+  font-weight: 500;
+}
+
+/* Better section headers on mobile */
+.markdown-preview-view h2 {
+  font-size: 1.3em;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Quick Log section styling */
+.markdown-preview-view h2 + p {
+  margin-top: 0;
+}
+
+/* Make todo items more prominent */
+.markdown-preview-view .task-list-item-checkbox {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 2px solid var(--checkbox-border-color);
+  border-radius: 4px;
+  background: var(--background-primary);
+}
+
+.markdown-preview-view .task-list-item-checkbox:checked {
+  background: var(--interactive-accent);
+  border-color: var(--interactive-accent);
+}
+
+/* Completed tasks styling */
+.markdown-preview-view .task-list-item.is-checked {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+/* Improve readability of inline fields on mobile */
+.cm-inline-field {
+  background: var(--background-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin: 2px 0;
+}
+
+/* Better spacing for fuel log entries */
+.markdown-preview-view ul li {
+  margin-bottom: 8px;
+}
+
+/* Highlight warnings in briefing */
+.markdown-preview-view blockquote {
+  border-left: 4px solid var(--text-error);
+  background: rgba(var(--text-error-rgb), 0.1);
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .markdown-preview-view {
+    padding: 12px;
+  }
+
+  .markdown-preview-view h1 {
+    font-size: 1.4em;
+  }
+
+  .markdown-preview-view h2 {
+    font-size: 1.2em;
+  }
+}

@@ -1,0 +1,52 @@
+name: Generate Daily Log
+
+on:
+  schedule:
+    # Run at 5am CST (11:00 UTC)
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+    # Allow manual triggering from GitHub Actions UI
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git operations
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: 'scripts/requirements.txt'
+
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Generate daily log
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLM_BACKEND: huggingface
+        run: python scripts/daily_planner.py
+
+      - name: Extract yesterday's metrics
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          LLM_BACKEND: huggingface
+        run: python scripts/metrics_extractor.py
+        continue-on-error: true  # Don't fail if metrics extraction fails
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-generate daily log for $(date +%Y-%m-%d)"
+          file_pattern: 'content/logs/*.md data/*.json'
+          commit_user_name: 'GitHub Actions'
+          commit_user_email: 'actions@github.com'
