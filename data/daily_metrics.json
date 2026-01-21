@@ -3072,28 +3072,86 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-01-20",
+      "extracted_at": "2026-01-21T11:08:58.924802",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 9,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "no_phone_am",
+          "content",
+          "clients",
+          "substack_notes"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "meditation": false,
+          "reading": false,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": false,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "Fuel log found but macro estimation failed"
+      ]
     }
   ],
-  "last_updated": "2026-01-14T00:30:59.877824",
+  "last_updated": "2026-01-21T11:08:59.145515",
   "streaks": {
     "meditation": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     },
     "reading": {
-      "current": 1,
+      "current": 0,
       "longest": 6
     },
     "stretching": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     },
     "journal": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     },
     "no_phone_am": {
-      "current": 1,
+      "current": 0,
       "longest": 4
     },
     "content": {
@@ -3141,7 +3199,7 @@
       "content": 0.67,
       "clients": null,
       "substack_notes": null,
-      "_overall": 1.0
+      "_overall": 0.41
     },
     "2026-W02": {
       "meditation": 0.17,
@@ -3152,7 +3210,7 @@
       "content": 0.5,
       "clients": 0.0,
       "substack_notes": 0.0,
-      "_overall": 1.0
+      "_overall": 0.3
     },
     "2026-W03": {
       "meditation": 0.5,
@@ -3163,16 +3221,27 @@
       "content": 0.0,
       "clients": 0.0,
       "substack_notes": 0.0,
-      "_overall": 1.0
+      "_overall": 0.31
+    },
+    "2026-W04": {
+      "meditation": 0.0,
+      "reading": 0.0,
+      "stretching": 0.0,
+      "journal": 0.0,
+      "no_phone_am": 0.0,
+      "content": 0.0,
+      "clients": 0.0,
+      "substack_notes": 0.0,
+      "_overall": 0.0
     }
   },
   "trends": {
-    "meditation": "improving",
+    "meditation": "declining",
     "reading": "declining",
-    "stretching": "improving",
-    "journal": "improving",
+    "stretching": "declining",
+    "journal": "declining",
     "no_phone_am": "declining",
-    "content": "declining",
+    "content": "stable",
     "clients": "stable",
     "substack_notes": "stable"
   }
