@@ -3246,9 +3246,116 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-01-23",
+      "extracted_at": "2026-01-24T11:05:38.553040",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": [
+          {
+            "exercise": "Romanian deadlifts",
+            "sets": 3,
+            "reps": 9,
+            "weight_lbs": 225.0
+          },
+          {
+            "exercise": "Leg press",
+            "sets": 3,
+            "reps": 14,
+            "weight_lbs": 280.0
+          },
+          {
+            "exercise": "Dumbbell bent over row",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 65.0
+          },
+          {
+            "exercise": "Cable bicep curls",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 100.0
+          },
+          {
+            "exercise": "Cable tricep pushdown",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 140.0
+          },
+          {
+            "exercise": "Dumbbell lat raises",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 10.0
+          },
+          {
+            "exercise": "Lying bicep curl",
+            "sets": 3,
+            "reps": 8,
+            "weight_lbs": 20.0
+          },
+          {
+            "exercise": "Walking lunges",
+            "sets": 3,
+            "reps": 9,
+            "weight_lbs": 20.0
+          }
+        ]
+      },
+      "todos": {
+        "total": 12,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "no_phone_am",
+          "content",
+          "clients",
+          "substack_notes"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "meditation": false,
+          "reading": false,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": false,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-01-23T11:07:28.327983",
+  "last_updated": "2026-01-24T11:05:38.555935",
   "streaks": {
     "meditation": {
       "current": 0,
