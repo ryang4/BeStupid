@@ -3411,9 +3411,67 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-01-25",
+      "extracted_at": "2026-01-26T11:07:53.826059",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 14,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "no_phone_am",
+          "content",
+          "clients",
+          "substack_notes"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "meditation": false,
+          "reading": false,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": false,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-01-25T11:05:49.317166",
+  "last_updated": "2026-01-26T11:07:53.828753",
   "streaks": {
     "meditation": {
       "current": 0,
