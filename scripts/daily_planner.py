@@ -284,9 +284,50 @@ def create_daily_log():
             print(f"\nWarning: Error generating AI briefing: {e}")
             print("   Using fallback briefing")
 
-    # 7. Combine todos: incomplete rollover + Top 3 + AI-generated
-    ai_todos = ai_response.get('todos', ['- [ ] Review today\'s protocol'])
-    combined_todos = yesterday_incomplete + yesterday_top_3 + ai_todos
+    # 7. Combine todos: Top 3 from yesterday + incomplete rollover + AI-generated
+    # Top 3 comes first (these are the priority tasks user planned)
+    # Then incomplete todos that weren't finished
+    # Then AI-generated todos (usually just "Perform today's workout")
+    raw_ai_todos = ai_response.get('todos', ['- [ ] Review today\'s protocol'])
+
+    # Filter AI todos: only keep the workout todo, remove spurious items
+    # The LLM should only generate "Perform today's workout" but sometimes adds extras
+    ai_todos = []
+    for todo in raw_ai_todos:
+        todo_lower = todo.lower()
+        # Only keep workout-related todos from AI
+        if 'workout' in todo_lower or 'protocol' in todo_lower:
+            # Skip "create weekly protocol" - that's handled separately
+            if 'create weekly protocol' not in todo_lower:
+                ai_todos.append(todo)
+                break  # Only keep one workout todo
+
+    # Fallback if no valid AI todo found
+    if not ai_todos and raw_ai_todos:
+        ai_todos = ['- [ ] Perform today\'s workout']
+
+    # Deduplicate todos while preserving order
+    # Normalize by extracting task text (remove "- [ ] " or "- [x] " prefix)
+    def normalize_todo(todo):
+        """Extract task text from todo for comparison."""
+        text = todo.strip()
+        if text.startswith("- [ ] "):
+            text = text[6:]
+        elif text.startswith("- [x] "):
+            text = text[6:]
+        return text.lower().strip()
+
+    seen = set()
+    combined_todos = []
+
+    # Add in priority order: Top 3 first, then incomplete, then AI
+    for todo in yesterday_top_3 + yesterday_incomplete + ai_todos:
+        normalized = normalize_todo(todo)
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            combined_todos.append(todo)
+
+    print(f"   Deduplication: {len(yesterday_top_3) + len(yesterday_incomplete) + len(ai_todos)} -> {len(combined_todos)} todos")
 
     # 8. Build markdown using Jinja2 template
     content = render_daily_log(
