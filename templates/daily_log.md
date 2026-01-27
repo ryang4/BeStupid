@@ -39,6 +39,8 @@ Sleep::
 Sleep_Quality::
 Mood_AM::
 Mood_PM::
+Energy::
+Focus::
 {% if has_cardio %}
 
 ## Training Output

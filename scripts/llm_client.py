@@ -438,9 +438,11 @@ CRITICAL RULES:
    - Brick workout -> ["bike", "run"]
    - Strength day -> []
 
-5. **todos**: MUST follow these rules:
-   - Generate ONLY ONE todo: "- [ ] Perform today's workout"
-   - All other tasks come from carrying forward yesterday's incomplete items
+5. **todos**: CRITICAL - MUST BE EXACTLY ONE ITEM:
+   - Return EXACTLY: ["- [ ] Perform today's workout"]
+   - Do NOT add "Create weekly protocol" or any other todos
+   - Do NOT add multiple workout todos
+   - Other tasks are handled automatically by the system from yesterday's log
 
 6. **briefing**: Use the metrics data to personalize:
    - Reference specific numbers (sleep hours, completion rates)

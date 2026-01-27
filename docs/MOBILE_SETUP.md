@@ -1,14 +1,14 @@
 # Mobile Setup Guide
 
-This guide walks you through setting up the BeStupid daily planning system on your iPhone using Obsidian and Working Copy.
+This guide walks you through setting up the BeStupid daily planning system on your iPhone using Obsidian and a-shell.
 
 ## Overview
 
 ```
 5:00 AM  → GitHub Action generates today's log
-6:00 AM  → iOS Shortcut pulls latest + opens Obsidian
+6:00 AM  → iOS Shortcut (a-shell) pulls latest + opens Obsidian
 All Day  → Edit daily log on phone (inline fields)
-9:00 PM  → iOS Shortcut commits + pushes changes
+9:00 PM  → iOS Shortcut (a-shell) commits + pushes changes
 ```
 
 ---
@@ -42,24 +42,45 @@ All Day  → Edit daily log on phone (inline fields)
 
 ---
 
-## Step 2: Working Copy (Git on iPhone)
+## Step 2: a-shell (Free Git on iPhone)
 
-[Working Copy](https://apps.apple.com/app/working-copy/id896694807) is a Git client for iOS. Free for pulling; one-time purchase for pushing.
+[a-shell](https://apps.apple.com/us/app/a-shell/id1473805438) is a free terminal app for iOS with full Git support. Unlike Working Copy, it's 100% free including push operations.
+
+### Install and Setup
+
+1. Install **a-shell** from App Store (free)
+2. Open a-shell
+3. Configure Git credentials:
+
+   ```bash
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+   ```
 
 ### Clone the Repository
 
-1. Install Working Copy from App Store
-2. Tap **+** > **Clone repository**
-3. Sign in with GitHub
-4. Select your BeStupid repo
-5. Wait for clone to complete
+1. In a-shell, run:
 
-### Enable Obsidian Access
+   ```bash
+   cd Documents
+   git clone https://github.com/YOUR_USERNAME/BeStupid.git
+   ```
 
-1. In Working Copy, open the repo
-2. Tap the **⚙️ gear icon** (top right)
-3. Tap **Share as Linked Repository**
-4. This makes the folder visible to Obsidian
+2. When prompted, enter your GitHub username
+3. For password, use a [Personal Access Token](https://github.com/settings/tokens) (not your GitHub password)
+   - Create token with `repo` scope
+   - Save it securely (you'll need it for push operations)
+
+### Setup GitHub Authentication
+
+To avoid entering credentials every time, configure credential caching:
+
+```bash
+cd Documents/BeStupid
+git config credential.helper store
+```
+
+The next time you push, enter your token - it will be saved for future operations.
 
 ---
 
@@ -70,7 +91,7 @@ All Day  → Edit daily log on phone (inline fields)
 1. Install [Obsidian](https://apps.apple.com/app/obsidian/id1557175442) from App Store
 2. Open Obsidian
 3. Tap **Open folder as vault**
-4. Navigate to: Working Copy > BeStupid > **content**
+4. Navigate to: On My iPhone > a-shell > Documents > BeStupid > **content**
 5. Tap **Open**
 
 ### Enable Mobile CSS Snippet
@@ -108,41 +129,48 @@ Creates a shortcut that pulls latest changes and opens today's note.
 2. Tap **+** to create new shortcut
 3. Add these actions:
 
-```
-Action 1: Run Working Copy Pull
-  - Repository: BeStupid
-  - Remote: origin
-
-Action 2: Open URL
-  - URL: obsidian://open?vault=content&file=logs/[Current Date]
-
-  (Use "Format Date" action to get YYYY-MM-DD format)
-```
-
 **Full shortcut:**
 
 ```
 1. [Date] → Format Date (Custom: yyyy-MM-dd) → Save to "today"
-2. [Working Copy] → Pull Repository "BeStupid"
+
+2. [Scripting] → Run Shell Script
+   - Shell: a-shell
+   - Script:
+     cd Documents/BeStupid
+     git pull origin main
+   - Pass Input: No
+
 3. [URL] → Open URL "obsidian://open?vault=content&file=logs/[today]"
 ```
+
+**Tip:** Search for "Run Shell Script" in Shortcuts, then select "a-shell" as the shell option.
 
 ### Evening Push Shortcut
 
 Commits and pushes your daily log edits.
 
-```
-1. [Working Copy] → Stage for Commit
-   - Repository: BeStupid
-   - Path: content/logs/
+1. Open **Shortcuts** app
+2. Create new shortcut with:
 
-2. [Working Copy] → Commit Repository
-   - Repository: BeStupid
-   - Message: "Daily log update"
-
-3. [Working Copy] → Push Repository
-   - Repository: BeStupid
 ```
+1. [Date] → Format Date (Custom: yyyy-MM-dd) → Save to "today"
+
+2. [Scripting] → Run Shell Script
+   - Shell: a-shell
+   - Script:
+     cd Documents/BeStupid
+     git add content/logs/
+     git commit -m "Daily log update: [today]"
+     git push origin main
+   - Pass Input: No
+
+3. [Notification] → Show Notification
+   - Title: "Daily log synced"
+   - Body: "Changes pushed to GitHub"
+```
+
+**Note:** The commit message will include today's date for easier tracking in Git history.
 
 ### Notification Shortcuts
 
@@ -226,16 +254,29 @@ Note: Results appear in GitHub Actions, not directly in the shortcut.
 - Verify HF_TOKEN secret is set
 - Try manual workflow dispatch
 
-### Working Copy won't push
+### Git authentication fails
 
-- Ensure you have the paid version (or use GitHub web)
-- Check repository permissions
-- Verify you're on the `main` branch
+- Make sure you're using a GitHub Personal Access Token, not your password
+- Verify the token has `repo` scope enabled
+- Re-run credential setup: `git config credential.helper store`
+
+### Push fails with "permission denied"
+
+- Check your GitHub token hasn't expired
+- Verify you have write access to the repository
+- Try pulling first: `git pull origin main`
 
 ### Obsidian can't find vault
 
-- Re-link repository in Working Copy settings
-- Ensure vault path is `content/` not root
+- Make sure a-shell cloned to `Documents/BeStupid`
+- Ensure vault path is pointing to the `content/` folder
+- Check Files app to verify the folder exists
+
+### Shortcuts not working
+
+- Verify a-shell is installed and repository is cloned
+- Test the git commands manually in a-shell first
+- Make sure "Run Shell Script" action is set to use "a-shell" not "sh"
 
 ### CSS snippet not working
 

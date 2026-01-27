@@ -154,12 +154,14 @@ def parse_quick_log(content: str) -> dict:
     Parse the Quick Log inline fields.
 
     Returns:
-        dict with sleep, weight, mood data
+        dict with sleep, weight, mood, energy, focus data
     """
     result = {
         "sleep": {"hours": None, "quality": None},
         "weight_lbs": None,
-        "mood": {"morning": None, "bedtime": None}
+        "mood": {"morning": None, "bedtime": None},
+        "energy": None,
+        "focus": None
     }
 
     weight_val = parse_inline_field(content, "Weight")
@@ -181,6 +183,12 @@ def parse_quick_log(content: str) -> dict:
 
     mood_pm_val = parse_inline_field(content, "Mood_PM")
     result["mood"]["bedtime"] = normalize_quality_score(mood_pm_val)
+
+    energy_val = parse_inline_field(content, "Energy")
+    result["energy"] = normalize_quality_score(energy_val)
+
+    focus_val = parse_inline_field(content, "Focus")
+    result["focus"] = normalize_quality_score(focus_val)
 
     return result
 
@@ -581,17 +589,21 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
 
     workout_type = extract_workout_type_from_title(content)
 
-    # Parse quick log (sleep, weight, mood)
+    # Parse quick log (sleep, weight, mood, energy, focus)
     try:
         stats = parse_quick_log(content)
         result["sleep"] = stats["sleep"]
         result["weight_lbs"] = stats["weight_lbs"]
         result["mood"] = stats["mood"]
+        result["energy"] = stats["energy"]
+        result["focus"] = stats["focus"]
     except Exception as e:
         notes.append(f"Stats parsing failed: {e}")
         result["sleep"] = {"hours": None, "quality": None}
         result["weight_lbs"] = None
         result["mood"] = {"morning": None, "bedtime": None}
+        result["energy"] = None
+        result["focus"] = None
 
     # Parse training output
     try:

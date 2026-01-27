@@ -14,3 +14,8 @@ scripts/.env
 
 # Local sync logs
 scripts/logs/
+
+# Telegram bot secrets and runtime files
+telegram-bot/.env
+telegram-bot/conversation.json
+telegram-bot/*.log
