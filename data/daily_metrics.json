@@ -3469,9 +3469,67 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-01-26",
+      "extracted_at": "2026-01-27T11:08:33.192093",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "training": {
+        "workout_type": "recovery",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 15,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "meditation",
+          "reading",
+          "stretching",
+          "journal",
+          "no_phone_am",
+          "content",
+          "clients",
+          "substack_notes"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "meditation": false,
+          "reading": false,
+          "stretching": false,
+          "journal": false,
+          "no_phone_am": false,
+          "content": false,
+          "clients": false,
+          "substack_notes": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-01-26T11:07:53.828753",
+  "last_updated": "2026-01-27T11:08:33.194707",
   "streaks": {
     "meditation": {
       "current": 0,
@@ -3572,14 +3630,25 @@
       "clients": 0.0,
       "substack_notes": 0.0,
       "_overall": 0.0
+    },
+    "2026-W05": {
+      "meditation": 0.0,
+      "reading": 0.0,
+      "stretching": 0.0,
+      "journal": 0.0,
+      "no_phone_am": 0.0,
+      "content": 0.0,
+      "clients": 0.0,
+      "substack_notes": 0.0,
+      "_overall": 0.0
     }
   },
   "trends": {
-    "meditation": "declining",
-    "reading": "declining",
-    "stretching": "declining",
-    "journal": "declining",
-    "no_phone_am": "declining",
+    "meditation": "stable",
+    "reading": "stable",
+    "stretching": "stable",
+    "journal": "stable",
+    "no_phone_am": "stable",
     "content": "stable",
     "clients": "stable",
     "substack_notes": "stable"
