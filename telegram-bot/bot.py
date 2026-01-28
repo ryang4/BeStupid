@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 BeStupid Telegram Bot - Personal productivity assistant powered by Claude Code.
-Uses Claude Code CLI (claude -p --continue) with your Claude Max subscription.
+Uses Claude Code CLI with a dedicated session ID to maintain context.
 """
 
 import os
 import sys
 import logging
 import subprocess
+import uuid
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -20,17 +21,53 @@ load_dotenv(Path(__file__).parent / ".env")
 # Configuration
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", 0))
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
+SESSION_FILE = Path(__file__).parent / ".session_id"
+SKIP_PERMISSIONS = os.environ.get("SKIP_PERMISSIONS", "false").lower() == "true"
 
-# Keep system prompt short to reduce latency
-SYSTEM_PROMPT = """You are Ryan's personal AI assistant via Telegram. Be concise.
+SESSION_CREATED_FILE = Path(__file__).parent / ".session_created"
 
-You have full Claude Code tools (read/write files, bash, etc). Use them proactively.
+def get_session_id() -> tuple[str, bool]:
+    """Get session ID and whether it's been used before.
+    Returns (session_id, is_new_session)."""
+    if SESSION_FILE.exists():
+        session_id = SESSION_FILE.read_text().strip()
+        is_new = not SESSION_CREATED_FILE.exists()
+        return session_id, is_new
+    # Create new session ID
+    new_id = str(uuid.uuid4())
+    SESSION_FILE.write_text(new_id)
+    # Remove created marker if it exists
+    if SESSION_CREATED_FILE.exists():
+        SESSION_CREATED_FILE.unlink()
+    return new_id, True
 
-Key paths in this repo:
-- Daily logs: content/logs/YYYY-MM-DD.md
-- Metrics: data/daily_metrics.json
-- Scripts: scripts/*.py"""
+def mark_session_created():
+    """Mark that the session has been created in Claude."""
+    SESSION_CREATED_FILE.write_text("1")
+
+def reset_session() -> str:
+    """Create a new session ID (for /clear command)."""
+    new_id = str(uuid.uuid4())
+    SESSION_FILE.write_text(new_id)
+    # Remove created marker so next call uses --session-id
+    if SESSION_CREATED_FILE.exists():
+        SESSION_CREATED_FILE.unlink()
+    return new_id
+
+# System prompt - kept concise for speed
+SYSTEM_PROMPT = """You are Ryan's executive assistant via Telegram. Be concise and direct.
+
+MEMORY SYSTEM - Use `python scripts/memory.py` to maintain knowledge:
+- people add/get/update/list/delete "Name" --context/--role/--field/--value
+- projects add/get/update/list "name" --status/--description
+- decisions add/list/revoke "topic" --choice/--rationale
+- commitments add/list/complete/cancel "what" --deadline/--who
+- search "query"
+
+When people/decisions/commitments come up, update memory. Check memory for context when relevant.
+
+Key paths: memory/*.json, content/logs/YYYY-MM-DD.md, scripts/*.py"""
 
 # Logging
 logging.basicConfig(
@@ -40,18 +77,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def call_claude(message: str, continue_conversation: bool = True) -> str:
+def call_claude(message: str, force_new_session: bool = False) -> str:
     """Call Claude Code CLI and return the response."""
+    if force_new_session:
+        session_id = reset_session()
+        is_new = True
+    else:
+        session_id, is_new = get_session_id()
+
     cmd = ["claude", "-p", "--model", "sonnet"]
 
-    if continue_conversation:
-        cmd.append("--continue")
+    # Skip permission prompts in container/sandbox mode
+    if SKIP_PERMISSIONS:
+        cmd.append("--dangerously-skip-permissions")
 
-    # Only add system prompt on fresh conversations
-    if not continue_conversation:
-        cmd.extend(["--system-prompt", SYSTEM_PROMPT])
+    if is_new:
+        # First message in this session - create it
+        cmd.extend(["--session-id", session_id])
+    else:
+        # Continuing existing session - resume it
+        cmd.extend(["--resume", session_id])
 
-    cmd.append(message)
+    cmd.extend(["--system-prompt", SYSTEM_PROMPT, message])
 
     logger.info(f"Calling Claude: {message[:50]}...")
 
@@ -61,13 +108,15 @@ def call_claude(message: str, continue_conversation: bool = True) -> str:
             capture_output=True,
             text=True,
             cwd=str(PROJECT_ROOT),
-            timeout=90,
+            timeout=180,
         )
 
         if result.returncode != 0:
             logger.error(f"Claude error: {result.stderr}")
             return f"Error: {result.stderr[:200]}"
 
+        # Mark session as created for future --resume calls
+        mark_session_created()
         return result.stdout.strip()
 
     except subprocess.TimeoutExpired:
@@ -99,8 +148,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def cmd_clear(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Start fresh conversation."""
-    response = call_claude("Hi! Fresh conversation.", continue_conversation=False)
+    """Start fresh conversation with new session ID."""
+    if OWNER_CHAT_ID and update.effective_chat.id != OWNER_CHAT_ID:
+        await update.message.reply_text("Unauthorized.")
+        return
+    response = call_claude("Hi! Fresh conversation started.", force_new_session=True)
     await update.message.reply_text(f"Fresh start!\n\n{response}")
 
 
