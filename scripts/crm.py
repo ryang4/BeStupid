@@ -23,7 +23,7 @@ import frontmatter
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 RELATIONSHIPS_DIR = os.path.join(PROJECT_ROOT, "content", "relationships")
-CRM_DATA_FILE = os.path.join(PROJECT_ROOT, "data", "crm_metrics.json")
+CRM_DATA_FILE = os.path.join(SCRIPT_DIR, "data", "crm_metrics.json")
 
 # Relationship categories
 CATEGORIES = ["mentors", "investors", "friends", "family", "colleagues", "clients"]

@@ -346,7 +346,21 @@ def create_daily_log():
     with open(file_path, "w", encoding='utf-8') as f:
         f.write(content)
 
-    # 10. Print summary
+    # 10. Extract memory from yesterday's log (batch extraction)
+    try:
+        from memory import extract_and_persist
+        yesterday = datetime.now() - timedelta(days=1)
+        yesterday_path = os.path.join(VAULT_DIR, f"{yesterday.strftime('%Y-%m-%d')}.md")
+        if os.path.exists(yesterday_path):
+            with open(yesterday_path, 'r', encoding='utf-8') as f:
+                yesterday_content = f.read()
+            print("Extracting memory from yesterday's log...")
+            extracted = extract_and_persist(yesterday_content, agent="daily_planner")
+            print(f"   Extracted {len(extracted)} facts into memory")
+    except Exception as e:
+        print(f"   Warning: Memory extraction failed: {e}")
+
+    # 11. Print summary
     workout_type = ai_response.get('workout_type', 'recovery')
     planned_workout = ai_response.get('planned_workout', '')
     briefing = ai_response.get('briefing', {})

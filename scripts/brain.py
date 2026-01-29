@@ -96,6 +96,26 @@ def get_nudges() -> dict:
         return {"all": {}, "priority": []}
 
 
+def get_memory_status() -> dict:
+    """Get memory system status."""
+    try:
+        from memory import MEMORY_ROOT, query_events
+        counts = {}
+        for category in ["people", "projects", "decisions", "commitments"]:
+            cat_dir = MEMORY_ROOT / category
+            counts[category] = len(list(cat_dir.glob("*.json"))) if cat_dir.exists() else 0
+        recent = query_events(limit=5)
+        last_event_ts = recent[-1]["ts"] if recent else None
+        return {
+            "counts": counts,
+            "total": sum(counts.values()),
+            "last_event": last_event_ts,
+            "recent_events": len(query_events(limit=1000)),
+        }
+    except Exception:
+        return {}
+
+
 def get_todays_log_status() -> dict:
     """Check if today's log has been filled out."""
     log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "content", "logs")
@@ -311,7 +331,8 @@ def get_full_dashboard() -> dict:
         "finance": safe_call(get_finance_status, {}),
         "goals": safe_call(get_goals_status, {}),
         "nudges": safe_call(get_nudges, {"all": {}, "priority": []}),
-        "todays_log": safe_call(get_todays_log_status, {})
+        "todays_log": safe_call(get_todays_log_status, {}),
+        "memory": safe_call(get_memory_status, {})
     }
 
 
@@ -375,6 +396,13 @@ def format_dashboard_compact() -> str:
             lines.append("📝 Log: Not filled yet")
     else:
         lines.append("📝 Log: Not created")
+
+    # Memory
+    memory = data.get("memory", {})
+    if memory.get("total"):
+        lines.append(f"🧠 Memory: {memory['total']} records, {memory.get('recent_events', 0)} events")
+    else:
+        lines.append("🧠 Memory: Empty")
 
     # Priority Nudges
     nudges = data.get("nudges", {}).get("priority", [])
@@ -504,6 +532,19 @@ def format_dashboard_full() -> str:
             lines.append("   ⚠️ Not filled out yet")
     else:
         lines.append("   ❌ Not created yet")
+
+    # === MEMORY ===
+    lines.append("\n🧠 MEMORY")
+    memory = data.get("memory", {})
+    if memory.get("total"):
+        counts = memory.get("counts", {})
+        lines.append(f"   Total: {memory['total']} records")
+        lines.append(f"   People: {counts.get('people', 0)} | Projects: {counts.get('projects', 0)} | Decisions: {counts.get('decisions', 0)} | Commitments: {counts.get('commitments', 0)}")
+        lines.append(f"   Events logged: {memory.get('recent_events', 0)}")
+        if memory.get("last_event"):
+            lines.append(f"   Last activity: {memory['last_event']}")
+    else:
+        lines.append("   No memory data yet")
 
     # === PRIORITY NUDGES ===
     nudges = data.get("nudges", {}).get("priority", [])

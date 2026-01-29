@@ -23,7 +23,7 @@ import frontmatter
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 DECISIONS_DIR = os.path.join(PROJECT_ROOT, "content", "decisions")
-DECISION_DATA_FILE = os.path.join(PROJECT_ROOT, "data", "decision_metrics.json")
+DECISION_DATA_FILE = os.path.join(SCRIPT_DIR, "data", "decision_metrics.json")
 
 # Decision categories
 CATEGORIES = [

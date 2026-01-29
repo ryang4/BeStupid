@@ -16,17 +16,71 @@ Usage:
 """
 
 import argparse
+import fcntl
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import ulid
+
 MEMORY_ROOT = Path(__file__).parent.parent / "memory"
+EVENTS_PATH = MEMORY_ROOT / "events.jsonl"
 
 # Ensure directories exist
 for category in ["people", "projects", "decisions", "commitments"]:
     (MEMORY_ROOT / category).mkdir(parents=True, exist_ok=True)
+
+
+# =============================================================================
+# EVENT LOG
+# =============================================================================
+
+def append_event(type: str, agent: str, action: str, entity: str = "", meta: dict = None):
+    """Atomically append event to JSONL log."""
+    entry = {
+        "v": 1,
+        "id": str(ulid.ULID()),
+        "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        "type": type,
+        "agent": agent,
+        "action": action,
+        "entity": entity,
+        "meta": meta or {},
+    }
+    line = json.dumps(entry, separators=(",", ":")) + "\n"
+    with open(EVENTS_PATH, "a") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            f.write(line)
+            f.flush()
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
+
+def query_events(type=None, agent=None, since=None, limit=100):
+    """Stream-parse JSONL with filters, skipping corrupt lines."""
+    results = []
+    if not EVENTS_PATH.exists():
+        return results
+    with open(EVENTS_PATH) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if type and event.get("type") != type:
+                continue
+            if agent and event.get("agent") != agent:
+                continue
+            if since and event.get("ts", "") < since:
+                continue
+            results.append(event)
+    return results[-limit:]
 
 
 def slugify(name: str) -> str:
@@ -67,6 +121,7 @@ def people_add(name: str, context: str = "", source: str = "", role: str = "",
     }
 
     filepath.write_text(json.dumps(person, indent=2))
+    append_event("memory_write", "cli", "people.add", f"people/{slug}")
     print(f"Added person: {name}")
     return person
 
@@ -110,6 +165,7 @@ def people_update(name: str, field: str, value: str) -> Optional[dict]:
 
     person["updated"] = get_timestamp()
     filepath.write_text(json.dumps(person, indent=2))
+    append_event("memory_write", "cli", "people.update", f"people/{slug}", {"field": field})
     print(f"Updated {name}.{field}")
     return person
 
@@ -140,6 +196,7 @@ def people_delete(name: str) -> bool:
         return False
 
     filepath.unlink()
+    append_event("memory_write", "cli", "people.delete", f"people/{slug}")
     print(f"Deleted person: {name}")
     return True
 
@@ -171,6 +228,7 @@ def projects_add(name: str, status: str = "active", description: str = "",
     }
 
     filepath.write_text(json.dumps(project, indent=2))
+    append_event("memory_write", "cli", "projects.add", f"projects/{slug}")
     print(f"Added project: {name}")
     return project
 
@@ -216,6 +274,7 @@ def projects_update(name: str, field: str, value: str) -> Optional[dict]:
 
     project["updated"] = get_timestamp()
     filepath.write_text(json.dumps(project, indent=2))
+    append_event("memory_write", "cli", "projects.update", f"projects/{slug}", {"field": field})
     print(f"Updated {name}.{field}")
     return project
 
@@ -245,6 +304,7 @@ def projects_delete(name: str) -> bool:
         return False
 
     filepath.unlink()
+    append_event("memory_write", "cli", "projects.delete", f"projects/{slug}")
     print(f"Deleted project: {name}")
     return True
 
@@ -280,6 +340,7 @@ def decisions_add(topic: str, choice: str, rationale: str = "",
         archive_path.write_text(json.dumps(old, indent=2))
 
     filepath.write_text(json.dumps(decision, indent=2))
+    append_event("memory_write", "cli", "decisions.add", f"decisions/{slug}")
     print(f"Added decision: {topic} -> {choice}")
     return decision
 
@@ -329,6 +390,7 @@ def decisions_revoke(topic: str, reason: str = "") -> Optional[dict]:
     decision["updated"] = get_timestamp()
 
     filepath.write_text(json.dumps(decision, indent=2))
+    append_event("memory_write", "cli", "decisions.revoke", f"decisions/{slug}")
     print(f"Revoked decision: {topic}")
     return decision
 
@@ -356,6 +418,7 @@ def commitments_add(what: str, deadline: str = "", who: str = "",
     }
 
     filepath.write_text(json.dumps(commitment, indent=2))
+    append_event("memory_write", "cli", "commitments.add", f"commitments/{filepath.stem}")
     print(f"Added commitment: {what}")
     return commitment
 
@@ -387,6 +450,7 @@ def commitments_complete(what: str) -> bool:
             commitment["completed"] = get_timestamp()
             commitment["updated"] = get_timestamp()
             filepath.write_text(json.dumps(commitment, indent=2))
+            append_event("memory_write", "cli", "commitments.complete", f"commitments/{filepath.stem}")
             print(f"Completed: {what}")
             return True
 
@@ -403,6 +467,7 @@ def commitments_cancel(what: str, reason: str = "") -> bool:
             commitment["cancel_reason"] = reason
             commitment["updated"] = get_timestamp()
             filepath.write_text(json.dumps(commitment, indent=2))
+            append_event("memory_write", "cli", "commitments.cancel", f"commitments/{filepath.stem}")
             print(f"Cancelled: {what}")
             return True
 
@@ -431,6 +496,76 @@ def search(query: str) -> list:
                 })
 
     print(json.dumps(results, indent=2))
+    return results
+
+
+# =============================================================================
+# AUTO-EXTRACTION
+# =============================================================================
+
+ALLOWED_OPS = {
+    "people.add": people_add,
+    "people.update": people_update,
+    "projects.add": projects_add,
+    "projects.update": projects_update,
+    "decisions.add": decisions_add,
+    "commitments.add": commitments_add,
+    "commitments.complete": commitments_complete,
+}
+
+EXTRACTION_PROMPT = """You are a Personal Information Organizer. Extract concrete facts from this interaction.
+Return a JSON array of operations:
+[
+  {{"op": "people.add", "args": {{"name": "...", "context": "...", "role": "..."}}}},
+  {{"op": "projects.update", "args": {{"name": "...", "field": "update", "value": "..."}}}},
+  {{"op": "commitments.add", "args": {{"what": "...", "deadline": "...", "context": "..."}}}}
+]
+Return [] if nothing worth persisting. Only extract CONCRETE facts — preferences, decisions,
+relationships, project context. Ignore transient conversation ("thanks", "ok").
+
+Interaction:
+{interaction_text}"""
+
+
+def extract_and_persist(interaction_text: str, agent: str = "extractor"):
+    """Extract facts from interaction, dispatch to CRUD, log events."""
+    from llm_client import call_llm
+
+    response = call_llm(
+        [{"role": "user", "content": EXTRACTION_PROMPT.format(interaction_text=interaction_text)}],
+        format_json=True,
+    )
+    try:
+        operations = json.loads(response)
+    except json.JSONDecodeError:
+        append_event("extraction_failed", agent, "json_parse_error")
+        return []
+
+    if not isinstance(operations, list):
+        return []
+
+    results = []
+    cid = str(ulid.ULID())
+    for op in operations:
+        op_name = op.get("op", "")
+        if op_name not in ALLOWED_OPS:
+            continue
+        args = op.get("args", {})
+        if not isinstance(args, dict):
+            continue
+        # Validate: all values must be strings, lists, or bools; no path separators
+        if not all(isinstance(v, (str, list, bool)) for v in args.values()):
+            continue
+        if any("/" in str(v) or "\\" in str(v) for v in args.values() if isinstance(v, str)):
+            continue
+        try:
+            ALLOWED_OPS[op_name](**args)
+            results.append(op_name)
+        except (TypeError, KeyError):
+            continue
+
+    append_event("extraction_complete", agent, f"extracted {len(results)} ops",
+                 meta={"cid": cid, "ops": results})
     return results
 
 
@@ -533,6 +668,16 @@ def main():
     search_parser = subparsers.add_parser("search", help="Search all memory")
     search_parser.add_argument("query", help="Search query")
 
+    # History
+    history_parser = subparsers.add_parser("history", help="Show recent events")
+    history_parser.add_argument("--limit", type=int, default=20, help="Max events")
+    history_parser.add_argument("--type", default=None, help="Filter by event type")
+    history_parser.add_argument("--agent", default=None, help="Filter by agent")
+
+    # Extract
+    extract_parser = subparsers.add_parser("extract", help="Extract facts from text")
+    extract_parser.add_argument("text", help="Interaction text to extract from")
+
     args = parser.parse_args()
 
     if args.category == "people":
@@ -581,6 +726,14 @@ def main():
 
     elif args.category == "search":
         search(args.query)
+
+    elif args.category == "history":
+        events = query_events(type=args.type, agent=args.agent, limit=args.limit)
+        print(json.dumps(events, indent=2))
+
+    elif args.category == "extract":
+        results = extract_and_persist(args.text)
+        print(f"Extracted {len(results)} operations: {results}")
 
     else:
         parser.print_help()
