@@ -150,15 +150,26 @@ I'm transitioning from marathon running (5:34 PR, 150 avg HR) to triathlon. Swim
 - **Swim:** Focus on technique drills (beginner). Start with 800-1000m/week, build slowly.
 - **Bike:** Indoor trainer for now, focus on form + cadence (85-95rpm). 60-90min/week.
 - **Run:** Leverage running base but keep intensity low (Zone 2, HR <150). 8-12mi/week.
-- **Strength:** 2x/week full body workouts (Tuesday/Friday or similar spacing). Template:
-  - Close grip bench press 3x7 @ 115
-  - Cable seated row 3x10 @ 130
-  - Barbell shoulder press 3x7 @ 85
-  - Assisted pull up 3x2 @ 50
-  - Dumbbell lying tricep extension 3x8 @ 20
-  - Dumbbell incline curl 3x7 @ 20
-  - Walking lunges 3x7 @ 20
-  - Lying leg curl 3x9 @ 125
+- **Strength:** 2x/week full body workouts (Tuesday/Friday or similar spacing). Alternate between Workout A and Workout B:
+
+  **Workout A (Week 1 Tue, Week 2 Fri, etc.):**
+  - Close grip bench press 3x8 @ 115 lbs
+  - Cable seated row 3x11 @ 120 lbs
+  - Barbell shoulder press 3x7 @ 85 lbs
+  - Assisted pull up 3x2 @ 50 lbs
+  - Dumbbell lying tricep extension 3x9 @ 20 lbs
+  - Dumbbell incline curl 3x8 @ 20 lbs
+  - Walking lunges 3x8 @ 20 lbs
+  - Lying leg curl 3x10 @ 125 lbs
+
+  **Workout B (Week 1 Fri, Week 2 Tue, etc.):**
+  - Dumbbell bench press 3x10 @ 60 lbs
+  - Dumbbell rows 3x11 @ 70 lbs
+  - Cable tricep push downs 3x10 @ 140 lbs
+  - Cable bicep curl 3x9 @ 100 lbs
+  - Dumbbell overhead lateral raise 3x10 @ 10 lbs
+  - Machine seated leg press 3x10 @ 320 lbs
+  - Lying hamstring curls 3x9 @ 125 lbs
 - **Brick Workouts:** 1x/week Saturday - practice transitions, low volume (30min bike + 20min run).
 
 ### Startup/Content Goals
