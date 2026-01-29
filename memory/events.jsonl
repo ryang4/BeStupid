@@ -1,0 +1,4 @@
+{"v":1,"id":"01KG352SMYXKXY0CCFW7FRYS3W","ts":"2026-01-28T20:35:23.934+00:00","type":"memory_write","agent":"cli","action":"people.delete","entity":"people/test-person","meta":{}}
+{"v":1,"id":"01KG352SVT6T0AZME8M8TMP1NA","ts":"2026-01-28T20:35:24.154+00:00","type":"memory_write","agent":"cli","action":"people.add","entity":"people/test-person","meta":{}}
+{"v":1,"id":"01KG3532DR8RT18VPNRSBAXVEB","ts":"2026-01-28T20:35:32.920+00:00","type":"memory_write","agent":"cli","action":"people.delete","entity":"people/test-person","meta":{}}
+{"v":1,"id":"01KG3Z12MY4J8GPENRMY91QCES","ts":"2026-01-29T04:08:50.590+00:00","type":"extraction_failed","agent":"daily_planner","action":"json_parse_error","entity":"","meta":{}}
