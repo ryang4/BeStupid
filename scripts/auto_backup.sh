@@ -16,23 +16,33 @@ if git -c safe.directory=/project status --porcelain | grep -q '^'; then
 
     # Create commit with timestamp
     TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-    git -c safe.directory=/project \
+    if git -c safe.directory=/project \
         -c user.email="noreply@anthropic.com" \
         -c user.name="Claude Sonnet 4.5" \
         commit -m "Auto-backup: $TIMESTAMP
 
 Automated backup of conversation changes.
 
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-
-    echo "✅ Backup commit created"
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>" 2>&1; then
+        echo "✅ Backup commit created"
+    else
+        echo "❌ Commit failed!"
+        python3 scripts/notify_backup_failure.py "Git commit failed at $TIMESTAMP"
+        exit 1
+    fi
 
     # Push to remote
     echo "Pushing to remote..."
-    if git -c safe.directory=/project push 2>&1; then
+    PUSH_OUTPUT=$(git -c safe.directory=/project push 2>&1)
+    PUSH_EXIT_CODE=$?
+
+    if [ $PUSH_EXIT_CODE -eq 0 ]; then
         echo "✅ Changes pushed to remote"
     else
         echo "⚠️  Push failed - check git remote configuration"
+        echo "Push error: $PUSH_OUTPUT"
+        python3 scripts/notify_backup_failure.py "Git push failed: $PUSH_OUTPUT"
+        # Don't exit on push failure - commit was successful
     fi
 else
     echo "No changes to backup"
