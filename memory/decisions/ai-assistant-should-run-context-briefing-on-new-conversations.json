@@ -1,0 +1,11 @@
+{
+  "topic": "AI assistant should run context briefing on new conversations",
+  "slug": "ai-assistant-should-run-context-briefing-on-new-conversations",
+  "choice": "python3 scripts/context_briefing.py",
+  "rationale": "Helps AI get oriented quickly on Ryan's current goals, habits, and recent activity without long re-familiarization conversation.",
+  "context": "",
+  "reversible": true,
+  "status": "active",
+  "created": "2026-01-30T06:38:58.534199",
+  "updated": "2026-01-30T06:38:58.534285"
+}

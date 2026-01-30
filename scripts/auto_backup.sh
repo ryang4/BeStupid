@@ -26,6 +26,14 @@ Automated backup of conversation changes.
 Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 
     echo "✅ Backup commit created"
+
+    # Push to remote
+    echo "Pushing to remote..."
+    if git -c safe.directory=/project push 2>&1; then
+        echo "✅ Changes pushed to remote"
+    else
+        echo "⚠️  Push failed - check git remote configuration"
+    fi
 else
     echo "No changes to backup"
 fi
