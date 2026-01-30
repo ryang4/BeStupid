@@ -73,6 +73,7 @@ Accessory_2::
 
 ## Fuel Log
 <!-- List what you ate. Format: time - food description -->
+<!-- Daily Targets: 2500-3200 cal | 180-220g protein | 250-350g carbs | 70-100g fat -->
 calories_so_far:: 0
 protein_so_far:: 0
 

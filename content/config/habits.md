@@ -1,29 +1,11 @@
 ---
 habits:
-  - id: meditation
-    name: Morning meditation
-    setup_action: "Place meditation cushion by bed before sleep"
-  - id: reading
-    name: Read 10 minutes
-    setup_action: "Keep book on nightstand with bookmark visible"
-  - id: stretching
-    name: Stretch 10 minutes
-    setup_action: "Leave yoga mat unrolled by TV"
-  - id: journal
-    name: Journal before bed
-    setup_action: "Place journal and pen on pillow after making bed"
-  - id: no_phone_am
-    name: No phone first hour
-    setup_action: "Charge phone in another room overnight"
-  - id: content
-    name: Create content 10 minutes
-    setup_action: "Need ideas here"
-  - id: clients
-    name: Communicate with clients for one hour
-    setup_action: first time each day we log into the computer, check client comms  
-  - id: substack_notes
-    name: Post one substack note each day
-    setup_action: I can't think of a good setup action for this one 
+  - id: ai_automation
+    name: Build and share one AI automation
+    setup_action: "Keep running list of automation ideas. After first coffee, pick one, build it (even if tiny), and post what you learned."
+  - id: yoga
+    name: 10 min yoga
+    setup_action: "Leave yoga mat unrolled in visible spot. Do it after workout or before bed."
 ---
 
 # Habit Configuration

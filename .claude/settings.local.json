@@ -86,7 +86,10 @@
       "Bash(wsl ls:*)",
       "Bash(wsl cat:*)",
       "Bash(wsl.exe -l:*)",
-      "Bash(wsl.exe -d Ubuntu-24.04 bash -c \"curl -fsSL https://get.docker.com -o /tmp/get-docker.sh && sudo sh /tmp/get-docker.sh\")"
+      "Bash(wsl.exe -d Ubuntu-24.04 bash -c \"curl -fsSL https://get.docker.com -o /tmp/get-docker.sh && sudo sh /tmp/get-docker.sh\")",
+      "WebSearch",
+      "Bash(colima start:*)",
+      "Bash(colima stop:*)"
     ],
     "deny": [],
     "ask": []
