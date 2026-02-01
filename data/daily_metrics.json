@@ -3842,9 +3842,57 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-01-31",
+      "extracted_at": "2026-02-01T11:07:50.160803",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "brick",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 4,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation",
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false,
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-01-31T11:07:39.135477",
+  "last_updated": "2026-02-01T11:07:50.163596",
   "streaks": {
     "ai_automation": {
       "current": 0,
