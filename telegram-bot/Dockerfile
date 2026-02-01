@@ -19,16 +19,19 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy bot code
+# Copy bot code and entrypoint
 COPY bot.py .
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Configure git to trust the mounted repo directory
-RUN git config --global --add safe.directory /project
+# Create non-root user (Claude CLI refuses --dangerously-skip-permissions as root)
+RUN useradd -m -u 501 botuser
 
 # Environment
 ENV PYTHONUNBUFFERED=1
 ENV PROJECT_ROOT=/project
 ENV SKIP_PERMISSIONS=true
+ENV GIT_CONFIG_GLOBAL=/home/botuser/.gitconfig
 
-# Bot runs from /app, operates on /project
+USER botuser
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["python", "/app/bot.py"]

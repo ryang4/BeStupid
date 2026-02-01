@@ -10,14 +10,13 @@ services:
       - OWNER_CHAT_ID=${OWNER_CHAT_ID}
       - PROJECT_ROOT=/project
       - SKIP_PERMISSIONS=true
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     volumes:
       # Mount the repo read-write - this is the ONLY host access
       - ../:/project
-      # Mount Claude auth (read-only for security)
-      - ${HOME}/.claude:/root/.claude:ro
       # Mount git credentials for push/pull
-      - ${HOME}/.gitconfig:/root/.gitconfig:ro
-      - ${HOME}/.ssh:/root/.ssh:ro
+      - ${HOME}/.gitconfig:/home/botuser/.gitconfig-mount:ro
+      - ${HOME}/.ssh:/home/botuser/.ssh-mount:ro
     working_dir: /project
     # No ports exposed - outbound polling only
     # No privileged access

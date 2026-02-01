@@ -7,6 +7,7 @@ Uses Claude Code CLI with a dedicated session ID to maintain context.
 import os
 import sys
 import logging
+import asyncio
 import subprocess
 import uuid
 from pathlib import Path
@@ -22,37 +23,24 @@ load_dotenv(Path(__file__).parent / ".env")
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", 0))
 PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
-SESSION_FILE = Path(__file__).parent / ".session_id"
+SESSION_DIR = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)) / "telegram-bot"
+SESSION_FILE = SESSION_DIR / ".session_id"
 SKIP_PERMISSIONS = os.environ.get("SKIP_PERMISSIONS", "false").lower() == "true"
 
-SESSION_CREATED_FILE = Path(__file__).parent / ".session_created"
 
-def get_session_id() -> tuple[str, bool]:
-    """Get session ID and whether it's been used before.
-    Returns (session_id, is_new_session)."""
+def get_or_create_session_id() -> str:
+    """Get existing session ID or create a new one."""
     if SESSION_FILE.exists():
-        session_id = SESSION_FILE.read_text().strip()
-        is_new = not SESSION_CREATED_FILE.exists()
-        return session_id, is_new
-    # Create new session ID
+        return SESSION_FILE.read_text().strip()
     new_id = str(uuid.uuid4())
     SESSION_FILE.write_text(new_id)
-    # Remove created marker if it exists
-    if SESSION_CREATED_FILE.exists():
-        SESSION_CREATED_FILE.unlink()
-    return new_id, True
+    return new_id
 
-def mark_session_created():
-    """Mark that the session has been created in Claude."""
-    SESSION_CREATED_FILE.write_text("1")
 
 def reset_session() -> str:
     """Create a new session ID (for /clear command)."""
     new_id = str(uuid.uuid4())
     SESSION_FILE.write_text(new_id)
-    # Remove created marker so next call uses --session-id
-    if SESSION_CREATED_FILE.exists():
-        SESSION_CREATED_FILE.unlink()
     return new_id
 
 # System prompt - kept concise for speed
@@ -77,53 +65,55 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _run_claude(cmd: list[str]) -> subprocess.CompletedProcess:
+    """Run Claude CLI with no timeout."""
+    return subprocess.run(cmd, capture_output=True, text=True, cwd=str(PROJECT_ROOT))
+
+
 def call_claude(message: str, force_new_session: bool = False) -> str:
-    """Call Claude Code CLI and return the response."""
+    """Call Claude Code CLI and return the response.
+
+    Strategy: always try --resume first. If the session doesn't exist yet,
+    Claude returns an error and we retry with --session-id to create it.
+    """
     if force_new_session:
         session_id = reset_session()
-        is_new = True
     else:
-        session_id, is_new = get_session_id()
+        session_id = get_or_create_session_id()
 
-    cmd = ["claude", "-p", "--model", "sonnet"]
-
-    # Skip permission prompts in container/sandbox mode
+    base_cmd = ["claude", "-p", "--model", "sonnet"]
     if SKIP_PERMISSIONS:
-        cmd.append("--dangerously-skip-permissions")
+        base_cmd.append("--dangerously-skip-permissions")
 
-    if is_new:
-        # First message in this session - create it
-        cmd.extend(["--session-id", session_id])
-    else:
-        # Continuing existing session - resume it
-        cmd.extend(["--resume", session_id])
-
-    cmd.extend(["--system-prompt", SYSTEM_PROMPT, message])
-
-    logger.info(f"Calling Claude: {message[:50]}...")
+    # Try --resume first (works if session exists)
+    cmd = base_cmd + ["--resume", session_id, "--system-prompt", SYSTEM_PROMPT, message]
+    logger.info(f"Calling Claude (resume): {message[:50]}...")
 
     try:
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            cwd=str(PROJECT_ROOT),
-            timeout=180,
-        )
+        result = _run_claude(cmd)
 
-        if result.returncode != 0:
-            logger.error(f"Claude error: {result.stderr}")
-            return f"Error: {result.stderr[:200]}"
+        if result.returncode == 0:
+            return result.stdout.strip()
 
-        # Mark session as created for future --resume calls
-        mark_session_created()
-        return result.stdout.strip()
+        # Session doesn't exist — create it with --session-id
+        if "No conversation found" in result.stderr or "already in use" in result.stderr:
+            logger.info("Session not found or stale, creating new session")
+            session_id = reset_session()
+            cmd = base_cmd + ["--session-id", session_id, "--system-prompt", SYSTEM_PROMPT, message]
+            result = _run_claude(cmd)
+            if result.returncode == 0:
+                return result.stdout.strip()
 
-    except subprocess.TimeoutExpired:
-        return "Timed out - try a simpler question."
+        logger.error(f"Claude error (rc={result.returncode}): stderr={result.stderr[:500]}")
+        logger.error(f"Claude stdout: {result.stdout[:500]}")
+        return f"Error: {result.stderr[:200] or result.stdout[:200]}"
+
     except Exception as e:
         logger.error(f"Error: {e}")
         return f"Error: {e}"
+
+
+THINKING_INTERVAL = 30  # seconds between "still thinking" updates
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -133,11 +123,30 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     user_text = update.message.text
+    chat_id = update.effective_chat.id
     logger.info(f"Message: {user_text[:50]}...")
 
-    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action="typing")
+    await context.bot.send_chat_action(chat_id=chat_id, action="typing")
 
-    response = call_claude(user_text)
+    # Run Claude in a thread so we can send periodic updates
+    loop = asyncio.get_event_loop()
+    claude_task = loop.run_in_executor(None, call_claude, user_text)
+
+    elapsed = 0
+    while True:
+        try:
+            response = await asyncio.wait_for(asyncio.shield(claude_task), timeout=THINKING_INTERVAL)
+            break  # got a response
+        except asyncio.TimeoutError:
+            elapsed += THINKING_INTERVAL
+            minutes = elapsed // 60
+            seconds = elapsed % 60
+            if minutes:
+                ts = f"{minutes}m {seconds}s"
+            else:
+                ts = f"{seconds}s"
+            await context.bot.send_chat_action(chat_id=chat_id, action="typing")
+            logger.info(f"Still waiting for Claude ({ts})...")
 
     # Split long messages
     if len(response) > 4000:
@@ -174,10 +183,12 @@ def main():
         sys.exit(1)
 
     try:
-        subprocess.run(["claude", "--version"], capture_output=True, check=True)
-    except:
+        subprocess.run(["claude", "--version"], capture_output=True, timeout=30)
+    except FileNotFoundError:
         print("Error: claude CLI not found")
         sys.exit(1)
+    except subprocess.TimeoutExpired:
+        pass  # CLI hangs after printing version, but it exists
 
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", cmd_start))

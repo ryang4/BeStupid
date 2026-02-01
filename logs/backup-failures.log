@@ -1,0 +1,14 @@
+[2026-01-30 19:39:52] TELEGRAM FAILED - Test alert - This is a test of the backup failure notification system
+[2026-01-30 19:40:10] Test alert - Backup failure notification system working
+[2026-01-30 19:40:51] Post-commit auto-push failed: Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+error: src refspec master does not match any
+error: failed to push some refs to 'github.com:ryang4/BeStupid.git'
+[2026-01-30 19:40:54] Git push failed: Host key verification failed.
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
