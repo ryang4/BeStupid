@@ -9,7 +9,6 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - OWNER_CHAT_ID=${OWNER_CHAT_ID}
       - PROJECT_ROOT=/project
-      - SKIP_PERMISSIONS=true
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     volumes:
       # Mount the repo read-write - this is the ONLY host access
@@ -20,10 +19,9 @@ services:
     working_dir: /project
     # No ports exposed - outbound polling only
     # No privileged access
-    security_opt:
-      - no-new-privileges:true
-    # Limit capabilities
     cap_drop:
       - ALL
     cap_add:
-      - NET_RAW  # Needed for network polling
+      - NET_RAW      # Needed for network polling
+      - SETUID       # Needed for gosu privilege drop
+      - SETGID       # Needed for gosu privilege drop
