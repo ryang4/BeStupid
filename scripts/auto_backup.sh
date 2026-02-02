@@ -12,7 +12,7 @@ if git -c safe.directory=/project status --porcelain | grep -q '^'; then
     echo "Changes detected, creating backup commit..."
 
     # Add all changes in content/, memory/, and scripts/
-    git -c safe.directory=/project add content/ memory/ scripts/ 2>/dev/null || true
+    git -c safe.directory=/project add content/ memory/ scripts/ .bestupid-private/ 2>/dev/null || true
 
     # Create commit with timestamp
     TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
