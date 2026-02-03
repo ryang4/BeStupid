@@ -5,3 +5,9 @@
 {"v":1,"id":"01KG6T0GEYD65JCZ3J12JN27KK","ts":"2026-01-30T06:38:52.383+00:00","type":"memory_write","agent":"cli","action":"decisions.add","entity":"decisions/simplified-daily-habits-to-2-core-habits","meta":{}}
 {"v":1,"id":"01KG6T0PFE4FTW6KWSTJCXBCZ0","ts":"2026-01-30T06:38:58.543+00:00","type":"memory_write","agent":"cli","action":"decisions.add","entity":"decisions/ai-assistant-should-run-context-briefing-on-new-conversations","meta":{}}
 {"v":1,"id":"01KG6T0W6TZPFGG16ETP2SBGNG","ts":"2026-01-30T06:39:04.411+00:00","type":"memory_write","agent":"cli","action":"decisions.add","entity":"decisions/still-working-on-startup-(not-ai-automations-yet)","meta":{}}
+{"v":1,"id":"01KGJ36ZKNV9V7Q2AYG3Z1C1DA","ts":"2026-02-03T15:51:20.439+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGJ3AHRX4NN57D44X7Y7HA91","ts":"2026-02-03T15:53:17.342+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGJANRS09T88RHCH9YCBCFVB","ts":"2026-02-03T18:01:44.993+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGJANRS09T88RHCH9YCBCFVA","ops":[]}}
+{"v":1,"id":"01KGJAYGYJNVNP6N0WVVE66AVG","ts":"2026-02-03T18:06:31.891+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGJAYGYJNVNP6N0WVVE66AVF","ops":[]}}
+{"v":1,"id":"01KGJB0Q8Z6346XHAHQ2T2EJ5A","ts":"2026-02-03T18:07:43.904+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGJEABSFGMNMZ4S87H17Q9VC","ts":"2026-02-03T19:05:25.551+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGJEABSE4C38WAP3ZVENARP5","ops":[]}}
