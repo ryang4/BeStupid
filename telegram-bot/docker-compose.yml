@@ -10,6 +10,7 @@ services:
       - OWNER_CHAT_ID=${OWNER_CHAT_ID}
       - PROJECT_ROOT=/project
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HISTORY_DIR=/project/.bestupid-private
     volumes:
       # Mount the repo read-write - this is the ONLY host access
       - ../:/project

@@ -3,6 +3,7 @@ Tool implementations for BeStupid Telegram bot.
 Each tool maps to a BeStupid skill capability.
 """
 
+import json
 import os
 import re
 import shlex
@@ -11,7 +12,7 @@ import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 
-PROJECT_ROOT = Path(__file__).parent.parent
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
@@ -30,6 +31,7 @@ READABLE_PREFIXES = [
 WRITABLE_PREFIXES = [
     REPO_ROOT / "content" / "logs",
     REPO_ROOT / "memory",
+    REPO_ROOT / "scripts",
     PRIVATE_DIR,
 ]
 
@@ -175,13 +177,13 @@ TOOLS = [
     },
     {
         "name": "manage_cron",
-        "description": "Manage cron jobs. For 'add', command_name must be one of: morning_briefing, evening_reminder, daily_planner, auto_backup.",
+        "description": "Manage persistent cron jobs. Jobs survive container restarts. command_name must be one of: morning_briefing, evening_reminder, daily_planner, auto_backup.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "action": {
                     "type": "string",
-                    "enum": ["list", "add", "remove"],
+                    "enum": ["list", "add", "remove", "enable", "disable"],
                     "description": "Action to perform"
                 },
                 "schedule": {
@@ -191,11 +193,7 @@ TOOLS = [
                 "command_name": {
                     "type": "string",
                     "enum": list(ALLOWED_CRON_COMMANDS.keys()),
-                    "description": "Predefined command to schedule (required for 'add')"
-                },
-                "line_number": {
-                    "type": "integer",
-                    "description": "Line number to remove (required for 'remove')"
+                    "description": "Predefined command (required for add/remove/enable/disable)"
                 }
             },
             "required": ["action"]
@@ -240,11 +238,11 @@ TOOLS = [
     },
     {
         "name": "run_script",
-        "description": "Run a Python script from the scripts/ directory",
+        "description": "Run a Python script from scripts/ or ~/.bestupid-private/",
         "input_schema": {
             "type": "object",
             "properties": {
-                "script_name": {"type": "string", "description": "Script filename, e.g. 'brain.py'"},
+                "script_name": {"type": "string", "description": "Script filename e.g. 'brain.py' or '~/.bestupid-private/my_script.py'"},
                 "args": {"type": "string", "default": "", "description": "Arguments to pass"}
             },
             "required": ["script_name"]
@@ -275,7 +273,7 @@ async def execute_tool(name: str, inputs: dict) -> str:
     elif name == "search_logs":
         return search_logs(inputs["query"], inputs.get("days", 30))
     elif name == "manage_cron":
-        return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"), inputs.get("line_number"))
+        return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"))
     elif name == "list_files":
         return list_files(inputs["path"], inputs.get("pattern", "*"))
     elif name == "grep_files":
@@ -530,17 +528,47 @@ def search_logs(query: str, days: int = 30) -> str:
     return f"No matches for '{query}' in last {days} days."
 
 
-def manage_cron(action: str, schedule: str = None, command_name: str = None, line_number: int = None) -> str:
+CRON_CONFIG = PRIVATE_DIR / "cron_jobs.json"
+
+
+def _load_cron_config() -> dict:
+    if CRON_CONFIG.exists():
+        return json.loads(CRON_CONFIG.read_text())
+    return {}
+
+
+def _save_cron_config(config: dict) -> None:
+    CRON_CONFIG.parent.mkdir(parents=True, exist_ok=True)
+    CRON_CONFIG.write_text(json.dumps(config, indent=2) + "\n")
+
+
+def _sync_cron_to_crontab() -> str | None:
+    """Rebuild crontab from config. Returns error string or None."""
     ENV_SOURCE = ". /home/botuser/.cron_env; "
+    config = _load_cron_config()
+    lines = []
+    for name, entry in config.items():
+        if name in ALLOWED_CRON_COMMANDS and entry.get("enabled"):
+            cmd = ALLOWED_CRON_COMMANDS[name]
+            lines.append(f"{entry['schedule']} {ENV_SOURCE}{cmd}")
+    crontab = "\n".join(lines) + "\n" if lines else ""
+    proc = subprocess.run(["crontab", "-"], input=crontab, capture_output=True, text=True)
+    if proc.returncode != 0:
+        return f"Error syncing crontab: {proc.stderr}"
+    return None
+
+
+def manage_cron(action: str, schedule: str = None, command_name: str = None) -> str:
+    config = _load_cron_config()
 
     if action == "list":
-        result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        if result.returncode != 0 or not result.stdout.strip():
+        if not config:
             return "No cron jobs configured."
-        lines = [l for l in result.stdout.strip().split("\n") if l.strip() and not l.startswith("#")]
-        if not lines:
-            return "No cron jobs configured."
-        return "Current cron jobs:\n" + "\n".join(f"{i+1}. {l}" for i, l in enumerate(lines))
+        lines = []
+        for name, entry in config.items():
+            status = "enabled" if entry.get("enabled") else "disabled"
+            lines.append(f"- {name}: {entry['schedule']} [{status}]")
+        return "Cron jobs:\n" + "\n".join(lines)
 
     elif action == "add":
         if not schedule or not command_name:
@@ -549,36 +577,48 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None, lin
             return f"Invalid cron schedule: {schedule}. Use 5 fields with digits, *, /, -, commas only."
         if command_name not in ALLOWED_CRON_COMMANDS:
             return f"Unknown command_name: {command_name}. Allowed: {', '.join(ALLOWED_CRON_COMMANDS.keys())}"
-
-        command = ALLOWED_CRON_COMMANDS[command_name]
-        cron_line = f"{schedule} {ENV_SOURCE}{command}"
-
-        result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        existing = result.stdout if result.returncode == 0 else ""
-        new_crontab = existing.rstrip("\n") + "\n" + cron_line + "\n"
-
-        proc = subprocess.run(["crontab", "-"], input=new_crontab, capture_output=True, text=True)
-        if proc.returncode != 0:
-            return f"Error setting crontab: {proc.stderr}"
-        return f"Added cron job: {cron_line}"
+        config[command_name] = {"schedule": schedule, "enabled": True}
+        _save_cron_config(config)
+        err = _sync_cron_to_crontab()
+        if err:
+            return err
+        return f"Added cron job: {command_name} ({schedule})"
 
     elif action == "remove":
-        if line_number is None:
-            return "Error: 'line_number' is required for remove."
-        result = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
-        if result.returncode != 0:
-            return "No cron jobs to remove."
-        all_lines = result.stdout.strip().split("\n")
-        job_lines = [(i, l) for i, l in enumerate(all_lines) if l.strip() and not l.startswith("#")]
-        if line_number < 1 or line_number > len(job_lines):
-            return f"Invalid line number. Valid range: 1-{len(job_lines)}"
-        removed = job_lines[line_number - 1]
-        all_lines.pop(removed[0])
-        new_crontab = "\n".join(all_lines) + "\n" if all_lines else ""
-        proc = subprocess.run(["crontab", "-"], input=new_crontab, capture_output=True, text=True)
-        if proc.returncode != 0:
-            return f"Error updating crontab: {proc.stderr}"
-        return f"Removed: {removed[1]}"
+        if not command_name:
+            return "Error: 'command_name' is required for remove."
+        if command_name not in config:
+            return f"Job '{command_name}' not found in config."
+        del config[command_name]
+        _save_cron_config(config)
+        err = _sync_cron_to_crontab()
+        if err:
+            return err
+        return f"Removed cron job: {command_name}"
+
+    elif action == "enable":
+        if not command_name:
+            return "Error: 'command_name' is required for enable."
+        if command_name not in config:
+            return f"Job '{command_name}' not found in config. Use 'add' first."
+        config[command_name]["enabled"] = True
+        _save_cron_config(config)
+        err = _sync_cron_to_crontab()
+        if err:
+            return err
+        return f"Enabled cron job: {command_name}"
+
+    elif action == "disable":
+        if not command_name:
+            return "Error: 'command_name' is required for disable."
+        if command_name not in config:
+            return f"Job '{command_name}' not found in config."
+        config[command_name]["enabled"] = False
+        _save_cron_config(config)
+        err = _sync_cron_to_crontab()
+        if err:
+            return err
+        return f"Disabled cron job: {command_name}"
 
     return f"Unknown action: {action}"
 
@@ -649,14 +689,23 @@ def run_memory_command(args: str) -> str:
 
 def run_script(script_name: str, args: str = "") -> str:
     # Validate script name
-    if ".." in script_name or "/" in script_name or "\\" in script_name:
-        return "Error: invalid script name (no paths allowed)."
+    if ".." in script_name or "\\" in script_name:
+        return "Error: invalid script name (no path traversal allowed)."
     if not script_name.endswith(".py"):
         return "Error: only .py scripts are allowed."
 
-    script_path = SCRIPTS_DIR / script_name
+    # Allow scripts/ dir or ~/.bestupid-private/ paths
+    if script_name.startswith("~/.bestupid-private/"):
+        script_path = Path(script_name).expanduser()
+        if ".." in str(script_path.resolve()):
+            return "Error: invalid script path."
+    elif "/" in script_name:
+        return "Error: invalid script name (no paths allowed, except ~/.bestupid-private/)."
+    else:
+        script_path = SCRIPTS_DIR / script_name
+
     if not script_path.exists():
-        return f"Script not found: scripts/{script_name}"
+        return f"Script not found: {script_name}"
 
     try:
         parsed_args = shlex.split(args) if args else []

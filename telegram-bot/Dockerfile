@@ -17,11 +17,13 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy bot code and entrypoint
-COPY bot.py claude_client.py tools.py ./
+COPY bot.py claude_client.py tools.py restore_cron.py ./
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Create non-root user and ensure home dir is writable
-RUN useradd -m -u 501 botuser && chown -R botuser:botuser /home/botuser
+# Create non-root user and ensure home dir is accessible for entrypoint setup
+RUN useradd -m -u 501 botuser && \
+    chown -R botuser:botuser /home/botuser && \
+    chmod 755 /home/botuser
 
 # Environment
 ENV PYTHONUNBUFFERED=1

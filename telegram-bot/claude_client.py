@@ -3,9 +3,12 @@ Anthropic SDK client with tool-use loop for BeStupid Telegram bot.
 """
 
 import asyncio
+import json
 import logging
+import os
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import anthropic
 from tools import TOOLS, execute_tool
@@ -15,17 +18,25 @@ logger = logging.getLogger(__name__)
 client = anthropic.Anthropic(max_retries=3, timeout=120.0)
 MODEL = "claude-sonnet-4-20250514"
 MAX_TOKENS = 4096
-MAX_TOOL_ITERATIONS = 10
-MAX_TOOL_LOOP_SECONDS = 300
+MAX_TOOL_ITERATIONS = 25
+MAX_TOOL_LOOP_SECONDS = 600
 TOOL_TIMEOUT_SECONDS = 60
 TOOL_OUTPUT_CAP = 8000
 HISTORY_TOKEN_TARGET = 100_000
+
+HISTORY_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
+HISTORY_FILE = HISTORY_DIR / "conversation_history.json"
 
 SYSTEM_PROMPT = """You are Ryan's executive assistant via Telegram. Be concise and direct.
 
 You have tools to manage files, logs, metrics, memory, and scripts in the BeStupid repo.
 Use them proactively. When people, decisions, or commitments come up,
 use run_memory_command to store/retrieve them.
+
+On your FIRST interaction in a session (when you see an [AUTO-CONTEXT] message),
+read the briefing carefully — it contains Ryan's current goals, habits, and state.
+Use memory tools proactively to store and retrieve information about people,
+projects, decisions, and commitments mentioned in conversation.
 
 IMPORTANT: This repo is a Hugo static site. Everything under content/ is PUBLIC
 (deployed to ryan-galliher.com). Never write sensitive/private information to content/.
@@ -44,10 +55,41 @@ class ConversationState:
     total_input_tokens: int = 0
     total_output_tokens: int = 0
 
-    def clear(self):
-        self.history.clear()
-        self.total_input_tokens = 0
-        self.total_output_tokens = 0
+    def save_to_disk(self, chat_id: int):
+        """Atomic write of conversation history to JSON."""
+        HISTORY_DIR.mkdir(parents=True, exist_ok=True)
+        data = {}
+        if HISTORY_FILE.exists():
+            try:
+                data = json.loads(HISTORY_FILE.read_text())
+            except (json.JSONDecodeError, OSError):
+                pass
+        data[str(chat_id)] = {
+            "history": self.history,
+            "total_input_tokens": self.total_input_tokens,
+            "total_output_tokens": self.total_output_tokens,
+        }
+        tmp = HISTORY_FILE.with_suffix(".tmp")
+        tmp.write_text(json.dumps(data, separators=(",", ":")))
+        tmp.rename(HISTORY_FILE)
+
+    @classmethod
+    def load_from_disk(cls, chat_id: int) -> "ConversationState":
+        """Load conversation history from disk."""
+        if not HISTORY_FILE.exists():
+            return cls()
+        try:
+            data = json.loads(HISTORY_FILE.read_text())
+            entry = data.get(str(chat_id))
+            if entry:
+                return cls(
+                    history=entry.get("history", []),
+                    total_input_tokens=entry.get("total_input_tokens", 0),
+                    total_output_tokens=entry.get("total_output_tokens", 0),
+                )
+        except (json.JSONDecodeError, OSError, KeyError):
+            pass
+        return cls()
 
 
 def _estimate_tokens(text: str) -> int:
@@ -141,6 +183,7 @@ async def run_tool_loop(
     state: ConversationState,
     user_message: str,
     typing_callback=None,
+    chat_id: int = 0,
 ) -> str:
     """Run the conversation + tool loop. Returns final text response."""
 
@@ -171,6 +214,8 @@ async def run_tool_loop(
             text = _extract_text(response)
             # Store assistant response in history
             state.history.append({"role": "assistant", "content": text})
+            if chat_id:
+                state.save_to_disk(chat_id)
             return text
 
         if response.stop_reason == "tool_use":
@@ -212,7 +257,11 @@ async def run_tool_loop(
         text = _extract_text(response)
         if text:
             state.history.append({"role": "assistant", "content": text})
+            if chat_id:
+                state.save_to_disk(chat_id)
             return text
         return "Unexpected response from Claude."
 
+    if chat_id:
+        state.save_to_disk(chat_id)
     return "Reached maximum tool iterations. Please try a simpler request."
