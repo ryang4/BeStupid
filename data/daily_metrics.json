@@ -3890,9 +3890,105 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-02-01",
+      "extracted_at": "2026-02-02T11:18:37.914745",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 4,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation",
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false,
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
+    },
+    {
+      "date": "2026-02-02",
+      "extracted_at": "2026-02-03T11:16:18.101650",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "recovery",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 4,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation",
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false,
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-02-01T11:07:50.163596",
+  "last_updated": "2026-02-03T11:16:18.104381",
   "streaks": {
     "ai_automation": {
       "current": 0,
@@ -3938,10 +4034,15 @@
       "ai_automation": 0.0,
       "yoga": 0.0,
       "_overall": 0.0
+    },
+    "2026-W06": {
+      "ai_automation": 0.0,
+      "yoga": 0.0,
+      "_overall": 0.0
     }
   },
   "trends": {
-    "ai_automation": "insufficient_data",
-    "yoga": "insufficient_data"
+    "ai_automation": "stable",
+    "yoga": "stable"
   }
 }
