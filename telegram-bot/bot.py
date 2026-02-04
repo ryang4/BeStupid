@@ -18,6 +18,7 @@ from telegram.error import BadRequest
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
 from claude_client import ConversationState, run_tool_loop
+from scheduler import start_scheduler
 
 load_dotenv(Path(__file__).parent / ".env")
 
@@ -198,6 +199,9 @@ def main():
     if not TELEGRAM_TOKEN:
         print("Error: TELEGRAM_BOT_TOKEN not set")
         sys.exit(1)
+
+    # Start background scheduler for cron-like jobs
+    start_scheduler()
 
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", cmd_start))

@@ -2,10 +2,13 @@
 """Restore enabled cron jobs from config on container start."""
 
 import json
+import os
 import subprocess
 from pathlib import Path
 
-CRON_CONFIG = Path.home() / ".bestupid-private" / "cron_jobs.json"
+# Use HISTORY_DIR env var to match tools.py and claude_client.py
+_PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
+CRON_CONFIG = _PRIVATE_DIR / "cron_jobs.json"
 ENV_SOURCE = ". /home/botuser/.cron_env; "
 
 ALLOWED_CRON_COMMANDS = {

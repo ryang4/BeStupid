@@ -17,7 +17,8 @@ SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 REPO_ROOT = PROJECT_ROOT
-PRIVATE_DIR = Path.home() / ".bestupid-private"
+# Use HISTORY_DIR env var to match claude_client.py, falling back to home dir
+PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 
 # --- Security: path restrictions ---
 
@@ -25,6 +26,10 @@ READABLE_PREFIXES = [
     REPO_ROOT / "content",
     REPO_ROOT / "memory",
     REPO_ROOT / "scripts",
+    REPO_ROOT / "telegram-bot",  # Read-only access to its own code
+    REPO_ROOT / "logs",          # Access to debug logs
+    REPO_ROOT / "data",          # Access to data files
+    REPO_ROOT / "docs",          # Access to documentation
     PRIVATE_DIR,
 ]
 
@@ -32,6 +37,7 @@ WRITABLE_PREFIXES = [
     REPO_ROOT / "content" / "logs",
     REPO_ROOT / "memory",
     REPO_ROOT / "scripts",
+    REPO_ROOT / "logs",          # Can manage log files
     PRIVATE_DIR,
 ]
 
@@ -238,14 +244,35 @@ TOOLS = [
     },
     {
         "name": "run_script",
-        "description": "Run a Python script from scripts/ or ~/.bestupid-private/",
+        "description": "Run a Python (.py) or Bash (.sh) script from scripts/ or ~/.bestupid-private/",
         "input_schema": {
             "type": "object",
             "properties": {
-                "script_name": {"type": "string", "description": "Script filename e.g. 'brain.py' or '~/.bestupid-private/my_script.py'"},
+                "script_name": {"type": "string", "description": "Script filename e.g. 'brain.py', 'auto_backup.sh', or '~/.bestupid-private/my_script.py'"},
                 "args": {"type": "string", "default": "", "description": "Arguments to pass"}
             },
             "required": ["script_name"]
+        }
+    },
+    {
+        "name": "search_conversation_history",
+        "description": "Search through past conversation history for messages matching a query. Use this to recall previous discussions, decisions, or information shared in past conversations.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Search term or phrase to find in conversation history"},
+                "limit": {"type": "integer", "default": 20, "description": "Maximum number of matching messages to return"}
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "get_system_status",
+        "description": "Get system status including git state, recent backup failures, and scheduled jobs. Use this to diagnose issues.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
         }
     },
 ]
@@ -282,6 +309,10 @@ async def execute_tool(name: str, inputs: dict) -> str:
         return run_memory_command(inputs["args"])
     elif name == "run_script":
         return run_script(inputs["script_name"], inputs.get("args", ""))
+    elif name == "search_conversation_history":
+        return search_conversation_history(inputs["query"], inputs.get("limit", 20))
+    elif name == "get_system_status":
+        return get_system_status()
 
     return f"Unknown tool: {name}"
 
@@ -542,20 +573,14 @@ def _save_cron_config(config: dict) -> None:
     CRON_CONFIG.write_text(json.dumps(config, indent=2) + "\n")
 
 
-def _sync_cron_to_crontab() -> str | None:
-    """Rebuild crontab from config. Returns error string or None."""
-    ENV_SOURCE = ". /home/botuser/.cron_env; "
-    config = _load_cron_config()
-    lines = []
-    for name, entry in config.items():
-        if name in ALLOWED_CRON_COMMANDS and entry.get("enabled"):
-            cmd = ALLOWED_CRON_COMMANDS[name]
-            lines.append(f"{entry['schedule']} {ENV_SOURCE}{cmd}")
-    crontab = "\n".join(lines) + "\n" if lines else ""
-    proc = subprocess.run(["crontab", "-"], input=crontab, capture_output=True, text=True)
-    if proc.returncode != 0:
-        return f"Error syncing crontab: {proc.stderr}"
-    return None
+def _sync_cron_to_scheduler() -> str | None:
+    """Reload jobs in the Python scheduler. Returns error string or None."""
+    try:
+        from scheduler import reload_jobs
+        reload_jobs()
+        return None
+    except Exception as e:
+        return f"Error reloading scheduler: {e}"
 
 
 def manage_cron(action: str, schedule: str = None, command_name: str = None) -> str:
@@ -579,7 +604,7 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
             return f"Unknown command_name: {command_name}. Allowed: {', '.join(ALLOWED_CRON_COMMANDS.keys())}"
         config[command_name] = {"schedule": schedule, "enabled": True}
         _save_cron_config(config)
-        err = _sync_cron_to_crontab()
+        err = _sync_cron_to_scheduler()
         if err:
             return err
         return f"Added cron job: {command_name} ({schedule})"
@@ -591,7 +616,7 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
             return f"Job '{command_name}' not found in config."
         del config[command_name]
         _save_cron_config(config)
-        err = _sync_cron_to_crontab()
+        err = _sync_cron_to_scheduler()
         if err:
             return err
         return f"Removed cron job: {command_name}"
@@ -603,7 +628,7 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
             return f"Job '{command_name}' not found in config. Use 'add' first."
         config[command_name]["enabled"] = True
         _save_cron_config(config)
-        err = _sync_cron_to_crontab()
+        err = _sync_cron_to_scheduler()
         if err:
             return err
         return f"Enabled cron job: {command_name}"
@@ -615,7 +640,7 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
             return f"Job '{command_name}' not found in config."
         config[command_name]["enabled"] = False
         _save_cron_config(config)
-        err = _sync_cron_to_crontab()
+        err = _sync_cron_to_scheduler()
         if err:
             return err
         return f"Disabled cron job: {command_name}"
@@ -691,8 +716,12 @@ def run_script(script_name: str, args: str = "") -> str:
     # Validate script name
     if ".." in script_name or "\\" in script_name:
         return "Error: invalid script name (no path traversal allowed)."
-    if not script_name.endswith(".py"):
-        return "Error: only .py scripts are allowed."
+
+    # Allow both Python and Bash scripts
+    is_python = script_name.endswith(".py")
+    is_bash = script_name.endswith(".sh")
+    if not (is_python or is_bash):
+        return "Error: only .py and .sh scripts are allowed."
 
     # Allow scripts/ dir or ~/.bestupid-private/ paths
     if script_name.startswith("~/.bestupid-private/"):
@@ -712,17 +741,131 @@ def run_script(script_name: str, args: str = "") -> str:
     except ValueError as e:
         return f"Error parsing args: {e}"
 
-    cmd = ["python", str(script_path)] + parsed_args
+    # Use appropriate interpreter
+    interpreter = "python" if is_python else "bash"
+    cmd = [interpreter, str(script_path)] + parsed_args
     try:
         result = subprocess.run(
             cmd, capture_output=True, text=True,
-            cwd=str(REPO_ROOT), timeout=60, shell=False,
+            cwd=str(REPO_ROOT), timeout=120, shell=False,  # 2 min timeout for bash
         )
         output = (result.stdout + result.stderr).strip()
         if len(output) > 5000:
             output = output[:5000] + "\n...(truncated)"
         return output if output else "Script completed (no output)."
     except subprocess.TimeoutExpired:
-        return f"Script timed out (60s): {script_name}"
+        return f"Script timed out (120s): {script_name}"
     except Exception as e:
         return f"Error running script: {e}"
+
+
+def search_conversation_history(query: str, limit: int = 20) -> str:
+    """Search through conversation history for messages matching query."""
+    history_file = PRIVATE_DIR / "conversation_history.json"
+
+    if not history_file.exists():
+        return "No conversation history found."
+
+    try:
+        data = json.loads(history_file.read_text())
+    except (json.JSONDecodeError, OSError) as e:
+        return f"Error reading conversation history: {e}"
+
+    query_lower = query.lower()
+    matches = []
+
+    for chat_id, entry in data.items():
+        history = entry.get("history", [])
+        for i, msg in enumerate(history):
+            content = msg.get("content", "")
+
+            # Handle both string content and list of blocks
+            if isinstance(content, list):
+                text_parts = []
+                for block in content:
+                    if isinstance(block, dict):
+                        if block.get("type") == "text":
+                            text_parts.append(block.get("text", ""))
+                        elif block.get("type") == "tool_result":
+                            text_parts.append(block.get("content", ""))
+                content = " ".join(text_parts)
+
+            if not isinstance(content, str):
+                continue
+
+            if query_lower in content.lower():
+                role = msg.get("role", "unknown")
+                # Truncate long messages
+                preview = content[:500] + "..." if len(content) > 500 else content
+                matches.append(f"[{role}] {preview}")
+
+                if len(matches) >= limit:
+                    break
+
+        if len(matches) >= limit:
+            break
+
+    if not matches:
+        return f"No messages found matching '{query}'."
+
+    result = f"Found {len(matches)} message(s) matching '{query}':\n\n"
+    result += "\n\n---\n\n".join(matches)
+    return result
+
+
+def get_system_status() -> str:
+    """Get comprehensive system status for debugging."""
+    lines = ["## System Status\n"]
+
+    # Git info (using fast commands that don't scan working tree)
+    try:
+        # Read branch from .git/HEAD (fast, no subprocess)
+        git_head = REPO_ROOT / ".git" / "HEAD"
+        if git_head.exists():
+            head_content = git_head.read_text().strip()
+            if head_content.startswith("ref: refs/heads/"):
+                branch = head_content.replace("ref: refs/heads/", "")
+            else:
+                branch = head_content[:8]  # Detached HEAD, show short hash
+            lines.append(f"**Git Branch:** {branch}")
+
+        # Get current commit (fast)
+        git_rev = subprocess.run(
+            ["git", "-c", "safe.directory=/project", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=5, cwd=str(REPO_ROOT)
+        )
+        if git_rev.returncode == 0:
+            lines.append(f"**Current Commit:** {git_rev.stdout.strip()}")
+
+        # Note: git status times out in container due to Docker volume performance
+        lines.append("**Uncommitted Changes:** (use host git status - container times out)")
+    except Exception as e:
+        lines.append(f"**Git Info:** Error - {e}")
+
+    # Backup failures log
+    backup_log = REPO_ROOT / "logs" / "backup-failures.log"
+    if backup_log.exists():
+        try:
+            content = backup_log.read_text()
+            # Get last 500 chars
+            recent = content[-500:] if len(content) > 500 else content
+            lines.append(f"\n**Recent Backup Failures:**\n```\n{recent.strip()}\n```")
+        except Exception as e:
+            lines.append(f"\n**Backup Log:** Error reading - {e}")
+    else:
+        lines.append("\n**Backup Log:** No failures logged")
+
+    # Scheduled jobs
+    try:
+        from scheduler import get_next_runs
+        next_runs = get_next_runs()
+        if next_runs:
+            lines.append("\n**Scheduled Jobs:**")
+            for name, next_run in next_runs.items():
+                lines.append(f"- {name}: next run at {next_run}")
+        else:
+            lines.append("\n**Scheduled Jobs:** None configured")
+    except Exception as e:
+        lines.append(f"\n**Scheduled Jobs:** Error - {e}")
+
+    return "\n".join(lines)
