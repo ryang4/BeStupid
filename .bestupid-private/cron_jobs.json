@@ -1,0 +1,18 @@
+{
+  "morning_briefing": {
+    "schedule": "0 7 * * *",
+    "enabled": true
+  },
+  "evening_reminder": {
+    "schedule": "0 21 * * *",
+    "enabled": true
+  },
+  "daily_planner": {
+    "schedule": "0 23 * * *",
+    "enabled": true
+  },
+  "auto_backup": {
+    "schedule": "0 0 * * *",
+    "enabled": true
+  }
+}
