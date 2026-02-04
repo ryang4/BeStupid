@@ -15,3 +15,5 @@
 {"v":1,"id":"01KGJH323J2ZBZA5PWP214XPKD","ts":"2026-02-03T19:53:51.986+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGJH323HWHB04PK3B94Y3ARN","ops":[]}}
 {"v":1,"id":"01KGK2X8GKTQ1C5J3MQM74YJBW","ts":"2026-02-04T01:05:16.307+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGK2X8GJTQ1C5J3MQM74YJBV","ops":[]}}
 {"v":1,"id":"01KGK2YAR714CWJ094C4918WB0","ts":"2026-02-04T01:05:51.368+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGK2YAR714CWJ094C4918WAZ","ops":[]}}
+{"v":1,"id":"01KGK2ZEQ29P2HWZKRSMP86J48","ts":"2026-02-04T01:06:28.194+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGK4H2NPNE4B4EQ0TAAJNB3V","ts":"2026-02-04T01:33:34.263+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGK4H2NPNE4B4EQ0TAAJNB3T","ops":[]}}
