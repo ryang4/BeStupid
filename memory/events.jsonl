@@ -25,3 +25,4 @@
 {"v":1,"id":"01KGK6TPBCR4D987ACQAV2T5M9","ts":"2026-02-04T02:13:46.477+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGK77PRA93CN5ACPAHRVE798","ts":"2026-02-04T02:20:52.875+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGK7ZJBARKA9Z89NY6PH38ZX","ts":"2026-02-04T02:33:54.795+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGK82SAD0CM1DN6GV6TM9Q0D","ts":"2026-02-04T02:35:40.238+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGK82SAD0GM6RFNQF5P0W7P3","ops":[]}}
