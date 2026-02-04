@@ -32,8 +32,9 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>" 2>&1; then
     fi
 
     # Pull any remote changes first (e.g., from GitHub Actions)
+    # Use --autostash to handle unstaged changes that might block the rebase
     echo "Pulling remote changes..."
-    git -c safe.directory=/project pull --rebase 2>&1 || true
+    git -c safe.directory=/project pull --rebase --autostash 2>&1 || true
 
     # Push to remote
     echo "Pushing to remote..."
