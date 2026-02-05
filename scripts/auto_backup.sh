@@ -20,8 +20,8 @@ RETRY_DELAY=5
 
 cd "$PROJECT_ROOT"
 
-# Configure git to handle dubious ownership (Docker volume issue)
-export GIT_CONFIG_GLOBAL=/dev/null
+# Note: Do NOT set GIT_CONFIG_GLOBAL=/dev/null - it breaks SSH credential lookup
+# Instead, we use -c safe.directory in git_cmd() for Docker volume ownership issues
 
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
