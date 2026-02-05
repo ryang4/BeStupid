@@ -65,19 +65,22 @@ def notify_failure(error_message: str):
 
     success = send_telegram_message(message)
 
+    # Always log to file with proper locking
+    log_file = PROJECT_ROOT / "logs" / "backup-failures.log"
+    log_file.parent.mkdir(exist_ok=True)
+    log_entry = f"[{timestamp}] {'TELEGRAM FAILED - ' if not success else ''}{error_message}\n"
+
+    import fcntl
+    with open(log_file, "a") as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            f.write(log_entry)
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
     if success:
         print("✅ Failure notification sent to Telegram")
-        # Also log to file
-        log_file = PROJECT_ROOT / "logs" / "backup-failures.log"
-        log_file.parent.mkdir(exist_ok=True)
-        with open(log_file, "a") as f:
-            f.write(f"[{timestamp}] {error_message}\n")
     else:
-        # If Telegram fails, at least log to file
-        log_file = PROJECT_ROOT / "logs" / "backup-failures.log"
-        log_file.parent.mkdir(exist_ok=True)
-        with open(log_file, "a") as f:
-            f.write(f"[{timestamp}] TELEGRAM FAILED - {error_message}\n")
         print("❌ Could not send Telegram notification - logged to file")
 
 
