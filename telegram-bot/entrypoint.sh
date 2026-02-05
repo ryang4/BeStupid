@@ -24,6 +24,8 @@ if [ -d "${HOME_DIR}/.ssh-mount" ]; then
     chmod 700 "${HOME_DIR}/.ssh" 2>/dev/null || true
     chmod 600 "${HOME_DIR}/.ssh"/id_* "${HOME_DIR}/.ssh"/config 2>/dev/null || true
     chmod 644 "${HOME_DIR}/.ssh"/*.pub 2>/dev/null || true
+    # Add GitHub to known_hosts to prevent "Host key verification failed"
+    ssh-keyscan -t ed25519,rsa github.com >> "${HOME_DIR}/.ssh/known_hosts" 2>/dev/null || true
 fi
 
 # Save env vars for cron jobs

@@ -1,0 +1,1 @@
+# BeStupid Telegram Bot Tests

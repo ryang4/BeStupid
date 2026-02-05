@@ -11,12 +11,15 @@ services:
       - PROJECT_ROOT=/project
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - HISTORY_DIR=/project/.bestupid-private
+      - TZ=America/New_York
     volumes:
       # Mount the repo read-write - this is the ONLY host access
       - ../:/project
       # Mount git credentials for push/pull
       - ${HOME}/.gitconfig:/home/botuser/.gitconfig-mount:ro
       - ${HOME}/.ssh:/home/botuser/.ssh-mount:ro
+      # Sync timezone with host
+      - /etc/localtime:/etc/localtime:ro
     working_dir: /project
     # No ports exposed - outbound polling only
     # No privileged access

@@ -275,6 +275,33 @@ TOOLS = [
             "required": []
         }
     },
+    {
+        "name": "get_current_datetime",
+        "description": "Get the current date and time with timezone info. Use this to verify the date before creating logs or scheduling.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+    {
+        "name": "check_git_health",
+        "description": "Check git health: branch, remote URL, auth status, sync state. Use this to diagnose git/backup issues.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+    {
+        "name": "sync_with_remote",
+        "description": "Pull latest changes from remote (rebase). Safe to run anytime - preserves local changes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
 ]
 
 
@@ -313,6 +340,12 @@ async def execute_tool(name: str, inputs: dict) -> str:
         return search_conversation_history(inputs["query"], inputs.get("limit", 20))
     elif name == "get_system_status":
         return get_system_status()
+    elif name == "get_current_datetime":
+        return get_current_datetime()
+    elif name == "check_git_health":
+        return check_git_health()
+    elif name == "sync_with_remote":
+        return sync_with_remote()
 
     return f"Unknown tool: {name}"
 
@@ -867,5 +900,133 @@ def get_system_status() -> str:
             lines.append("\n**Scheduled Jobs:** None configured")
     except Exception as e:
         lines.append(f"\n**Scheduled Jobs:** Error - {e}")
+
+    return "\n".join(lines)
+
+
+def get_current_datetime() -> str:
+    """Get current date/time with timezone info."""
+    import time
+    now = datetime.now()
+    tz_name = time.tzname[time.daylight] if time.daylight else time.tzname[0]
+    utc_offset = time.strftime("%z")
+
+    return (
+        f"**Current Date/Time:**\n"
+        f"- Date: {now.strftime('%Y-%m-%d')}\n"
+        f"- Time: {now.strftime('%H:%M:%S')}\n"
+        f"- Day: {now.strftime('%A')}\n"
+        f"- Timezone: {tz_name} (UTC{utc_offset[:3]}:{utc_offset[3:]})\n"
+        f"- ISO: {now.isoformat()}"
+    )
+
+
+def check_git_health() -> str:
+    """Check git health: branch, remote, auth, sync status."""
+    lines = ["## Git Health Check\n"]
+
+    # Branch
+    git_head = REPO_ROOT / ".git" / "HEAD"
+    if git_head.exists():
+        head_content = git_head.read_text().strip()
+        if head_content.startswith("ref: refs/heads/"):
+            branch = head_content.replace("ref: refs/heads/", "")
+        else:
+            branch = f"DETACHED ({head_content[:8]})"
+        lines.append(f"**Branch:** {branch}")
+    else:
+        lines.append("**Branch:** ERROR - .git/HEAD not found")
+
+    # Remote URL
+    try:
+        result = subprocess.run(
+            ["git", "-c", "safe.directory=/project", "remote", "get-url", "origin"],
+            capture_output=True, text=True, timeout=5, cwd=str(REPO_ROOT)
+        )
+        if result.returncode == 0:
+            remote_url = result.stdout.strip()
+            is_ssh = remote_url.startswith("git@")
+            protocol = "SSH" if is_ssh else "HTTPS"
+            lines.append(f"**Remote:** {remote_url}")
+            lines.append(f"**Protocol:** {protocol}")
+        else:
+            lines.append(f"**Remote:** ERROR - {result.stderr.strip()}")
+    except Exception as e:
+        lines.append(f"**Remote:** ERROR - {e}")
+
+    # Auth test (SSH)
+    try:
+        result = subprocess.run(
+            ["ssh", "-T", "-o", "BatchMode=yes", "-o", "ConnectTimeout=5", "git@github.com"],
+            capture_output=True, text=True, timeout=10, cwd=str(REPO_ROOT)
+        )
+        # SSH -T returns exit code 1 even on success (no shell access granted)
+        output = result.stderr.strip()
+        if "successfully authenticated" in output.lower() or "Hi " in output:
+            lines.append("**SSH Auth:** OK")
+        elif "Permission denied" in output:
+            lines.append("**SSH Auth:** FAILED - Permission denied (check SSH key)")
+        elif "Host key verification failed" in output:
+            lines.append("**SSH Auth:** FAILED - Host key verification (run ssh-keyscan)")
+        else:
+            lines.append(f"**SSH Auth:** UNKNOWN - {output[:100]}")
+    except subprocess.TimeoutExpired:
+        lines.append("**SSH Auth:** TIMEOUT (network issue?)")
+    except Exception as e:
+        lines.append(f"**SSH Auth:** ERROR - {e}")
+
+    # Fetch to check sync (fast, doesn't download objects)
+    try:
+        result = subprocess.run(
+            ["git", "-c", "safe.directory=/project", "fetch", "--dry-run"],
+            capture_output=True, text=True, timeout=15, cwd=str(REPO_ROOT)
+        )
+        if result.returncode == 0:
+            if result.stderr.strip():
+                lines.append("**Sync Status:** Remote has new commits")
+            else:
+                lines.append("**Sync Status:** Up to date with remote")
+        else:
+            lines.append(f"**Sync Status:** FETCH ERROR - {result.stderr.strip()[:100]}")
+    except subprocess.TimeoutExpired:
+        lines.append("**Sync Status:** TIMEOUT (network issue?)")
+    except Exception as e:
+        lines.append(f"**Sync Status:** ERROR - {e}")
+
+    return "\n".join(lines)
+
+
+def sync_with_remote() -> str:
+    """Pull latest changes from remote with rebase."""
+    lines = ["## Sync with Remote\n"]
+
+    try:
+        # Use pull --rebase --autostash to preserve local changes
+        result = subprocess.run(
+            ["git", "-c", "safe.directory=/project", "pull", "--rebase", "--autostash"],
+            capture_output=True, text=True, timeout=60, cwd=str(REPO_ROOT)
+        )
+
+        if result.returncode == 0:
+            output = result.stdout.strip()
+            if "Already up to date" in output or "Already up-to-date" in output:
+                lines.append("**Status:** Already up to date")
+            else:
+                lines.append("**Status:** Synced successfully")
+                if output:
+                    lines.append(f"**Details:**\n```\n{output[:500]}\n```")
+        else:
+            error = result.stderr.strip()
+            if "CONFLICT" in error:
+                lines.append("**Status:** CONFLICT detected")
+                lines.append("**Action Required:** Resolve conflicts manually")
+            else:
+                lines.append(f"**Status:** FAILED")
+                lines.append(f"**Error:**\n```\n{error[:500]}\n```")
+
+    except subprocess.TimeoutExpired:
+        lines.append("**Status:** TIMEOUT (network issue or large fetch)")
+    except Exception as e:
+        lines.append(f"**Status:** ERROR - {e}")
 
     return "\n".join(lines)
