@@ -44,3 +44,5 @@
 {"v":1,"id":"01KGRMQQGKJZ350JMJFG64RAWH","ts":"2026-02-06T04:53:01.588+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGRN1VKSD5Y9CGTGSZ2XBDV1","ts":"2026-02-06T04:58:33.465+00:00","type":"memory_write","agent":"cli","action":"commitments.add","entity":"commitments/20260206045833-look-into-polymarket-liquidity-and-influencer-post","meta":{}}
 {"v":1,"id":"01KGRN1VM2RQ0PMFM2NNKS3QS4","ts":"2026-02-06T04:58:33.474+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 1 ops","entity":"","meta":{"cid":"01KGRN1VKBKXA3JY6QW2MEKQKX","ops":["commitments.add"]}}
+{"v":1,"id":"01KGRN6N69PC4G7BW9J0KSEXSA","ts":"2026-02-06T05:01:10.730+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGSMP774WX921NGGM5HPEVG2","ts":"2026-02-06T14:11:26.564+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGSMP773V63Q8BPBKA9F46KX","ops":[]}}
