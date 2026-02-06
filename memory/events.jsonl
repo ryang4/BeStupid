@@ -40,3 +40,5 @@
 {"v":1,"id":"01KGR0AKPDZK1QTB1AB1MNJK9X","ts":"2026-02-05T22:56:20.174+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGR4RD17TD1CAD3TN5QZQCQ9","ts":"2026-02-06T00:13:46.407+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGR4RD16TD1CAD3TN5QZQCQ8","ops":[]}}
 {"v":1,"id":"01KGR9F5PJCY5J43S2AJX3XARX","ts":"2026-02-06T01:36:06.870+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGR9F5PJ5RRYNQD595GFT4DQ","ops":[]}}
+{"v":1,"id":"01KGRE9G3J16JQNZTK56Q04G2E","ts":"2026-02-06T03:00:23.794+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGRMQQGKJZ350JMJFG64RAWH","ts":"2026-02-06T04:53:01.588+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
