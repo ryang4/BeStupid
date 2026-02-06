@@ -14,6 +14,7 @@ import re
 import sys
 import frontmatter
 from datetime import datetime, timedelta
+from typing import Optional
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
@@ -26,6 +27,16 @@ VAULT_DIR = "content/logs"
 PROTOCOL_DIR = "content/config"
 TEMPLATE_DIR = "templates"
 RYAN_CONFIG = "content/config/ryan.md"
+WORKOUT_KEYWORDS = ("workout", "swim", "bike", "run", "strength", "brick", "protocol")
+DEFAULT_MUST_WIN = [
+    "Ship one high-leverage startup task before noon.",
+    "Complete today's workout or recovery protocol.",
+    "Close the loop: fill Quick Log + Top 3 for tomorrow.",
+]
+DEFAULT_CAN_DO = [
+    "Process inbox captures and defer low-leverage work.",
+    "Send one high-value follow-up message.",
+]
 
 
 def get_weekly_protocol():
@@ -200,6 +211,188 @@ def extract_yesterday_metrics():
         return None
 
 
+def normalize_todo(todo: str) -> str:
+    """Extract task text from checkbox format for stable comparisons."""
+    text = todo.strip()
+    if text.startswith("- [ ] "):
+        text = text[6:]
+    elif text.startswith("- [x] "):
+        text = text[6:]
+    elif text.startswith("- "):
+        text = text[2:]
+    return text.strip()
+
+
+def as_checkbox(todo: str) -> str:
+    """Ensure a todo is in markdown checkbox format."""
+    cleaned = normalize_todo(todo)
+    return f"- [ ] {cleaned}" if cleaned else ""
+
+
+def dedupe_todos(todos: list[str]) -> list[str]:
+    """Deduplicate todos while preserving original order."""
+    seen = set()
+    deduped = []
+
+    for todo in todos:
+        normalized = normalize_todo(todo).lower()
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            deduped.append(normalize_todo(todo))
+
+    return deduped
+
+
+def get_recovery_score() -> Optional[int]:
+    """Get latest Garmin recovery score if available."""
+    try:
+        from garmin_sync import get_latest_recovery
+        recovery = get_latest_recovery() or {}
+        score = recovery.get("recovery", {}).get("score")
+        if isinstance(score, (int, float)):
+            return int(score)
+    except Exception:
+        pass
+    return None
+
+
+def is_workout_todo(todo_text: str) -> bool:
+    """Check if a todo is workout-related."""
+    lowered = todo_text.lower()
+    return any(keyword in lowered for keyword in WORKOUT_KEYWORDS)
+
+
+def build_command_engine(backlog_todos: list[str], metrics_summary: dict) -> dict:
+    """
+    Build a hard daily execution plan:
+    - Must Win 3 (non-negotiable)
+    - Can Do 2 (optional)
+    - Not Today (deferred)
+
+    Uses 7-day completion, 7-day sleep, and recovery score (if available)
+    to adjust workload aggressiveness.
+    """
+    rolling = metrics_summary.get("rolling_7day_averages", {})
+    recommendations = metrics_summary.get("recommendations", {})
+
+    completion_rate = rolling.get("todo_completion_rate")
+    sleep_hours = rolling.get("sleep_hours")
+    recovery_score = get_recovery_score()
+
+    severe_flags = []
+    soft_flags = []
+
+    if completion_rate is not None:
+        if completion_rate < 0.50:
+            severe_flags.append(f"7-day completion at {completion_rate * 100:.0f}% (<50%)")
+        elif completion_rate < 0.70:
+            soft_flags.append(f"7-day completion at {completion_rate * 100:.0f}% (<70%)")
+
+    if sleep_hours is not None:
+        if sleep_hours < 6.5:
+            severe_flags.append(f"7-day sleep avg {sleep_hours:.1f}h (<6.5h)")
+        elif sleep_hours < 7.0:
+            soft_flags.append(f"7-day sleep avg {sleep_hours:.1f}h (<7h)")
+
+    if recovery_score is not None:
+        if recovery_score < 50:
+            severe_flags.append(f"Recovery score {recovery_score}/100 (<50)")
+        elif recovery_score < 65:
+            soft_flags.append(f"Recovery score {recovery_score}/100 (<65)")
+
+    if recommendations.get("max_todos", 3) <= 2:
+        soft_flags.append("Recent completion trend suggests smaller scope")
+
+    capacity_score = 5
+    if completion_rate is not None:
+        if completion_rate < 0.50:
+            capacity_score -= 2
+        elif completion_rate < 0.70:
+            capacity_score -= 1
+    if sleep_hours is not None:
+        if sleep_hours < 6.5:
+            capacity_score -= 2
+        elif sleep_hours < 7.0:
+            capacity_score -= 1
+    if recovery_score is not None:
+        if recovery_score < 50:
+            capacity_score -= 2
+        elif recovery_score < 65:
+            capacity_score -= 1
+    capacity_score = max(2, min(5, capacity_score))
+
+    if severe_flags:
+        workload_tier = "recovery-protect"
+    elif soft_flags:
+        workload_tier = "focused"
+    else:
+        workload_tier = "attack"
+
+    backlog = dedupe_todos(backlog_todos)
+    must_win = []
+    can_do = []
+    not_today = []
+    remaining = list(backlog)
+
+    workout_idx = next((i for i, task in enumerate(remaining) if is_workout_todo(task)), None)
+    if workout_idx is not None:
+        must_win.append(remaining.pop(workout_idx))
+
+    while remaining and len(must_win) < 3:
+        must_win.append(remaining.pop(0))
+
+    while remaining and len(can_do) < 2:
+        can_do.append(remaining.pop(0))
+
+    not_today.extend(remaining)
+
+    seen = {normalize_todo(task).lower() for task in must_win + can_do}
+
+    for default in DEFAULT_MUST_WIN:
+        if len(must_win) >= 3:
+            break
+        normalized = normalize_todo(default).lower()
+        if normalized in seen:
+            continue
+        must_win.append(default)
+        seen.add(normalized)
+
+    for default in DEFAULT_CAN_DO:
+        if len(can_do) >= 2:
+            break
+        normalized = normalize_todo(default).lower()
+        if normalized in seen:
+            continue
+        can_do.append(default)
+        seen.add(normalized)
+
+    guardrail = "Do not add new tasks until Must Win 3 are done."
+    guardrail_norm = normalize_todo(guardrail).lower()
+
+    if workload_tier == "recovery-protect":
+        if not any(normalize_todo(task).lower() == guardrail_norm for task in not_today):
+            not_today.insert(0, guardrail)
+    elif not not_today:
+        not_today.append("Keep intake closed until Must Win 3 are complete.")
+
+    signals = severe_flags + soft_flags
+    if not signals:
+        signals = ["All readiness signals green. Push quality, not task count."]
+
+    must_win = must_win[:3]
+    can_do = can_do[:2]
+
+    return {
+        "workload_tier": workload_tier,
+        "capacity_score": capacity_score,
+        "signals": signals[:3],
+        "must_win": must_win,
+        "can_do": can_do,
+        "not_today": not_today[:6],
+        "execution_todos": [as_checkbox(task) for task in must_win + can_do if as_checkbox(task)],
+    }
+
+
 def create_daily_log():
     """
     Generate today's daily log with AI-powered briefing and metrics-aware context.
@@ -306,47 +499,44 @@ def create_daily_log():
     if not ai_todos and raw_ai_todos:
         ai_todos = ['- [ ] Perform today\'s workout']
 
-    # Deduplicate todos while preserving order
-    # Normalize by extracting task text (remove "- [ ] " or "- [x] " prefix)
-    def normalize_todo(todo):
-        """Extract task text from todo for comparison."""
-        text = todo.strip()
-        if text.startswith("- [ ] "):
-            text = text[6:]
-        elif text.startswith("- [x] "):
-            text = text[6:]
-        return text.lower().strip()
-
-    seen = set()
     combined_todos = []
-
-    # Add in priority order: Top 3 first, then incomplete, then AI
+    seen = set()
     for todo in yesterday_top_3 + yesterday_incomplete + ai_todos:
-        normalized = normalize_todo(todo)
+        normalized = normalize_todo(todo).lower()
         if normalized and normalized not in seen:
             seen.add(normalized)
-            combined_todos.append(todo)
+            combined_todos.append(as_checkbox(todo))
 
     print(f"   Deduplication: {len(yesterday_top_3) + len(yesterday_incomplete) + len(ai_todos)} -> {len(combined_todos)} todos")
 
-    # 8. Build markdown using Jinja2 template
+    # 8. Build command engine execution plan
+    command_engine = build_command_engine(combined_todos, metrics_summary)
+    execution_todos = command_engine.get("execution_todos", [])
+    print(
+        f"   Command engine: {command_engine['workload_tier']} load | "
+        f"Must Win {len(command_engine['must_win'])}, Can Do {len(command_engine['can_do'])}, "
+        f"Deferred {len(command_engine['not_today'])}"
+    )
+
+    # 9. Build markdown using Jinja2 template
     content = render_daily_log(
         date_str=date_str,
         workout_type=ai_response.get('workout_type', 'recovery'),
         planned_workout=ai_response.get('planned_workout', 'No workout scheduled'),
         briefing=ai_response.get('briefing', {'focus': 'Execute protocol', 'tips': [], 'warnings': []}),
-        todos=combined_todos,
+        todos=execution_todos,
+        command_engine=command_engine,
         include_strength_log=ai_response.get('include_strength_log', False),
         strength_exercises=ai_response.get('strength_exercises', []),
         cardio_activities=ai_response.get('cardio_activities', []),
         habits=habits,
     )
 
-    # 9. Write file
+    # 10. Write file
     with open(file_path, "w", encoding='utf-8') as f:
         f.write(content)
 
-    # 10. Extract memory from yesterday's log (batch extraction)
+    # 11. Extract memory from yesterday's log (batch extraction)
     try:
         from memory import extract_and_persist
         yesterday = datetime.now() - timedelta(days=1)
@@ -360,7 +550,7 @@ def create_daily_log():
     except Exception as e:
         print(f"   Warning: Memory extraction failed: {e}")
 
-    # 11. Print summary
+    # 12. Print summary
     workout_type = ai_response.get('workout_type', 'recovery')
     planned_workout = ai_response.get('planned_workout', '')
     briefing = ai_response.get('briefing', {})
@@ -373,7 +563,15 @@ def create_daily_log():
     print(f"   - Workout: {planned_workout[:50]}...")
     briefing_focus = briefing.get('focus', str(briefing)) if isinstance(briefing, dict) else str(briefing)
     print(f"   - Briefing: {briefing_focus[:50]}...")
-    print(f"   - Todos: {len(combined_todos)} items ({len(yesterday_incomplete)} rollover, {len(yesterday_top_3)} from Top 3, {len(ai_todos)} AI-generated)")
+    print(
+        f"   - Backlog candidates: {len(combined_todos)} "
+        f"({len(yesterday_incomplete)} rollover, {len(yesterday_top_3)} from Top 3, {len(ai_todos)} AI-generated)"
+    )
+    print(
+        f"   - Execution list: {len(execution_todos)} "
+        f"(Must Win {len(command_engine['must_win'])}, Can Do {len(command_engine['can_do'])})"
+    )
+    print(f"   - Deferred to Not Today: {len(command_engine['not_today'])}")
     print(f"   - Sections: {'Strength ' if include_strength else ''}{', '.join(cardio) if cardio else 'None'}")
 
 

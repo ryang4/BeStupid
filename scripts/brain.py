@@ -19,6 +19,7 @@ Usage:
 import os
 import sys
 import json
+import re
 from datetime import datetime
 
 # Add scripts directory to path
@@ -123,11 +124,37 @@ def get_todays_log_status() -> dict:
     log_path = os.path.join(log_dir, f"{today}.md")
 
     if not os.path.exists(log_path):
-        return {"exists": False, "filled": False}
+        return {"exists": False, "filled": False, "command_engine": {}, "todos": {"completed": 0, "total": 0, "rate": 0.0}}
 
     try:
         with open(log_path, 'r') as f:
             content = f.read()
+
+        def extract_section(full_text: str, heading: str) -> str:
+            if heading not in full_text:
+                return ""
+            section = full_text.split(heading, 1)[1]
+            next_idx = section.find("\n## ")
+            return section[:next_idx] if next_idx != -1 else section
+
+        def extract_subsection(full_text: str, heading: str) -> str:
+            if heading not in full_text:
+                return ""
+            section = full_text.split(heading, 1)[1]
+            next_idx = section.find("\n### ")
+            return section[:next_idx] if next_idx != -1 else section
+
+        def parse_checkboxes(section_text: str) -> tuple[int, int]:
+            checked = 0
+            total = 0
+            for raw in section_text.splitlines():
+                line = raw.strip()
+                if line.startswith("- [x]"):
+                    checked += 1
+                    total += 1
+                elif line.startswith("- [ ]"):
+                    total += 1
+            return checked, total
 
         # Check if key fields are filled
         filled_fields = 0
@@ -142,13 +169,69 @@ def get_todays_log_status() -> dict:
         if "Energy::" in content and len(content.split("Energy::")[1].split("\n")[0].strip()) > 0:
             filled_fields += 1
 
+        # Parse command engine section
+        command_engine = {
+            "workload_tier": None,
+            "capacity_score": None,
+            "signals": [],
+            "must_win": [],
+            "can_do": [],
+            "not_today": [],
+        }
+        ce_section = extract_section(content, "## Command Engine")
+        if ce_section:
+            tier_match = re.search(r"^Workload_Tier::\s*(.+)$", ce_section, re.MULTILINE)
+            if tier_match:
+                command_engine["workload_tier"] = tier_match.group(1).strip()
+
+            cap_match = re.search(r"^Capacity_Score::\s*(\d+)", ce_section, re.MULTILINE)
+            if cap_match:
+                try:
+                    command_engine["capacity_score"] = int(cap_match.group(1))
+                except ValueError:
+                    pass
+
+            if "**Readiness Signals:**" in ce_section:
+                signal_block = ce_section.split("**Readiness Signals:**", 1)[1]
+                signal_block = signal_block.split("### ", 1)[0]
+                for raw in signal_block.splitlines():
+                    line = raw.strip()
+                    if line.startswith("- "):
+                        command_engine["signals"].append(line[2:].strip())
+
+            for raw in extract_subsection(ce_section, "### Must Win 3").splitlines():
+                line = raw.strip()
+                if line.startswith("- [ ] ") or line.startswith("- [x] "):
+                    command_engine["must_win"].append(line[6:].strip())
+
+            for raw in extract_subsection(ce_section, "### Can Do 2").splitlines():
+                line = raw.strip()
+                if line.startswith("- [ ] ") or line.startswith("- [x] "):
+                    command_engine["can_do"].append(line[6:].strip())
+
+            for raw in extract_subsection(ce_section, "### Not Today").splitlines():
+                line = raw.strip()
+                if line.startswith("- "):
+                    command_engine["not_today"].append(line[2:].strip())
+
+        # Parse execution todos (only Today's Todos section)
+        todos_section = extract_section(content, "## Today's Todos")
+        todos_completed, todos_total = parse_checkboxes(todos_section)
+        todo_rate = round(todos_completed / todos_total, 2) if todos_total else 0.0
+
         return {
             "exists": True,
             "filled": filled_fields >= 2,
-            "completion": round(filled_fields / total_fields * 100, 0)
+            "completion": round(filled_fields / total_fields * 100, 0),
+            "command_engine": command_engine,
+            "todos": {
+                "completed": todos_completed,
+                "total": todos_total,
+                "rate": todo_rate,
+            },
         }
     except:
-        return {"exists": True, "filled": False}
+        return {"exists": True, "filled": False, "command_engine": {}, "todos": {"completed": 0, "total": 0, "rate": 0.0}}
 
 
 def get_morning_briefing_data() -> dict:
@@ -224,8 +307,13 @@ def get_morning_briefing_data() -> dict:
                     f"{block['start']}-{block['end']} ({block['duration_minutes']}min)"
                 )
 
-    # Priorities (top 3 nudges)
-    priorities = data.get("nudges", {}).get("priority", [])[:3]
+    # Priorities: command engine must-win tasks take precedence.
+    command_engine = data.get("todays_log", {}).get("command_engine", {})
+    must_win = command_engine.get("must_win", [])
+    if must_win:
+        priorities = must_win[:3]
+    else:
+        priorities = data.get("nudges", {}).get("priority", [])[:3]
 
     return {
         "recovery": recovery,
@@ -262,9 +350,22 @@ def get_evening_reflection_data() -> dict:
         with open(log_path, 'r') as f:
             content = f.read()
 
-        # Calculate todo completion
-        todos_total = content.count("- [ ]") + content.count("- [x]")
-        todos_completed = content.count("- [x]")
+        # Calculate todo completion from execution section only.
+        todos_total = 0
+        todos_completed = 0
+        if "## Today's Todos" in content:
+            todos_section = content.split("## Today's Todos", 1)[1]
+            next_section = todos_section.find("\n## ")
+            if next_section != -1:
+                todos_section = todos_section[:next_section]
+
+            for raw in todos_section.splitlines():
+                line = raw.strip()
+                if line.startswith("- [x]"):
+                    todos_completed += 1
+                    todos_total += 1
+                elif line.startswith("- [ ]"):
+                    todos_total += 1
 
         if todos_total > 0:
             result["completion"] = {
@@ -394,8 +495,19 @@ def format_dashboard_compact() -> str:
             lines.append(f"📝 Log: {log['completion']:.0f}% complete")
         else:
             lines.append("📝 Log: Not filled yet")
+        todo_meta = log.get("todos", {})
+        if todo_meta.get("total", 0) > 0:
+            lines.append(f"✅ Execution: {todo_meta['completed']}/{todo_meta['total']}")
     else:
         lines.append("📝 Log: Not created")
+
+    command_engine = log.get("command_engine", {})
+    if command_engine.get("must_win"):
+        lines.append("🎯 Must Win:")
+        for task in command_engine["must_win"][:2]:
+            lines.append(f"   - {task}")
+        if command_engine.get("workload_tier"):
+            lines.append(f"   Tier: {command_engine['workload_tier']}")
 
     # Memory
     memory = data.get("memory", {})
@@ -530,8 +642,27 @@ def format_dashboard_full() -> str:
             lines.append(f"   ✅ {log['completion']:.0f}% complete")
         else:
             lines.append("   ⚠️ Not filled out yet")
+        todo_meta = log.get("todos", {})
+        if todo_meta.get("total", 0) > 0:
+            lines.append(f"   Execution: {todo_meta['completed']}/{todo_meta['total']} ({int(todo_meta['rate']*100)}%)")
     else:
         lines.append("   ❌ Not created yet")
+
+    command_engine = log.get("command_engine", {})
+    if command_engine.get("must_win"):
+        lines.append("\n🚀 COMMAND ENGINE")
+        if command_engine.get("workload_tier"):
+            tier = command_engine["workload_tier"]
+            capacity = command_engine.get("capacity_score")
+            capacity_txt = f" | Capacity {capacity}/5" if capacity else ""
+            lines.append(f"   Tier: {tier}{capacity_txt}")
+        lines.append("   Must Win 3:")
+        for task in command_engine["must_win"][:3]:
+            lines.append(f"   • {task}")
+        if command_engine.get("not_today"):
+            lines.append("   Not Today:")
+            for task in command_engine["not_today"][:2]:
+                lines.append(f"   - {task}")
 
     # === MEMORY ===
     lines.append("\n🧠 MEMORY")

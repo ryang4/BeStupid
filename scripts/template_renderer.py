@@ -41,6 +41,7 @@ def render_daily_log(
     planned_workout: str,
     briefing,
     todos: list,
+    command_engine: dict = None,
     include_strength_log: bool = False,
     strength_exercises: list = None,
     cardio_activities: list = None,
@@ -59,6 +60,13 @@ def render_daily_log(
                   - tips: list of str (actionable tips)
                   - warnings: list of str (alerts, can be empty)
         todos: List of todo strings (with "- [ ]" prefix)
+        command_engine: Dict with:
+                  - workload_tier: str
+                  - capacity_score: int (2-5)
+                  - signals: list[str]
+                  - must_win: list[str]
+                  - can_do: list[str]
+                  - not_today: list[str]
         include_strength_log: Whether to show strength log section
         strength_exercises: List of dicts with exercise, sets, reps, weight
         cardio_activities: List of cardio types: ["swim", "bike", "run"]
@@ -71,6 +79,14 @@ def render_daily_log(
     cardio_activities = cardio_activities or []
     habits = habits or []
     strength_exercises = strength_exercises or []
+    command_engine = command_engine or {
+        "workload_tier": "focused",
+        "capacity_score": 3,
+        "signals": [],
+        "must_win": [],
+        "can_do": [],
+        "not_today": [],
+    }
 
     # Handle backwards compatibility if briefing is still a string
     if isinstance(briefing, str):
@@ -87,6 +103,7 @@ def render_daily_log(
         planned_workout=planned_workout,
         briefing=briefing,
         todos=todos,
+        command_engine=command_engine,
         todos_markdown="\n".join(todos),
         include_strength_log=include_strength_log,
         strength_exercises=strength_exercises,
