@@ -59,3 +59,5 @@
 {"v":1,"id":"01KGT1DM774KACN2VN910X67VZ","ts":"2026-02-06T17:53:56.455+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGT1DM76J704P4JH2C4JCTFN","ops":[]}}
 {"v":1,"id":"01KGT1FDZFWKYHECM6M4BTD5CE","ts":"2026-02-06T17:54:55.600+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGT1JKXD3253FZ6J3VA43H35","ts":"2026-02-06T17:56:39.981+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGT496YSFFPT8QYCDA7MBES3","ts":"2026-02-06T18:43:57.529+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGTF7GTA6HVWTWEMJSMXH8QB","ts":"2026-02-06T21:55:16.426+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGTF7GT8JV8HRS834FYFFPJF","ops":[]}}
