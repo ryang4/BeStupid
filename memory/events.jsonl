@@ -74,3 +74,4 @@
 {"v":1,"id":"01KGV8R98MJVZPZW3H52TZPT2N","ts":"2026-02-07T05:21:20.148+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGV923CF33XJNNNPMR4XJS4F","ts":"2026-02-07T05:26:41.808+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGV9BBCRF1KAW2HSGPEYVXM5","ts":"2026-02-07T05:31:44.921+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KGV9F5KC3VBDCAMJX6TB2SN3","ts":"2026-02-07T05:33:50.060+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGV9F5KC3VBDCAMJX6TB2SN2","ops":[]}}

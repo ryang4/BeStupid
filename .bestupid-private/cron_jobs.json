@@ -1,18 +1,32 @@
 {
   "morning_briefing": {
-    "schedule": "0 7 * * *",
-    "enabled": true
+    "schedule": "0 8 * * *",
+    "enabled": true,
+    "description": "Morning routine reminder"
   },
   "evening_reminder": {
-    "schedule": "0 21 * * *",
-    "enabled": true
+    "schedule": "0 22 * * *",
+    "enabled": true,
+    "description": "Evening routine start"
+  },
+  "evening_screens": {
+    "schedule": "15 22 * * *",
+    "enabled": true,
+    "description": "Close all screens reminder"
+  },
+  "evening_bed": {
+    "schedule": "30 23 * * *",
+    "enabled": true,
+    "description": "Final bedtime reminder"
   },
   "daily_planner": {
     "schedule": "0 23 * * *",
-    "enabled": true
+    "enabled": true,
+    "description": "Generate tomorrow's plan"
   },
   "auto_backup": {
     "schedule": "0 0 * * *",
-    "enabled": true
+    "enabled": true,
+    "description": "Automated git backup"
   }
 }
