@@ -4130,9 +4130,191 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-02-06",
+      "extracted_at": "2026-02-07T11:07:28.699606",
+      "sleep": {
+        "hours": 8.08,
+        "quality": 9.5
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 6.0,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 1,
+        "completion_rate": 0.14
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation",
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false,
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": 2800,
+        "protein_g": 105,
+        "carbs_g": 350,
+        "fat_g": 110,
+        "fiber_g": 25,
+        "line_items": [
+          {
+            "food": "200g Wegmans nonfat Greek yogurt",
+            "time": null,
+            "calories": 100,
+            "protein_g": 20,
+            "carbs_g": 10,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 serving Wegmans granola",
+            "time": null,
+            "calories": 120,
+            "protein_g": 3,
+            "carbs_g": 20,
+            "fat_g": 5,
+            "fiber_g": 3
+          },
+          {
+            "food": "Honey",
+            "time": null,
+            "calories": 60,
+            "protein_g": 0,
+            "carbs_g": 17,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Coffee at 9:45am",
+            "time": "9:45am",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Coffee at 11:00am",
+            "time": "11:00am",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Coffee at 1:00pm",
+            "time": "1:00pm",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Diet Coke at 3:30pm",
+            "time": "3:30pm",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 serving tortellini in tomato and mushroom sauce",
+            "time": "12pm",
+            "calories": 400,
+            "protein_g": 15,
+            "carbs_g": 60,
+            "fat_g": 10,
+            "fiber_g": 5
+          },
+          {
+            "food": "Fried buffalo chicken sandwich on brioche bun",
+            "time": "3:30pm",
+            "calories": 600,
+            "protein_g": 35,
+            "carbs_g": 50,
+            "fat_g": 30,
+            "fiber_g": 2
+          },
+          {
+            "food": "2 servings French fries",
+            "time": "3:30pm",
+            "calories": 500,
+            "protein_g": 6,
+            "carbs_g": 60,
+            "fat_g": 25,
+            "fiber_g": 6
+          },
+          {
+            "food": "1/4 fried shrimp po boy",
+            "time": "3:30pm",
+            "calories": 200,
+            "protein_g": 15,
+            "carbs_g": 20,
+            "fat_g": 10,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 serving tortellini in tomato sauce",
+            "time": "6:30pm",
+            "calories": 400,
+            "protein_g": 15,
+            "carbs_g": 60,
+            "fat_g": 10,
+            "fiber_g": 5
+          },
+          {
+            "food": "1 serving Annie's mac and cheese",
+            "time": null,
+            "calories": 250,
+            "protein_g": 10,
+            "carbs_g": 30,
+            "fat_g": 10,
+            "fiber_g": 2
+          },
+          {
+            "food": "250g Fage whole fat yogurt with Wegmans granola and honey",
+            "time": null,
+            "calories": 350,
+            "protein_g": 20,
+            "carbs_g": 30,
+            "fat_g": 20,
+            "fiber_g": 3
+          },
+          {
+            "food": "Popcorn (10pm)",
+            "time": "10pm",
+            "calories": 130,
+            "protein_g": 2,
+            "carbs_g": 20,
+            "fat_g": 5,
+            "fiber_g": 3
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-06T11:15:49.883387",
+  "last_updated": "2026-02-07T11:08:31.813016",
   "streaks": {
     "ai_automation": {
       "current": 0,
