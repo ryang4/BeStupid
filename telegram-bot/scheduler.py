@@ -24,10 +24,12 @@ PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)
 
 # Map job names to their actual implementations
 JOB_COMMANDS = {
-    "morning_briefing": ["python", "telegram-bot/send_notification.py", "morning"],
-    "evening_reminder": ["python", "telegram-bot/send_notification.py", "evening"],
+    "morning_briefing": ["python", "scripts/send_routine_reminder.py", "morning"],
+    "evening_reminder": ["python", "scripts/send_routine_reminder.py", "evening_start"],
+    "evening_screens": ["python", "scripts/send_routine_reminder.py", "evening_screens"],  
+    "evening_bed": ["python", "scripts/send_routine_reminder.py", "evening_bed"],
     "daily_planner": ["python", "scripts/daily_planner.py"],
-    "auto_backup": ["bash", "scripts/auto_backup.sh"],
+    "auto_backup": ["python", "scripts/robust_git_backup.py"],
 }
 
 

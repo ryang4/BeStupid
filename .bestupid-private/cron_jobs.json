@@ -2,7 +2,7 @@
   "morning_briefing": {
     "schedule": "0 8 * * *",
     "enabled": true,
-    "description": "Morning routine reminder"
+    "description": "Morning routine reminder with checklist"
   },
   "evening_reminder": {
     "schedule": "0 22 * * *",
