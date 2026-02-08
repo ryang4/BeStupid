@@ -96,3 +96,4 @@
 {"v":1,"id":"01KGXEZ1QVM3Z2BMCBVKJA66R2","ts":"2026-02-08T01:48:22.139+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGXFA2WHPKPEPDJSSWAJ1JR9","ts":"2026-02-08T01:54:23.762+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KGXKCSAZRA2ZARW9VBX2NGKK","ts":"2026-02-08T03:05:46.591+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KGXKCSAYRA2ZARW9VBX2NGKJ","ops":[]}}
+{"v":1,"id":"01KGZ227PAS6S6QPQ9QYYDF5M8","ts":"2026-02-08T16:41:23.915+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
