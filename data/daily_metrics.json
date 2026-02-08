@@ -4312,9 +4312,162 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-07",
+      "extracted_at": "2026-02-08T11:08:18.248258",
+      "sleep": {
+        "hours": 8.12,
+        "quality": 8.9
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": 6.0
+      },
+      "energy": 5.0,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 5,
+        "completed": 1,
+        "completion_rate": 0.2
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false
+        }
+      },
+      "nutrition": {
+        "calories": 3075,
+        "protein_g": 143,
+        "carbs_g": 350,
+        "fat_g": 130,
+        "fiber_g": 35,
+        "line_items": [
+          {
+            "food": "2 eggs",
+            "time": "Breakfast",
+            "calories": 140,
+            "protein_g": 12,
+            "carbs_g": 1,
+            "fat_g": 10,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 Bob's protein pancakes",
+            "time": "Breakfast",
+            "calories": 200,
+            "protein_g": 16,
+            "carbs_g": 24,
+            "fat_g": 4,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 banana",
+            "time": "Breakfast",
+            "calories": 105,
+            "protein_g": 1,
+            "carbs_g": 27,
+            "fat_g": 0,
+            "fiber_g": 3
+          },
+          {
+            "food": "Maple syrup",
+            "time": "Breakfast",
+            "calories": 50,
+            "protein_g": 0,
+            "carbs_g": 13,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 bowl Wegmans oat and honey cereal with whole milk and granola",
+            "time": "Lunch (12:30pm)",
+            "calories": 400,
+            "protein_g": 10,
+            "carbs_g": 55,
+            "fat_g": 15,
+            "fiber_g": 7
+          },
+          {
+            "food": "Sandwich: 2 slices multi-grain bread, beefsteak tomato, arugula, onion, mayo, mustard",
+            "time": "Lunch (12:30pm)",
+            "calories": 350,
+            "protein_g": 10,
+            "carbs_g": 40,
+            "fat_g": 15,
+            "fiber_g": 5
+          },
+          {
+            "food": "Steak fajitas: 6-8oz steak, 2 cups fajita veggies, 1/4 cup rice, 1/4 cup beans",
+            "time": "Dinner",
+            "calories": 600,
+            "protein_g": 45,
+            "carbs_g": 50,
+            "fat_g": 25,
+            "fiber_g": 10
+          },
+          {
+            "food": "4 flour tortillas",
+            "time": "Dinner",
+            "calories": 320,
+            "protein_g": 10,
+            "carbs_g": 60,
+            "fat_g": 6,
+            "fiber_g": 4
+          },
+          {
+            "food": "Toppings: 2 tbsp each of sour cream, guac, pico",
+            "time": "Dinner",
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 10,
+            "fat_g": 12,
+            "fiber_g": 2
+          },
+          {
+            "food": "5 ginger chews (for congestion)",
+            "time": "Evening snacks/treatment",
+            "calories": 50,
+            "protein_g": 0,
+            "carbs_g": 13,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 chicken enchiladas",
+            "time": "Evening snacks/treatment",
+            "calories": 400,
+            "protein_g": 20,
+            "carbs_g": 40,
+            "fat_g": 20,
+            "fiber_g": 4
+          },
+          {
+            "food": "Warm tea",
+            "time": "Evening snacks/treatment",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-07T11:08:31.813016",
+  "last_updated": "2026-02-08T11:08:46.053710",
   "streaks": {
     "ai_automation": {
       "current": 0,
