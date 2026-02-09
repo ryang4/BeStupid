@@ -50,21 +50,22 @@ def send_telegram_message(text: str):
         return False
 
 def get_morning_reminder():
-    """Generate morning routine reminder"""
+    """Generate morning routine reminder with schedule review"""
     return """🌅 **MORNING ROUTINE TIME!**
 
 ⏰ **Next 30 minutes = Phone-free productivity**
 
 **Your morning sequence:**
 1. 💧 Hydrate - drink water
-2. 🎯 Capture today's #1 priority 
-3. 🏃‍♂️ 5-10 min movement/stretch
-4. 🍳 Planned breakfast
-5. 💪 25-min work block on #1 priority
+2. 📅 **Review yesterday's reflection** - what did you plan for today?
+3. 🎯 **Confirm today's #1 priority** - does it still make sense?
+4. 🏃‍♂️ 5-10 min movement/stretch
+5. 🍳 Planned breakfast
+6. 💪 25-min work block on #1 priority
 
-**Remember:** Phone stays off until routine complete!
+**Daily habit check:** AI automation + 10 min yoga
 
-Type "done" when you've completed your morning routine."""
+**Remember:** Phone stays off until routine complete!"""
 
 def get_evening_start_reminder():
     """Generate evening routine start reminder"""
@@ -77,14 +78,14 @@ def get_evening_start_reminder():
 
 **Coming up:**
 • 10:15 PM - Close all screens
-• 10:30 PM - Day review 
+• 10:30 PM - Day review + tomorrow's planning
 • 11:00 PM - Personal routine
 • 11:30 PM - In bed, lights off
 
 Setting you up for success! 💪"""
 
 def get_evening_screens_reminder():
-    """Generate screens off reminder"""
+    """Generate screens off reminder with planning focus"""
     return """💻 **SCREENS OFF TIME!**
 
 ⏰ **10:15 PM - Close all devices**
@@ -93,23 +94,32 @@ Laptop closed ✅
 TV off ✅  
 iPad put away ✅
 
-**Next:** Quick day review at 10:30 PM
+**Next at 10:30 PM - Day Review & Tomorrow Planning:**
+📊 **Today's reflection:**
 - Did I ship something today?
-- What's tomorrow's #1 priority?
+- Did I complete my daily habits?
+- What worked well? What didn't?
+
+📅 **Tomorrow's setup:**
+- What's the #1 priority?
+- What time blocks do I need?
+- Any schedule conflicts to prep for?
 
 Your brain needs this transition time! 🧠"""
 
 def get_evening_bed_reminder():
-    """Generate bedtime reminder"""
+    """Generate bedtime reminder with final planning check"""
     return """🛏️ **BEDTIME ROUTINE - FINAL CALL**
 
 ⏰ **11:30 PM - In bed, lights off**
 
 You're 30 minutes from your midnight sleep goal! 
 
-**Quick check:**
+**Final planning check:**
+• Tomorrow's #1 priority written down? ✅
+• Daily habits reminder set? ✅
+• Schedule conflicts identified? ✅
 • Personal hygiene done? ✅
-• Tomorrow's #1 priority set? ✅
 • Phone charging outside bedroom? ✅
 
 **Lights off now = successful day!** 🌙"""
