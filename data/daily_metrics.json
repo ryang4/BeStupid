@@ -4465,9 +4465,216 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-08",
+      "extracted_at": "2026-02-09T11:21:14.650441",
+      "sleep": {
+        "hours": 8.58,
+        "quality": 9.5
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 6.0,
+        "bedtime": null
+      },
+      "energy": 6.0,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false
+        }
+      },
+      "nutrition": {
+        "calories": 3720,
+        "protein_g": 160,
+        "carbs_g": 480,
+        "fat_g": 150,
+        "fiber_g": 45,
+        "line_items": [
+          {
+            "food": "2 Bob's protein pancakes",
+            "time": "10am",
+            "calories": 300,
+            "protein_g": 20,
+            "carbs_g": 30,
+            "fat_g": 10,
+            "fiber_g": 5
+          },
+          {
+            "food": "3/5 large banana",
+            "time": "10am",
+            "calories": 60,
+            "protein_g": 1,
+            "carbs_g": 15,
+            "fat_g": 0,
+            "fiber_g": 2
+          },
+          {
+            "food": "2/3 cup whole milk",
+            "time": "10am",
+            "calories": 90,
+            "protein_g": 6,
+            "carbs_g": 10,
+            "fat_g": 5,
+            "fiber_g": 0
+          },
+          {
+            "food": "3 eggs",
+            "time": "10am",
+            "calories": 210,
+            "protein_g": 18,
+            "carbs_g": 1,
+            "fat_g": 15,
+            "fiber_g": 0
+          },
+          {
+            "food": "10 Stacy's pita chips",
+            "time": "12pm",
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 20,
+            "fat_g": 6,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 medium red delicious apple",
+            "time": "12pm",
+            "calories": 95,
+            "protein_g": 0,
+            "carbs_g": 25,
+            "fat_g": 0,
+            "fiber_g": 4
+          },
+          {
+            "food": "1 ginger chew",
+            "time": "12pm",
+            "calories": 10,
+            "protein_g": 0,
+            "carbs_g": 2,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 clementine",
+            "time": "12pm",
+            "calories": 35,
+            "protein_g": 1,
+            "carbs_g": 9,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "5 ginger chews",
+            "time": null,
+            "calories": 50,
+            "protein_g": 0,
+            "carbs_g": 10,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 servings beef stew (potatoes, carrots, onions, tomatoes, celery)",
+            "time": null,
+            "calories": 500,
+            "protein_g": 40,
+            "carbs_g": 60,
+            "fat_g": 15,
+            "fiber_g": 10
+          },
+          {
+            "food": "2 servings tortellini",
+            "time": null,
+            "calories": 400,
+            "protein_g": 10,
+            "carbs_g": 80,
+            "fat_g": 10,
+            "fiber_g": 4
+          },
+          {
+            "food": "1 serving cereal with granola",
+            "time": null,
+            "calories": 300,
+            "protein_g": 10,
+            "carbs_g": 60,
+            "fat_g": 10,
+            "fiber_g": 8
+          },
+          {
+            "food": "1 tbsp butter",
+            "time": null,
+            "calories": 100,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 11,
+            "fiber_g": 0
+          },
+          {
+            "food": "1/2 cup almond milk",
+            "time": null,
+            "calories": 30,
+            "protein_g": 1,
+            "carbs_g": 3,
+            "fat_g": 2,
+            "fiber_g": 1
+          },
+          {
+            "food": "1/2 cup whole milk",
+            "time": null,
+            "calories": 70,
+            "protein_g": 4,
+            "carbs_g": 6,
+            "fat_g": 4,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 large slices sourdough bread",
+            "time": null,
+            "calories": 200,
+            "protein_g": 8,
+            "carbs_g": 36,
+            "fat_g": 4,
+            "fiber_g": 4
+          },
+          {
+            "food": "2 oz brisket",
+            "time": null,
+            "calories": 150,
+            "protein_g": 20,
+            "carbs_g": 0,
+            "fat_g": 10,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 slices deli swiss cheese",
+            "time": null,
+            "calories": 180,
+            "protein_g": 15,
+            "carbs_g": 1,
+            "fat_g": 14,
+            "fiber_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-08T11:08:46.053710",
+  "last_updated": "2026-02-09T11:22:08.025997",
   "streaks": {
     "ai_automation": {
       "current": 0,
