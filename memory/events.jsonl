@@ -115,3 +115,4 @@
 {"v":1,"id":"01KH3450JGTASM6MWQK4N1SKKH","ts":"2026-02-10T06:34:49.809+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH3453MF06NBDQ71Q1P6TF74","ts":"2026-02-10T06:34:52.944+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH347RCYVKVQ239JQQK3CEVS","ts":"2026-02-10T06:36:19.742+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH34CDAES02XXVY6866B8YKK","ts":"2026-02-10T06:38:52.238+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
