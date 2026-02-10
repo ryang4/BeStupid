@@ -1,0 +1,132 @@
+{
+  "version": "1.0",
+  "schedule": "Tuesday and Friday",
+  "habit_type": "technical_content",
+  "target_per_week": 2,
+  "upcoming_deadlines": [
+    {
+      "date": "2026-02-10",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-02-13",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-02-17",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-02-20",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-02-24",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-02-27",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-03",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-06",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-10",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-13",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-17",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-20",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-24",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-27",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-03-31",
+      "day": "Tuesday",
+      "type": "Technical Post #1",
+      "status": "scheduled",
+      "ideas": []
+    },
+    {
+      "date": "2026-04-03",
+      "day": "Friday",
+      "type": "Technical Post #2",
+      "status": "scheduled",
+      "ideas": []
+    }
+  ],
+  "content_ideas": [
+    "AWS deployment debugging walkthrough",
+    "Docker container optimization techniques",
+    "Staging environment setup guide",
+    "Cold Turkey productivity setup tutorial",
+    "Telegram bot automation for developers",
+    "Git backup strategies for containers",
+    "'Think step by step' prompt engineering",
+    "Swimming technique progress tracking",
+    "Focus system design for developers",
+    "Claude Code efficiency tips"
+  ]
+}
