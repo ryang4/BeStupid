@@ -111,3 +111,4 @@
 {"v":1,"id":"01KH2WQMRT9M7DMGDXYHWBNJKS","ts":"2026-02-10T04:25:11.707+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH332QB6KJGSSDWKM4EXPQX8","ts":"2026-02-10T06:16:06.246+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH332RX66X9VNPYSJ4J13VZT","ts":"2026-02-10T06:16:07.846+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH33SGHKPCN3A4MKAJ7D4VKB","ts":"2026-02-10T06:28:32.947+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
