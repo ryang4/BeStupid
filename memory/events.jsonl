@@ -122,3 +122,4 @@
 {"v":1,"id":"01KH34X8031NEFMSPAGADW3MK1","ts":"2026-02-10T06:48:03.843+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH356GZ94R8M5X3QP93H7FST","ts":"2026-02-10T06:53:07.946+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH35XJAETFGBGDZ5PDKT488S","ts":"2026-02-10T07:05:42.998+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH3604VDDRJ3M8849VSBATMD","ts":"2026-02-10T07:07:07.501+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
