@@ -1,8 +1,7 @@
 # Obsidian - ignore everything except snippets
 .obsidian/*
 !.obsidian/snippets/
-scripts/__pycache__/*
-__pycache__/*
+**/__pycache__/
 
 # Environment variables (secrets)
 .env
