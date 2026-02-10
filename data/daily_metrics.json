@@ -4672,9 +4672,176 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-09",
+      "extracted_at": "2026-02-10T11:23:01.225907",
+      "sleep": {
+        "hours": 6.0,
+        "quality": 7.4
+      },
+      "weight_lbs": 254.0,
+      "mood": {
+        "morning": 5.0,
+        "bedtime": 5.0
+      },
+      "energy": 6.0,
+      "focus": 7.0,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 6,
+        "completion_rate": 0.86
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 2800,
+        "protein_g": 120,
+        "carbs_g": 350,
+        "fat_g": 120,
+        "fiber_g": 30,
+        "line_items": [
+          {
+            "food": "PB&J sandwich on Wegmans multigrain bread",
+            "time": "Breakfast",
+            "calories": 350,
+            "protein_g": 10,
+            "carbs_g": 55,
+            "fat_g": 10,
+            "fiber_g": 8
+          },
+          {
+            "food": "Starbucks turkey bacon egg white cheddar McMuffin",
+            "time": "Breakfast",
+            "calories": 370,
+            "protein_g": 25,
+            "carbs_g": 30,
+            "fat_g": 18,
+            "fiber_g": 2
+          },
+          {
+            "food": "Starbucks coffee",
+            "time": "Breakfast",
+            "calories": 5,
+            "protein_g": 0,
+            "carbs_g": 1,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Bang energy drink",
+            "time": "Breakfast",
+            "calories": 120,
+            "protein_g": 20,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "2/3 cup home fries with 1.5 tbsp homemade honey mustard",
+            "time": "Lunch/Second meal",
+            "calories": 200,
+            "protein_g": 3,
+            "carbs_g": 25,
+            "fat_g": 9,
+            "fiber_g": 2
+          },
+          {
+            "food": "Fried chicken sandwich: 2 slices white bread, chicken, lettuce, tomato, mayo",
+            "time": "Lunch/Second meal",
+            "calories": 500,
+            "protein_g": 25,
+            "carbs_g": 45,
+            "fat_g": 20,
+            "fiber_g": 2
+          },
+          {
+            "food": "Costco hot dog",
+            "time": "Afternoon (3pm)",
+            "calories": 250,
+            "protein_g": 10,
+            "carbs_g": 20,
+            "fat_g": 15,
+            "fiber_g": 1
+          },
+          {
+            "food": "2/3 Costco cheese pizza slice",
+            "time": "Afternoon (3pm)",
+            "calories": 250,
+            "protein_g": 12,
+            "carbs_g": 25,
+            "fat_g": 12,
+            "fiber_g": 1
+          },
+          {
+            "food": "1.5 servings Fage 5% Greek yogurt",
+            "time": "Evening (6pm)",
+            "calories": 225,
+            "protein_g": 20,
+            "carbs_g": 25,
+            "fat_g": 12,
+            "fiber_g": 1
+          },
+          {
+            "food": "20 blueberries, 5 strawberries",
+            "time": "Evening (6pm)",
+            "calories": 50,
+            "protein_g": 1,
+            "carbs_g": 12,
+            "fat_g": 0,
+            "fiber_g": 3
+          },
+          {
+            "food": "1 serving Wegmans granola",
+            "time": "Evening (6pm)",
+            "calories": 150,
+            "protein_g": 3,
+            "carbs_g": 20,
+            "fat_g": 7,
+            "fiber_g": 3
+          },
+          {
+            "food": "1 tbsp raw honey",
+            "time": "Evening (6pm)",
+            "calories": 60,
+            "protein_g": 0,
+            "carbs_g": 17,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 Shamrock strawberry protein shake",
+            "time": "Late evening (10pm)",
+            "calories": 240,
+            "protein_g": 30,
+            "carbs_g": 25,
+            "fat_g": 3,
+            "fiber_g": 2
+          },
+          {
+            "food": "Turkey Hill ham and cheese cracker pack",
+            "time": "Late evening (10pm)",
+            "calories": 160,
+            "protein_g": 10,
+            "carbs_g": 15,
+            "fat_g": 8,
+            "fiber_g": 1
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-09T11:22:08.025997",
+  "last_updated": "2026-02-10T11:23:36.431727",
   "streaks": {
     "ai_automation": {
       "current": 0,
@@ -4725,10 +4892,15 @@
       "ai_automation": 0.0,
       "yoga": 0.0,
       "_overall": 0.0
+    },
+    "2026-W07": {
+      "ai_automation": null,
+      "yoga": null,
+      "_overall": null
     }
   },
   "trends": {
-    "ai_automation": "stable",
-    "yoga": "stable"
+    "ai_automation": "insufficient_data",
+    "yoga": "insufficient_data"
   }
 }
