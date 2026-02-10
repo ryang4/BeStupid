@@ -125,3 +125,5 @@
 {"v":1,"id":"01KH3604VDDRJ3M8849VSBATMD","ts":"2026-02-10T07:07:07.501+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH42RGSW57YKM49XXM7ER7HK","ts":"2026-02-10T15:29:46.301+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH469E2KPP9043YWV5YKX31T","ts":"2026-02-10T16:31:26.291+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH4E5G7SFH39JTDJCY1STEEX","ts":"2026-02-10T18:49:06.041+00:00","type":"memory_write","agent":"cli","action":"commitments.add","entity":"commitments/20260210134906-read-anthropic-blogs","meta":{}}
+{"v":1,"id":"01KH4E5G803K3XR1HSEG09NCD0","ts":"2026-02-10T18:49:06.048+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 1 ops","entity":"","meta":{"cid":"01KH4E5G7D6H6ESRQY0FXC6PVH","ops":["commitments.add"]}}
