@@ -112,3 +112,5 @@
 {"v":1,"id":"01KH332QB6KJGSSDWKM4EXPQX8","ts":"2026-02-10T06:16:06.246+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH332RX66X9VNPYSJ4J13VZT","ts":"2026-02-10T06:16:07.846+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH33SGHKPCN3A4MKAJ7D4VKB","ts":"2026-02-10T06:28:32.947+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH3450JGTASM6MWQK4N1SKKH","ts":"2026-02-10T06:34:49.809+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH3453MF06NBDQ71Q1P6TF74","ts":"2026-02-10T06:34:52.944+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
