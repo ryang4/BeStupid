@@ -11,6 +11,8 @@ services:
       - PROJECT_ROOT=/project
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - HISTORY_DIR=/project/.bestupid-private
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-haiku-4-5-20251001}
+      - DAILY_TOKEN_BUDGET=${DAILY_TOKEN_BUDGET:-1000000}
       - TZ=America/New_York
     volumes:
       # Mount the repo read-write - this is the ONLY host access

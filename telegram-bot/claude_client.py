@@ -8,6 +8,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 import anthropic
@@ -16,16 +17,33 @@ from tools import TOOLS, execute_tool
 logger = logging.getLogger(__name__)
 
 client = anthropic.Anthropic(max_retries=3, timeout=120.0)
-MODEL = "claude-sonnet-4-20250514"
+MODEL = os.environ.get("CLAUDE_MODEL", "claude-haiku-4-5-20251001")
 MAX_TOKENS = 4096
 MAX_TOOL_ITERATIONS = 25
 MAX_TOOL_LOOP_SECONDS = 600
 TOOL_TIMEOUT_SECONDS = 60
 TOOL_OUTPUT_CAP = 8000
-HISTORY_TOKEN_TARGET = 100_000
+HISTORY_TOKEN_TARGET = 30_000
+DAILY_TOKEN_BUDGET = int(os.environ.get("DAILY_TOKEN_BUDGET", 1_000_000))
+
+# Pricing per 1M tokens: {model_prefix: (input_cost, output_cost)}
+MODEL_PRICING = {
+    "claude-haiku-4-5":  (0.80, 4.00),
+    "claude-sonnet-4":   (3.00, 15.00),
+    "claude-opus-4":     (15.00, 75.00),
+}
 
 HISTORY_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 HISTORY_FILE = HISTORY_DIR / "conversation_history.json"
+
+
+def get_model_pricing() -> tuple[float, float]:
+    """Return (input_cost_per_1M, output_cost_per_1M) for the active model."""
+    for prefix, pricing in MODEL_PRICING.items():
+        if MODEL.startswith(prefix):
+            return pricing
+    # Conservative fallback: assume Sonnet pricing
+    return (3.00, 15.00)
 
 SYSTEM_PROMPT = """You are Ryan's executive assistant via Telegram. Be concise and direct.
 
@@ -54,6 +72,33 @@ class ConversationState:
     history: list[dict] = field(default_factory=list)
     total_input_tokens: int = 0
     total_output_tokens: int = 0
+    daily_input_tokens: int = 0
+    daily_output_tokens: int = 0
+    daily_token_date: str = ""
+
+    def _reset_daily_if_needed(self):
+        """Reset daily counters if the date has changed."""
+        # Uses server local time — depends on TZ env var in docker-compose.yml
+        today = date.today().isoformat()
+        if self.daily_token_date != today:
+            self.daily_input_tokens = 0
+            self.daily_output_tokens = 0
+            self.daily_token_date = today
+
+    def check_daily_budget(self) -> bool:
+        """Return True if daily budget has tokens remaining. 0 = unlimited."""
+        if not DAILY_TOKEN_BUDGET:
+            return True
+        self._reset_daily_if_needed()
+        return (self.daily_input_tokens + self.daily_output_tokens) < DAILY_TOKEN_BUDGET
+
+    def record_usage(self, input_tokens: int, output_tokens: int):
+        """Record token usage for both lifetime and daily tracking."""
+        self.total_input_tokens += input_tokens
+        self.total_output_tokens += output_tokens
+        self._reset_daily_if_needed()
+        self.daily_input_tokens += input_tokens
+        self.daily_output_tokens += output_tokens
 
     def save_to_disk(self, chat_id: int):
         """Atomic write of conversation history to JSON."""
@@ -68,6 +113,9 @@ class ConversationState:
             "history": self.history,
             "total_input_tokens": self.total_input_tokens,
             "total_output_tokens": self.total_output_tokens,
+            "daily_input_tokens": self.daily_input_tokens,
+            "daily_output_tokens": self.daily_output_tokens,
+            "daily_token_date": self.daily_token_date,
         }
         tmp = HISTORY_FILE.with_suffix(".tmp")
         tmp.write_text(json.dumps(data, separators=(",", ":")))
@@ -82,11 +130,16 @@ class ConversationState:
             data = json.loads(HISTORY_FILE.read_text())
             entry = data.get(str(chat_id))
             if entry:
-                return cls(
+                state = cls(
                     history=entry.get("history", []),
                     total_input_tokens=entry.get("total_input_tokens", 0),
                     total_output_tokens=entry.get("total_output_tokens", 0),
+                    daily_input_tokens=entry.get("daily_input_tokens", 0),
+                    daily_output_tokens=entry.get("daily_output_tokens", 0),
+                    daily_token_date=entry.get("daily_token_date", ""),
                 )
+                state._reset_daily_if_needed()
+                return state
         except (json.JSONDecodeError, OSError, KeyError):
             pass
         return cls()
@@ -187,6 +240,12 @@ async def run_tool_loop(
 ) -> str:
     """Run the conversation + tool loop. Returns final text response."""
 
+    if not state.check_daily_budget():
+        return (
+            f"Daily token budget ({DAILY_TOKEN_BUDGET:,} tokens) reached. "
+            "Budget resets at midnight. Use /cost to see details."
+        )
+
     state.history.append({"role": "user", "content": user_message})
     state.history = _prune_history(state.history)
 
@@ -207,8 +266,14 @@ async def run_tool_loop(
             messages=sanitized,
         )
 
-        state.total_input_tokens += response.usage.input_tokens
-        state.total_output_tokens += response.usage.output_tokens
+        state.record_usage(response.usage.input_tokens, response.usage.output_tokens)
+
+        if not state.check_daily_budget():
+            text = _extract_text(response)
+            state.history.append({"role": "assistant", "content": text or "Daily budget reached mid-conversation."})
+            if chat_id:
+                state.save_to_disk(chat_id)
+            return text or "Daily token budget reached. Budget resets at midnight."
 
         if response.stop_reason == "end_turn":
             text = _extract_text(response)

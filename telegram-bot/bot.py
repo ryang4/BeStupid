@@ -17,7 +17,7 @@ from telegram import Update
 from telegram.error import BadRequest
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
-from claude_client import ConversationState, run_tool_loop
+from claude_client import ConversationState, run_tool_loop, MODEL, DAILY_TOKEN_BUDGET, get_model_pricing
 from scheduler import start_scheduler
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -184,14 +184,21 @@ async def cmd_cost(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     chat_id = update.effective_chat.id
     state = _get_conversation(chat_id)
-    # Sonnet pricing: $3/M input, $15/M output
-    input_cost = state.total_input_tokens * 3.0 / 1_000_000
-    output_cost = state.total_output_tokens * 15.0 / 1_000_000
+
+    input_price, output_price = get_model_pricing()
+    input_cost = state.total_input_tokens * input_price / 1_000_000
+    output_cost = state.total_output_tokens * output_price / 1_000_000
     total = input_cost + output_cost
+
+    daily_used = state.daily_input_tokens + state.daily_output_tokens
+    daily_pct = min(100, round(daily_used * 100 / DAILY_TOKEN_BUDGET)) if DAILY_TOKEN_BUDGET else 0
+
     await update.message.reply_text(
+        f"Model: {MODEL}\n"
         f"Input tokens: {state.total_input_tokens:,}\n"
         f"Output tokens: {state.total_output_tokens:,}\n"
-        f"Estimated cost: ${total:.4f}"
+        f"Estimated cost: ${total:.4f}\n\n"
+        f"Daily budget: {daily_used:,} / {DAILY_TOKEN_BUDGET:,} ({daily_pct}%)"
     )
 
 
