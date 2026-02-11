@@ -132,3 +132,4 @@
 {"v":1,"id":"01KH5AAK4C26PD35GSCF6R6J01","ts":"2026-02-11T03:01:12.972+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KH5AAK4B0F9471NDAQCKF3P9","ops":[]}}
 {"v":1,"id":"01KH5AQHF5ZP6QJMQJ1RMQAY3P","ts":"2026-02-11T03:08:17.254+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH5AV3TZAJ27AD1BRABAKW3J","ts":"2026-02-11T03:10:14.368+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH5K15AB3JEP3N0PR899259D","ts":"2026-02-11T05:33:21.099+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
