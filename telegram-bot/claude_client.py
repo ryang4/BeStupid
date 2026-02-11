@@ -37,7 +37,7 @@ HISTORY_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-pr
 HISTORY_FILE = HISTORY_DIR / "conversation_history.json"
 
 
-def _get_model_pricing() -> tuple[float, float]:
+def get_model_pricing() -> tuple[float, float]:
     """Return (input_cost_per_1M, output_cost_per_1M) for the active model."""
     for prefix, pricing in MODEL_PRICING.items():
         if MODEL.startswith(prefix):
@@ -78,6 +78,7 @@ class ConversationState:
 
     def _reset_daily_if_needed(self):
         """Reset daily counters if the date has changed."""
+        # Uses server local time — depends on TZ env var in docker-compose.yml
         today = date.today().isoformat()
         if self.daily_token_date != today:
             self.daily_input_tokens = 0
@@ -85,7 +86,9 @@ class ConversationState:
             self.daily_token_date = today
 
     def check_daily_budget(self) -> bool:
-        """Return True if daily budget has tokens remaining."""
+        """Return True if daily budget has tokens remaining. 0 = unlimited."""
+        if not DAILY_TOKEN_BUDGET:
+            return True
         self._reset_daily_if_needed()
         return (self.daily_input_tokens + self.daily_output_tokens) < DAILY_TOKEN_BUDGET
 
@@ -264,6 +267,13 @@ async def run_tool_loop(
         )
 
         state.record_usage(response.usage.input_tokens, response.usage.output_tokens)
+
+        if not state.check_daily_budget():
+            text = _extract_text(response)
+            state.history.append({"role": "assistant", "content": text or "Daily budget reached mid-conversation."})
+            if chat_id:
+                state.save_to_disk(chat_id)
+            return text or "Daily token budget reached. Budget resets at midnight."
 
         if response.stop_reason == "end_turn":
             text = _extract_text(response)
