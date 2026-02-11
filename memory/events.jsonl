@@ -127,3 +127,8 @@
 {"v":1,"id":"01KH469E2KPP9043YWV5YKX31T","ts":"2026-02-10T16:31:26.291+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
 {"v":1,"id":"01KH4E5G7SFH39JTDJCY1STEEX","ts":"2026-02-10T18:49:06.041+00:00","type":"memory_write","agent":"cli","action":"commitments.add","entity":"commitments/20260210134906-read-anthropic-blogs","meta":{}}
 {"v":1,"id":"01KH4E5G803K3XR1HSEG09NCD0","ts":"2026-02-10T18:49:06.048+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 1 ops","entity":"","meta":{"cid":"01KH4E5G7D6H6ESRQY0FXC6PVH","ops":["commitments.add"]}}
+{"v":1,"id":"01KH54H2F45QMQD9B4F3W1GHSB","ts":"2026-02-11T01:19:53.829+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH5693FQ9ES6WXWMHPRWK11X","ts":"2026-02-11T01:50:29.880+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH5AAK4C26PD35GSCF6R6J01","ts":"2026-02-11T03:01:12.972+00:00","type":"extraction_complete","agent":"extractor","action":"extracted 0 ops","entity":"","meta":{"cid":"01KH5AAK4B0F9471NDAQCKF3P9","ops":[]}}
+{"v":1,"id":"01KH5AQHF5ZP6QJMQJ1RMQAY3P","ts":"2026-02-11T03:08:17.254+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
+{"v":1,"id":"01KH5AV3TZAJ27AD1BRABAKW3J","ts":"2026-02-11T03:10:14.368+00:00","type":"extraction_failed","agent":"extractor","action":"json_parse_error","entity":"","meta":{}}
