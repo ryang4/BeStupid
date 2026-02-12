@@ -5024,17 +5024,233 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-11",
+      "extracted_at": "2026-02-12T11:19:58.937906",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "bike",
+        "activities": [
+          {
+            "type": "bike",
+            "distance": 10.12,
+            "distance_unit": "mi",
+            "duration_minutes": null,
+            "avg_hr": null,
+            "avg_watts": null
+          }
+        ],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 11,
+        "completed": 4,
+        "completion_rate": 0.36
+      },
+      "habits": {
+        "completed": [
+          "yoga"
+        ],
+        "missed": [],
+        "completion_rate": 1.0,
+        "details": {
+          "yoga": true
+        }
+      },
+      "nutrition": {
+        "calories": 2400,
+        "protein_g": 165,
+        "carbs_g": 320,
+        "fat_g": 85,
+        "fiber_g": 35,
+        "line_items": [
+          {
+            "food": "2 servings Wegmans nonfat Greek yogurt",
+            "time": null,
+            "calories": 220,
+            "protein_g": 40,
+            "carbs_g": 20,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "60g Wegmans granola",
+            "time": null,
+            "calories": 270,
+            "protein_g": 6,
+            "carbs_g": 45,
+            "fat_g": 10,
+            "fiber_g": 5
+          },
+          {
+            "food": "50g strawberries",
+            "time": null,
+            "calories": 15,
+            "protein_g": 0,
+            "carbs_g": 4,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "100g blueberries",
+            "time": null,
+            "calories": 57,
+            "protein_g": 1,
+            "carbs_g": 15,
+            "fat_g": 0,
+            "fiber_g": 3
+          },
+          {
+            "food": "2 slices Wegmans whole wheat bread",
+            "time": null,
+            "calories": 160,
+            "protein_g": 7,
+            "carbs_g": 30,
+            "fat_g": 2,
+            "fiber_g": 4
+          },
+          {
+            "food": "2 slices deli Swiss cheese",
+            "time": null,
+            "calories": 200,
+            "protein_g": 16,
+            "carbs_g": 1,
+            "fat_g": 16,
+            "fiber_g": 0
+          },
+          {
+            "food": "3 slices deli turkey",
+            "time": null,
+            "calories": 90,
+            "protein_g": 18,
+            "carbs_g": 0,
+            "fat_g": 1,
+            "fiber_g": 0
+          },
+          {
+            "food": "13g mayo",
+            "time": null,
+            "calories": 90,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 10,
+            "fiber_g": 0
+          },
+          {
+            "food": "1/2 cup cooked brown rice",
+            "time": null,
+            "calories": 108,
+            "protein_g": 2,
+            "carbs_g": 22,
+            "fat_g": 1,
+            "fiber_g": 2
+          },
+          {
+            "food": "1/2 cup cooked broccoli",
+            "time": null,
+            "calories": 27,
+            "protein_g": 2,
+            "carbs_g": 5,
+            "fat_g": 0,
+            "fiber_g": 3
+          },
+          {
+            "food": "1/2 cup cooked salmon",
+            "time": null,
+            "calories": 206,
+            "protein_g": 29,
+            "carbs_g": 0,
+            "fat_g": 10,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 tbsp butter",
+            "time": null,
+            "calories": 102,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 12,
+            "fiber_g": 0
+          },
+          {
+            "food": "10 Stacy's pita chips",
+            "time": null,
+            "calories": 140,
+            "protein_g": 2,
+            "carbs_g": 18,
+            "fat_g": 7,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 tbsp hummus",
+            "time": null,
+            "calories": 25,
+            "protein_g": 1,
+            "carbs_g": 3,
+            "fat_g": 2,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 tbsp sweet chili sauce",
+            "time": null,
+            "calories": 20,
+            "protein_g": 0,
+            "carbs_g": 5,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Homemade Turkey Stew (3 cups total): 1 lb ground turkey, 8oz mushrooms, 4 stewed tomatoes, 1 cup cannellini beans, bone broth, spinach, basil, parmesan",
+            "time": null,
+            "calories": 600,
+            "protein_g": 60,
+            "carbs_g": 50,
+            "fat_g": 20,
+            "fiber_g": 10
+          },
+          {
+            "food": "2 slices white bread on the side",
+            "time": null,
+            "calories": 160,
+            "protein_g": 6,
+            "carbs_g": 30,
+            "fat_g": 2,
+            "fiber_g": 1
+          },
+          {
+            "food": "3 clementines",
+            "time": null,
+            "calories": 90,
+            "protein_g": 1,
+            "carbs_g": 21,
+            "fat_g": 0,
+            "fiber_g": 3
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-11T11:21:42.930717",
+  "last_updated": "2026-02-12T11:21:22.797882",
   "streaks": {
     "ai_automation": {
       "current": 0,
       "longest": 0
     },
     "yoga": {
-      "current": 0,
-      "longest": 0
+      "current": 1,
+      "longest": 1
     }
   },
   "weekly_summaries": {
@@ -5080,12 +5296,12 @@
     },
     "2026-W07": {
       "ai_automation": null,
-      "yoga": null,
-      "_overall": null
+      "yoga": 1.0,
+      "_overall": 1.0
     }
   },
   "trends": {
     "ai_automation": "insufficient_data",
-    "yoga": "insufficient_data"
+    "yoga": "improving"
   }
 }
