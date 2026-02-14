@@ -5483,9 +5483,100 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-13",
+      "extracted_at": "2026-02-14T11:07:56.645601",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": [
+          {
+            "exercise": "Dumbbell bench press",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 60.0
+          },
+          {
+            "exercise": "Dumbbell rows",
+            "sets": 3,
+            "reps": 11,
+            "weight_lbs": 70.0
+          },
+          {
+            "exercise": "Cable tricep push downs",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 140.0
+          },
+          {
+            "exercise": "Cable bicep curl",
+            "sets": 3,
+            "reps": 9,
+            "weight_lbs": 100.0
+          },
+          {
+            "exercise": "Dumbbell overhead lateral raise",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 10.0
+          },
+          {
+            "exercise": "Machine seated leg press",
+            "sets": 3,
+            "reps": 10,
+            "weight_lbs": 320.0
+          },
+          {
+            "exercise": "Lying hamstring curls",
+            "sets": 3,
+            "reps": 9,
+            "weight_lbs": 125.0
+          }
+        ]
+      },
+      "todos": {
+        "total": 7,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "ai_automation",
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "ai_automation": false,
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
     }
   ],
-  "last_updated": "2026-02-13T11:17:14.000454",
+  "last_updated": "2026-02-14T11:07:56.648915",
   "streaks": {
     "ai_automation": {
       "current": 0,
@@ -5538,13 +5629,13 @@
       "_overall": 0.0
     },
     "2026-W07": {
-      "ai_automation": null,
-      "yoga": 0.5,
-      "_overall": 0.5
+      "ai_automation": 0.0,
+      "yoga": 0.33,
+      "_overall": 0.25
     }
   },
   "trends": {
-    "ai_automation": "insufficient_data",
+    "ai_automation": "stable",
     "yoga": "improving"
   }
 }
