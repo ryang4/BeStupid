@@ -24,14 +24,11 @@ struct ParsedField: Sendable, Equatable {
 enum InlineFieldParser: Sendable {
 
     /// Regex pattern for inline fields.
-    /// Matches: `FieldName:: value`
+    /// Matches: `FieldName:: value` or `FieldName::` (empty value)
     /// - Field name: starts with a letter, followed by letters/digits/underscores/spaces
     /// - Separator: `::` followed by optional whitespace
-    /// - Value: everything after the separator (trimmed)
-    private static let fieldPattern = #/^([A-Za-z][A-Za-z0-9_ ]*)::[ \t]+(.+)$/#
-
-    /// Pattern that also matches fields with empty values (trailing whitespace or nothing after ::)
-    private static let fieldPatternWithOptionalValue = #/^([A-Za-z][A-Za-z0-9_ ]*)::[ \t]*(.*)$/#
+    /// - Value: everything after the separator (may be empty)
+    private static let fieldPattern = #/^([A-Za-z][A-Za-z0-9_ ]*)::[ \t]*(.*)$/#
 
     // MARK: - Public API
 
@@ -56,7 +53,7 @@ enum InlineFieldParser: Sendable {
         let trimmed = line.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else { return nil }
 
-        guard let match = trimmed.firstMatch(of: fieldPatternWithOptionalValue) else {
+        guard let match = trimmed.firstMatch(of: fieldPattern) else {
             return nil
         }
 
