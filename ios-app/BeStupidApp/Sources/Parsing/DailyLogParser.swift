@@ -227,21 +227,16 @@ enum DailyLogParser: Sendable {
             // Check if this is a known activity type
             if activityTypes.contains(nameLower) {
                 let parsed = TrainingValueParser.parse(field.rawValue)
-                let defaultUnit = TrainingValueParser.defaultUnit(for: nameLower)
 
-                // Use parsed unit if explicit, otherwise use default for activity type
+                // Determine distance unit: use explicit suffix from value if present,
+                // otherwise infer from activity type.
                 let unit: DistanceUnit
-                if parsed.distance != nil && field.rawValue.contains("m") && !field.rawValue.contains("mi") && !field.rawValue.contains("km") {
-                    // Has explicit "m" suffix
-                    unit = .meters
-                } else if field.rawValue.contains("km") {
-                    unit = .kilometers
-                } else if field.rawValue.contains("mi") {
-                    unit = .miles
-                } else if parsed.distance != nil {
-                    unit = defaultUnit
-                } else {
+                if parsed.distance != nil && hasExplicitUnitSuffix(field.rawValue) {
                     unit = parsed.distanceUnit
+                } else if parsed.distance != nil {
+                    unit = TrainingValueParser.defaultUnit(for: nameLower)
+                } else {
+                    unit = TrainingValueParser.defaultUnit(for: nameLower)
                 }
 
                 activities.append(TrainingActivity(
