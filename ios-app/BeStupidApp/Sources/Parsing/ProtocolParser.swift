@@ -100,12 +100,7 @@ enum ProtocolParser: Sendable {
                 .trimmingCharacters(in: .whitespaces)
             if withoutPipesAndDashes.isEmpty { continue }
 
-            // Split by pipe and clean up cells
-            let cells = trimmed.split(separator: "|", omittingEmptySubsequences: false)
-                .map { String($0).trimmingCharacters(in: .whitespaces) }
-                .filter { !$0.isEmpty || cells(in: trimmed) }
-
-            // Re-parse: split by | but handle leading/trailing pipes
+            // Parse the row by splitting on | and trimming
             let cleanCells = parseTableRow(trimmed)
             if !cleanCells.isEmpty {
                 rows.append(cleanCells)
@@ -133,9 +128,6 @@ enum ProtocolParser: Sendable {
         return row.split(separator: "|")
             .map { String($0).trimmingCharacters(in: .whitespaces) }
     }
-
-    /// Dummy helper used only in the filter closure above (never actually called at runtime).
-    private static func cells(in _: String) -> Bool { false }
 
     /// Parse the schedule table into `ProtocolDay` values.
     ///
