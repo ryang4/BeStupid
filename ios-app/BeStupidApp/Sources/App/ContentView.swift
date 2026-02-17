@@ -12,7 +12,7 @@ struct ContentView: View {
             }
 
             Tab("Workout", systemImage: AppTab.workout.systemImage, value: .workout) {
-                WorkoutPlaceholderView()
+                WorkoutListView()
             }
             .badge(appState.hasActiveWorkout ? "Live" : nil)
 
@@ -21,7 +21,7 @@ struct ContentView: View {
             }
 
             Tab("Charts", systemImage: AppTab.charts.systemImage, value: .charts) {
-                ChartsPlaceholderView()
+                ChartsContainerView()
             }
 
             Tab("Settings", systemImage: AppTab.settings.systemImage, value: .settings) {
