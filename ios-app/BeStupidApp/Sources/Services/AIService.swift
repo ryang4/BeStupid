@@ -94,7 +94,7 @@ struct QueryContext: Sendable, Equatable {
 
 // MARK: - AI Errors
 
-enum AIError: Error, LocalizedError, Sendable {
+enum AIError: Error, LocalizedError, Sendable, Equatable {
     case providerUnavailable(String)
     case modelNotLoaded
     case generationFailed(String)
