@@ -393,4 +393,17 @@ enum DailyLogParser: Sendable {
         }
         return nil
     }
+
+    /// Check whether a training value string contains an explicit distance unit suffix.
+    ///
+    /// Looks for patterns like "750m", "1.2km", "3.1mi" where a unit
+    /// immediately follows a number. Plain numbers without suffixes return false.
+    private static func hasExplicitUnitSuffix(_ value: String) -> Bool {
+        // Check for km or mi first (order matters: "km" before "m")
+        if value.contains("km") { return true }
+        if value.contains("mi") { return true }
+        // Check for "m" suffix after a digit (e.g., "750m" but not "min" or "33:39")
+        if value.firstMatch(of: #/\d\s*m(?:[^a-zA-Z]|$)/#) != nil { return true }
+        return false
+    }
 }

@@ -8,7 +8,7 @@ struct ContentView: View {
 
         TabView(selection: $state.selectedTab) {
             Tab("Dashboard", systemImage: AppTab.dashboard.systemImage, value: .dashboard) {
-                DashboardPlaceholderView()
+                DashboardView()
             }
 
             Tab("Workout", systemImage: AppTab.workout.systemImage, value: .workout) {
