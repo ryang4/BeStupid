@@ -5718,9 +5718,126 @@
       "extraction_notes": [
         "No fuel log found"
       ]
+    },
+    {
+      "date": "2026-02-17",
+      "extracted_at": "2026-02-18T11:19:18.156976",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": 254.0,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 12,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": 1090,
+        "protein_g": 38,
+        "carbs_g": 167,
+        "fat_g": 47,
+        "fiber_g": 15,
+        "line_items": [
+          {
+            "food": "1/4 lb ground beef",
+            "time": null,
+            "calories": 220,
+            "protein_g": 18,
+            "carbs_g": 0,
+            "fat_g": 15,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 cup cooked penne pasta",
+            "time": null,
+            "calories": 200,
+            "protein_g": 7,
+            "carbs_g": 40,
+            "fat_g": 1,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 bag Cheez-Its",
+            "time": null,
+            "calories": 250,
+            "protein_g": 5,
+            "carbs_g": 30,
+            "fat_g": 15,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 clementine",
+            "time": null,
+            "calories": 35,
+            "protein_g": 1,
+            "carbs_g": 9,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "2 coffees",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 fig bar",
+            "time": null,
+            "calories": 100,
+            "protein_g": 1,
+            "carbs_g": 20,
+            "fat_g": 3,
+            "fiber_g": 2
+          },
+          {
+            "food": "50 baby carrots",
+            "time": null,
+            "calories": 150,
+            "protein_g": 4,
+            "carbs_g": 35,
+            "fat_g": 0,
+            "fiber_g": 10
+          },
+          {
+            "food": "2 tbsp hummus",
+            "time": null,
+            "calories": 35,
+            "protein_g": 1,
+            "carbs_g": 3,
+            "fat_g": 3,
+            "fiber_g": 1
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-17T11:19:40.987434",
+  "last_updated": "2026-02-18T11:19:36.900153",
   "streaks": {
     "ai_automation": {
       "current": 0,
