@@ -5835,16 +5835,277 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-18",
+      "extracted_at": "2026-02-19T11:19:23.633056",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 16,
+        "completed": 7,
+        "completion_rate": 0.44
+      },
+      "habits": {
+        "completed": [
+          "yoga"
+        ],
+        "missed": [],
+        "completion_rate": 1.0,
+        "details": {
+          "yoga": true
+        }
+      },
+      "nutrition": {
+        "calories": 4815,
+        "protein_g": 229,
+        "carbs_g": 560,
+        "fat_g": 230,
+        "fiber_g": 36,
+        "line_items": [
+          {
+            "food": "5 slices Pepperidge Farm whole wheat bread",
+            "time": null,
+            "calories": 300,
+            "protein_g": 10,
+            "carbs_g": 55,
+            "fat_g": 5,
+            "fiber_g": 10
+          },
+          {
+            "food": "20g kewpie mayo",
+            "time": null,
+            "calories": 180,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 20,
+            "fiber_g": 0
+          },
+          {
+            "food": "10g dijon mustard",
+            "time": null,
+            "calories": 10,
+            "protein_g": 0,
+            "carbs_g": 2,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 oz cheddar cheese",
+            "time": null,
+            "calories": 220,
+            "protein_g": 14,
+            "carbs_g": 1,
+            "fat_g": 18,
+            "fiber_g": 0
+          },
+          {
+            "food": "3 egg yolks + 2 whole eggs",
+            "time": null,
+            "calories": 270,
+            "protein_g": 18,
+            "carbs_g": 1,
+            "fat_g": 22,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 bag Cheez-Its",
+            "time": null,
+            "calories": 250,
+            "protein_g": 5,
+            "carbs_g": 30,
+            "fat_g": 15,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 clementine",
+            "time": null,
+            "calories": 35,
+            "protein_g": 0,
+            "carbs_g": 9,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "5 blackberries",
+            "time": null,
+            "calories": 15,
+            "protein_g": 0,
+            "carbs_g": 4,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "10g raspberry jam",
+            "time": null,
+            "calories": 50,
+            "protein_g": 0,
+            "carbs_g": 13,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "3 small tomatoes",
+            "time": null,
+            "calories": 15,
+            "protein_g": 1,
+            "carbs_g": 3,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "8 chicken wings",
+            "time": null,
+            "calories": 400,
+            "protein_g": 30,
+            "carbs_g": 0,
+            "fat_g": 30,
+            "fiber_g": 0
+          },
+          {
+            "food": "1.5 cups cooked orzo with pesto and arugula",
+            "time": null,
+            "calories": 450,
+            "protein_g": 10,
+            "carbs_g": 70,
+            "fat_g": 15,
+            "fiber_g": 5
+          },
+          {
+            "food": "3 clementines",
+            "time": null,
+            "calories": 105,
+            "protein_g": 1,
+            "carbs_g": 27,
+            "fat_g": 0,
+            "fiber_g": 3
+          },
+          {
+            "food": "10g chocolate chip cookie",
+            "time": null,
+            "calories": 50,
+            "protein_g": 1,
+            "carbs_g": 8,
+            "fat_g": 2,
+            "fiber_g": 0
+          },
+          {
+            "food": "200g deli turkey breast",
+            "time": null,
+            "calories": 320,
+            "protein_g": 60,
+            "carbs_g": 0,
+            "fat_g": 2,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 clementine",
+            "time": null,
+            "calories": 35,
+            "protein_g": 0,
+            "carbs_g": 9,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "1/4 cup cooked pesto orzo",
+            "time": null,
+            "calories": 150,
+            "protein_g": 3,
+            "carbs_g": 25,
+            "fat_g": 5,
+            "fiber_g": 1
+          },
+          {
+            "food": "2 ginger chews",
+            "time": null,
+            "calories": 40,
+            "protein_g": 0,
+            "carbs_g": 10,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "3 chicken enchiladas with mole sauce",
+            "time": null,
+            "calories": 600,
+            "protein_g": 30,
+            "carbs_g": 50,
+            "fat_g": 35,
+            "fiber_g": 5
+          },
+          {
+            "food": "1/4 cup Mexican rice",
+            "time": null,
+            "calories": 100,
+            "protein_g": 2,
+            "carbs_g": 22,
+            "fat_g": 1,
+            "fiber_g": 1
+          },
+          {
+            "food": "Salad greens",
+            "time": null,
+            "calories": 20,
+            "protein_g": 1,
+            "carbs_g": 3,
+            "fat_g": 0,
+            "fiber_g": 2
+          },
+          {
+            "food": "7 french fries",
+            "time": null,
+            "calories": 210,
+            "protein_g": 2,
+            "carbs_g": 28,
+            "fat_g": 9,
+            "fiber_g": 2
+          },
+          {
+            "food": "30 tortilla chips with salsa",
+            "time": null,
+            "calories": 300,
+            "protein_g": 4,
+            "carbs_g": 45,
+            "fat_g": 15,
+            "fiber_g": 4
+          },
+          {
+            "food": "1 Coke",
+            "time": null,
+            "calories": 140,
+            "protein_g": 0,
+            "carbs_g": 39,
+            "fat_g": 0,
+            "fiber_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-18T11:19:36.900153",
+  "last_updated": "2026-02-19T11:20:12.926141",
   "streaks": {
     "ai_automation": {
       "current": 0,
       "longest": 0
     },
     "yoga": {
-      "current": 0,
+      "current": 1,
       "longest": 1
     }
   },
@@ -5896,12 +6157,12 @@
     },
     "2026-W08": {
       "ai_automation": 0.0,
-      "yoga": 0.0,
-      "_overall": 0.0
+      "yoga": 0.33,
+      "_overall": 0.25
     }
   },
   "trends": {
     "ai_automation": "stable",
-    "yoga": "declining"
+    "yoga": "improving"
   }
 }
