@@ -20,6 +20,8 @@ REPO_ROOT = PROJECT_ROOT
 # Use HISTORY_DIR env var to match claude_client.py, falling back to home dir
 PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 
+from agent_policy import apply_agent_policy_update, format_agent_policy, load_agent_policy
+
 # --- Security: path restrictions ---
 
 READABLE_PREFIXES = [
@@ -302,12 +304,50 @@ TOOLS = [
             "required": []
         }
     },
+    {
+        "name": "get_agent_policy",
+        "description": "Get the assistant's current self-updated operating policy for this chat.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+    {
+        "name": "self_update_policy",
+        "description": "Update assistant operating policy for this chat. Use to adapt behavior after recurring friction.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": ["append_rules", "replace_rules", "set_focus", "reset"],
+                    "description": "Policy update action"
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Behavior rules to append/replace"
+                },
+                "focus": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Focus priorities to set"
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "Why this update is needed based on observed outcomes"
+                }
+            },
+            "required": ["action", "reason"]
+        }
+    },
 ]
 
 
 # --- Tool dispatcher ---
 
-async def execute_tool(name: str, inputs: dict) -> str:
+async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
     """Execute a tool and return result string."""
 
     if name == "read_file":
@@ -346,6 +386,16 @@ async def execute_tool(name: str, inputs: dict) -> str:
         return check_git_health()
     elif name == "sync_with_remote":
         return sync_with_remote()
+    elif name == "get_agent_policy":
+        return get_agent_policy(chat_id=chat_id)
+    elif name == "self_update_policy":
+        return self_update_policy(
+            action=inputs["action"],
+            reason=inputs["reason"],
+            chat_id=chat_id,
+            rules=inputs.get("rules"),
+            focus=inputs.get("focus"),
+        )
 
     return f"Unknown tool: {name}"
 
@@ -1030,3 +1080,37 @@ def sync_with_remote() -> str:
         lines.append(f"**Status:** ERROR - {e}")
 
     return "\n".join(lines)
+
+
+def get_agent_policy(chat_id: int = 0) -> str:
+    if not chat_id:
+        return "Agent policy is unavailable: missing chat context."
+
+    policy = load_agent_policy(chat_id)
+    return format_agent_policy(policy)
+
+
+def self_update_policy(
+    action: str,
+    reason: str,
+    chat_id: int = 0,
+    rules: list[str] | None = None,
+    focus: list[str] | None = None,
+) -> str:
+    if not chat_id:
+        return "Self-update unavailable: missing chat context."
+
+    try:
+        updated = apply_agent_policy_update(
+            chat_id=chat_id,
+            action=action,
+            rules=rules,
+            focus=focus,
+            reason=reason,
+        )
+    except ValueError as e:
+        return f"Invalid self-update action: {e}"
+    except Exception as e:
+        return f"Self-update failed: {e}"
+
+    return "Self-update applied.\n\n" + format_agent_policy(updated)

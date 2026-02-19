@@ -285,3 +285,29 @@ class TestGetSystemStatus:
             result = get_system_status()
 
             assert "failure" in result.lower() or "Backup" in result
+
+
+class TestSelfUpdatePolicy:
+    """Test self-updating agent policy tools."""
+
+    def test_get_agent_policy_without_chat_context(self):
+        from tools import get_agent_policy
+
+        result = get_agent_policy(chat_id=0)
+        assert "missing chat context" in result.lower()
+
+    def test_self_update_policy_appends_rules(self, mock_env):
+        with patch("tools.PRIVATE_DIR", mock_env["private_dir"]):
+            with patch("agent_policy.HISTORY_DIR", mock_env["private_dir"]):
+                with patch("agent_policy.POLICY_FILE", mock_env["private_dir"] / "agent_policies.json"):
+                    from tools import self_update_policy
+
+                    result = self_update_policy(
+                        action="append_rules",
+                        reason="Missed follow-through on open tasks",
+                        chat_id=12345,
+                        rules=["Always include next 3 actions with owners"],
+                    )
+
+                    assert "Self-update applied" in result
+                    assert "Always include next 3 actions with owners" in result
