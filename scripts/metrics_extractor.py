@@ -13,7 +13,6 @@ import json
 from datetime import datetime, timedelta
 from typing import Optional
 import frontmatter
-from llm_client import estimate_macros
 
 
 # Configuration
@@ -22,6 +21,24 @@ PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 METRICS_FILE = os.path.join(PROJECT_ROOT, "data", "daily_metrics.json")
 LOGS_DIR = os.path.join(PROJECT_ROOT, "content", "logs")
 HABITS_CONFIG = os.path.join(PROJECT_ROOT, "content", "config", "habits.md")
+
+
+def estimate_macros_safe(fuel_log_text: str) -> Optional[dict]:
+    """
+    Lazily load macro estimator so metrics extraction can still run
+    when optional LLM dependencies are unavailable.
+    """
+    try:
+        from llm_client import estimate_macros
+    except Exception as e:
+        print(f"Warning: Macro estimator unavailable: {e}")
+        return None
+
+    try:
+        return estimate_macros(fuel_log_text)
+    except Exception as e:
+        print(f"Warning: Macro estimation failed: {e}")
+        return None
 
 
 def parse_inline_field(content: str, field_name: str) -> Optional[str]:
@@ -43,6 +60,59 @@ def parse_inline_field(content: str, field_name: str) -> Optional[str]:
         value = match.group(1).strip()
         return value if value else None
     return None
+
+
+def parse_approx_int(value: Optional[str], treat_zero_as_none: bool = True) -> Optional[int]:
+    """
+    Parse an approximate numeric string into an int.
+
+    Handles values like:
+    - "~3685"
+    - "163g"
+    - "3500-4000" (returns midpoint)
+    """
+    if value is None:
+        return None
+
+    text = str(value).strip().lower()
+    if text in ("", "none", "null", "n/a", "na", "missed", "-"):
+        return None
+
+    text = text.replace(",", "")
+
+    range_match = re.search(r'(-?\d+(?:\.\d+)?)\s*[-–]\s*(-?\d+(?:\.\d+)?)', text)
+    if range_match:
+        low = float(range_match.group(1))
+        high = float(range_match.group(2))
+        midpoint = int(round((low + high) / 2))
+        if midpoint == 0 and treat_zero_as_none:
+            return None
+        return midpoint
+
+    number_match = re.search(r'-?\d+(?:\.\d+)?', text)
+    if not number_match:
+        return None
+
+    parsed = int(round(float(number_match.group(0))))
+    if parsed == 0 and treat_zero_as_none:
+        return None
+    return parsed
+
+
+def parse_fuel_totals(content: str) -> dict:
+    """
+    Parse inline fuel running totals if present.
+
+    Returns:
+        dict with calories, protein_g, carbs_g, fat_g, fiber_g
+    """
+    return {
+        "calories": parse_approx_int(parse_inline_field(content, "calories_so_far")),
+        "protein_g": parse_approx_int(parse_inline_field(content, "protein_so_far")),
+        "carbs_g": parse_approx_int(parse_inline_field(content, "carbs_so_far")),
+        "fat_g": parse_approx_int(parse_inline_field(content, "fat_so_far")),
+        "fiber_g": parse_approx_int(parse_inline_field(content, "fiber_so_far")),
+    }
 
 
 def normalize_sleep_hours(value: str) -> Optional[float]:
@@ -522,11 +592,18 @@ def extract_workout_type_from_title(content: str) -> str:
     """
     Extract workout type from the daily log title.
 
-    Title format: "2025-12-14: [Run Day]"
+    Title formats:
+    - "2025-12-14: [Run Day]"
+    - "2026-02-19: [Thursday — Run Day]"
     """
-    match = re.search(r"title:.*?\[(\w+)\s*Day\]", content, re.IGNORECASE)
-    if match:
-        return match.group(1).lower()
+    bracket_match = re.search(r'title:\s*".*?\[(.*?)\]"', content, re.IGNORECASE)
+    if not bracket_match:
+        return ""
+
+    inner_title = bracket_match.group(1)
+    workout_match = re.search(r'\b([A-Za-z]+)\s+Day\b', inner_title, re.IGNORECASE)
+    if workout_match:
+        return workout_match.group(1).lower()
     return ""
 
 
@@ -546,8 +623,13 @@ def extract_fuel_log(content: str) -> Optional[str]:
     next_section = remaining.find("\n## ")
     fuel_text = remaining[:next_section].strip() if next_section != -1 else remaining.strip()
 
-    # Remove inline fields (calories_so_far, protein_so_far)
-    fuel_text = re.sub(r'^(calories_so_far|protein_so_far)::\s*\d*\s*$', '', fuel_text, flags=re.MULTILINE)
+    # Remove inline running totals if present
+    fuel_text = re.sub(
+        r'^(calories_so_far|protein_so_far|carbs_so_far|fat_so_far|fiber_so_far)::\s*.*$',
+        '',
+        fuel_text,
+        flags=re.MULTILINE
+    )
     fuel_text = fuel_text.strip()
 
     # Remove comments
@@ -635,9 +717,27 @@ def extract_daily_metrics(date_str: str) -> Optional[dict]:
 
     # Extract and estimate nutrition from Fuel Log
     try:
+        inline_totals = parse_fuel_totals(content)
+        has_full_inline_macros = all(
+            inline_totals.get(key) is not None
+            for key in ("calories", "protein_g", "carbs_g", "fat_g")
+        )
+
+        if has_full_inline_macros:
+            result["nutrition"] = {
+                "calories": inline_totals["calories"],
+                "protein_g": inline_totals["protein_g"],
+                "carbs_g": inline_totals["carbs_g"],
+                "fat_g": inline_totals["fat_g"],
+                "fiber_g": inline_totals.get("fiber_g"),
+                "line_items": []
+            }
+            result["extraction_notes"] = notes
+            return result
+
         fuel_log = extract_fuel_log(content)
         if fuel_log:
-            macros = estimate_macros(fuel_log)
+            macros = estimate_macros_safe(fuel_log)
             if macros:
                 result["nutrition"] = macros
             else:

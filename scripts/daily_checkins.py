@@ -18,6 +18,7 @@ Usage:
 
 import os
 import sys
+import re
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -66,6 +67,36 @@ def get_today_log_path() -> Path:
     return PROJECT_ROOT / "content" / "logs" / f"{today}.md"
 
 
+def parse_approx_int(value: str) -> int:
+    """Parse values like '~2800', '160g', or '3500-4000' into an int."""
+    if value is None:
+        return 0
+
+    text = str(value).strip().lower().replace(",", "")
+    if text in ("", "none", "null", "n/a", "na", "missed", "-"):
+        return 0
+
+    range_match = re.search(r'(-?\d+(?:\.\d+)?)\s*[-–]\s*(-?\d+(?:\.\d+)?)', text)
+    if range_match:
+        low = float(range_match.group(1))
+        high = float(range_match.group(2))
+        return int(round((low + high) / 2))
+
+    number_match = re.search(r'-?\d+(?:\.\d+)?', text)
+    if not number_match:
+        return 0
+
+    return int(round(float(number_match.group(0))))
+
+
+def read_inline_total(content: str, field_name: str) -> int:
+    """Read a single inline total from the log content."""
+    match = re.search(rf'^{re.escape(field_name)}::\s*(.+)$', content, flags=re.MULTILINE)
+    if not match:
+        return 0
+    return parse_approx_int(match.group(1))
+
+
 def read_log_metrics() -> dict:
     """Read current metrics from today's log."""
     log_path = get_today_log_path()
@@ -76,22 +107,12 @@ def read_log_metrics() -> dict:
     content = log_path.read_text()
     metrics = {}
 
-    # Parse fuel log section
-    if "calories_so_far::" in content:
-        try:
-            cal_line = [l for l in content.split("\n") if "calories_so_far::" in l][0]
-            calories = cal_line.split("::")[1].strip()
-            metrics["calories"] = int(calories) if calories else 0
-        except:
-            metrics["calories"] = 0
-
-    if "protein_so_far::" in content:
-        try:
-            prot_line = [l for l in content.split("\n") if "protein_so_far::" in l][0]
-            protein = prot_line.split("::")[1].strip()
-            metrics["protein"] = int(protein) if protein else 0
-        except:
-            metrics["protein"] = 0
+    # Parse fuel totals
+    metrics["calories"] = read_inline_total(content, "calories_so_far")
+    metrics["protein"] = read_inline_total(content, "protein_so_far")
+    metrics["carbs"] = read_inline_total(content, "carbs_so_far")
+    metrics["fat"] = read_inline_total(content, "fat_so_far")
+    metrics["fiber"] = read_inline_total(content, "fiber_so_far")
 
     # Parse quick log metrics
     for metric in ["Energy", "Focus", "Mood_PM"]:

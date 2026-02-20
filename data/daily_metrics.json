@@ -6096,9 +6096,49 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-19",
+      "extracted_at": "2026-02-20T01:01:29.319210",
+      "sleep": {
+        "hours": 5.0,
+        "quality": null
+      },
+      "weight_lbs": 256.0,
+      "mood": {
+        "morning": 4.0,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 14,
+        "completed": 2,
+        "completion_rate": 0.14
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 3685,
+        "protein_g": 163,
+        "carbs_g": 405,
+        "fat_g": 157,
+        "fiber_g": 24,
+        "line_items": []
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-19T11:20:12.926141",
+  "last_updated": "2026-02-20T01:01:29.322162",
   "streaks": {
     "ai_automation": {
       "current": 0,
