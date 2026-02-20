@@ -6096,16 +6096,115 @@
         ]
       },
       "extraction_notes": []
+    },
+    {
+      "date": "2026-02-19",
+      "extracted_at": "2026-02-20T11:13:54.727806",
+      "sleep": {
+        "hours": 5.0,
+        "quality": null
+      },
+      "weight_lbs": 256.0,
+      "mood": {
+        "morning": 4.0,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 14,
+        "completed": 2,
+        "completion_rate": 0.14
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": 729,
+        "protein_g": 26,
+        "carbs_g": 122,
+        "fat_g": 28,
+        "fiber_g": 15,
+        "line_items": [
+          {
+            "food": "1 bag Cheez-Its",
+            "time": null,
+            "calories": 220,
+            "protein_g": 3,
+            "carbs_g": 29,
+            "fat_g": 13,
+            "fiber_g": 1
+          },
+          {
+            "food": "230g nonfat Greek yogurt",
+            "time": null,
+            "calories": 100,
+            "protein_g": 20,
+            "carbs_g": 9,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1/3 cup Wegmans granola",
+            "time": null,
+            "calories": 120,
+            "protein_g": 3,
+            "carbs_g": 23,
+            "fat_g": 4,
+            "fiber_g": 3
+          },
+          {
+            "food": "30 blueberries",
+            "time": null,
+            "calories": 15,
+            "protein_g": 0,
+            "carbs_g": 4,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 fig bar",
+            "time": null,
+            "calories": 110,
+            "protein_g": 1,
+            "carbs_g": 23,
+            "fat_g": 3,
+            "fiber_g": 3
+          },
+          {
+            "food": "7g honey",
+            "time": null,
+            "calories": 24,
+            "protein_g": 0,
+            "carbs_g": 6,
+            "fat_g": 0,
+            "fiber_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-19T11:20:12.926141",
+  "last_updated": "2026-02-20T11:14:09.670345",
   "streaks": {
     "ai_automation": {
       "current": 0,
       "longest": 0
     },
     "yoga": {
-      "current": 1,
+      "current": 0,
       "longest": 1
     }
   },
@@ -6157,12 +6256,12 @@
     },
     "2026-W08": {
       "ai_automation": 0.0,
-      "yoga": 0.33,
-      "_overall": 0.25
+      "yoga": 0.25,
+      "_overall": 0.2
     }
   },
   "trends": {
     "ai_automation": "stable",
-    "yoga": "improving"
+    "yoga": "stable"
   }
 }
