@@ -29,6 +29,7 @@ from personality import (
     load_persona_profile,
     save_persona_profile,
 )
+from heartbeat import get_health_status, get_heartbeat_monitor, init_heartbeat_monitor
 from scheduler import start_scheduler
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -48,6 +49,7 @@ logger = logging.getLogger(__name__)
 _conversations: dict[int, ConversationState] = {}
 _chat_locks: dict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
 _onboarding_sessions: dict[int, dict] = {}
+_heartbeat_task: asyncio.Task | None = None
 
 
 def _get_conversation(chat_id: int) -> ConversationState:
@@ -275,6 +277,33 @@ def _split_message(text: str, max_len: int = 4000) -> list[str]:
     return chunks
 
 
+async def _post_init(app: Application):
+    """Initialize async background services after the bot event loop starts."""
+    del app  # Unused
+    interval_minutes = int(os.environ.get("HEARTBEAT_INTERVAL_MINUTES", "60"))
+    monitor = init_heartbeat_monitor(interval_minutes=interval_minutes)
+    global _heartbeat_task
+    _heartbeat_task = asyncio.create_task(monitor.run_forever(), name="heartbeat-monitor")
+    logger.info(f"Heartbeat monitor started ({interval_minutes} minute interval)")
+
+
+async def _post_shutdown(app: Application):
+    """Stop async background services cleanly."""
+    del app  # Unused
+    monitor = get_heartbeat_monitor()
+    if monitor:
+        monitor.stop()
+
+    global _heartbeat_task
+    if _heartbeat_task:
+        _heartbeat_task.cancel()
+        try:
+            await _heartbeat_task
+        except asyncio.CancelledError:
+            pass
+        _heartbeat_task = None
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_authorized(update):
         await update.message.reply_text("Unauthorized.")
@@ -290,6 +319,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     async with lock:
         state = _get_conversation(chat_id)
         user_text = (update.message.text or "").strip()
+        monitor = get_heartbeat_monitor()
+        if monitor:
+            monitor.record_activity()
 
         if chat_id in _onboarding_sessions:
             onboarding_reply, _ = _apply_onboarding_answer(chat_id, user_text)
@@ -347,6 +379,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "- 'Find files mentioning protein'\n"
         "- 'Remember that John is my accountant'\n\n"
         "/context - Show current briefing\n"
+        "/health - Bot health + heartbeat status\n"
         "/cost - Token usage\n"
         "/onboard - Configure assistant personality\n"
         "/persona - Show current personality profile\n"
@@ -361,6 +394,13 @@ async def cmd_context(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     briefing = await asyncio.to_thread(_run_context_briefing)
     await _send_message(update, briefing)
+
+
+async def cmd_health(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    del context  # Unused
+    await _send_message(update, get_health_status())
 
 
 async def cmd_cost(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -445,9 +485,16 @@ def main():
     # Start background scheduler for cron-like jobs
     start_scheduler()
 
-    app = Application.builder().token(TELEGRAM_TOKEN).build()
+    app = (
+        Application.builder()
+        .token(TELEGRAM_TOKEN)
+        .post_init(_post_init)
+        .post_shutdown(_post_shutdown)
+        .build()
+    )
     app.add_handler(CommandHandler("start", cmd_start))
     app.add_handler(CommandHandler("context", cmd_context))
+    app.add_handler(CommandHandler("health", cmd_health))
     app.add_handler(CommandHandler("cost", cmd_cost))
     app.add_handler(CommandHandler("onboard", cmd_onboard))
     app.add_handler(CommandHandler("persona", cmd_persona))

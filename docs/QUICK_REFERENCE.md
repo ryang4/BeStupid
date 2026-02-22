@@ -153,7 +153,8 @@ python scripts/decisions.py patterns
 ## 🔄 Daily Planning
 
 ```bash
-# Generate today's log (runs at 5am automatically)
+# Generate today's log
+# (automatic only if bot scheduler job `daily_planner` is enabled)
 python scripts/daily_planner.py
 
 # Generate weekly protocol
@@ -166,20 +167,19 @@ python scripts/metrics_extractor.py
 ## 📱 Telegram Bot Commands
 
 ```
-/brain              - Unified dashboard
-/sync-garmin        - Sync wearable data
-/calendar           - Today's schedule
-/crm-overdue        - Overdue follow-ups
-/finance            - Financial summary
-/biomarkers         - Latest blood work
-/supplements        - Stack & compliance
-/nudges             - All smart notifications
-/log-weight 182     - Quick metric update
-/log-sleep 7.5      - Log sleep hours
-/capture            - Add to inbox
-/planday            - Regenerate today
-/planweek           - Generate protocol
+/start              - Command summary
+/context            - Full context briefing
+/health             - Bot heartbeat + health status
+/cost               - Token/cost usage
+/onboard            - Configure assistant persona
+/persona            - Show current persona profile
+/resetpersona       - Re-run persona onboarding
+/policy             - Show self-updated agent policy
+/resetpolicy        - Reset self-updated policy
 ```
+
+Use natural-language messages for most actions (read logs, update metrics,
+run scripts, manage cron jobs, and memory operations).
 
 ## 🎯 Common Workflows
 

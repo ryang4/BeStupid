@@ -201,10 +201,9 @@ def get_memory_context():
 
     try:
         for key in context.keys():
-            file = memory_dir / f"{key}.json"
-            if file.exists():
-                data = json.loads(file.read_text())
-                context[key] = len(data)
+            category_dir = memory_dir / key
+            if category_dir.exists() and category_dir.is_dir():
+                context[key] = len(list(category_dir.glob("*.json")))
     except:
         pass
 

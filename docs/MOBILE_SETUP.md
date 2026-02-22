@@ -2,10 +2,14 @@
 
 This guide walks you through setting up the BeStupid daily planning system on your iPhone using Obsidian and a-shell.
 
+> Status update (2026-02-22): GitHub Actions automations were removed from this
+> repo. Use local or container scheduler jobs (`.bestupid-private/cron_jobs.json`)
+> for automatic reminders/planner runs.
+
 ## Overview
 
 ```
-5:00 AM  → GitHub Action generates today's log
+11:00 PM → Scheduler generates tomorrow's log (`daily_planner` job)
 6:00 AM  → iOS Shortcut (a-shell) pulls latest + opens Obsidian
 All Day  → Edit daily log on phone (inline fields)
 9:00 PM  → iOS Shortcut (a-shell) commits + pushes changes

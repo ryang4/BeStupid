@@ -489,12 +489,12 @@ To add to Telegram bot: Update [tools.py](../telegram-bot/tools.py) TOOLS array 
 
 ### Daily Workflow
 
-**Morning (5:00 AM - Automatic):**
+**Night (11:00 PM - Automatic, if scheduler enabled):**
 ```bash
-# GitHub Actions runs automatically
-- Sync Garmin data (yesterday's recovery)
-- Generate today's log with AI briefing
-- Commit to repo
+# Bot scheduler job (`daily_planner`) can run automatically
+- Extract yesterday's metrics
+- Generate tomorrow's log with AI briefing
+- Persist updates locally/in-repo
 ```
 
 **Morning (7:00 AM - You):**

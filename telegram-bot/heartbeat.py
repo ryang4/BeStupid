@@ -12,11 +12,15 @@ Provides:
 import asyncio
 import logging
 import os
-import psutil
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import requests
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +71,8 @@ class HeartbeatMonitor:
 
     def get_memory_usage(self) -> str:
         """Get current memory usage."""
+        if psutil is None:
+            return "N/A"
         try:
             process = psutil.Process()
             mem = process.memory_info().rss / (1024 * 1024)  # MB

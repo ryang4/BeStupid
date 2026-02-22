@@ -82,10 +82,12 @@ def _check_writable(path: Path) -> str | None:
 # --- Cron security ---
 
 ALLOWED_CRON_COMMANDS = {
-    "morning_briefing": "cd /project && python telegram-bot/send_notification.py morning",
-    "evening_reminder": "cd /project && python telegram-bot/send_notification.py evening",
+    "morning_briefing": "cd /project && python scripts/send_routine_reminder.py morning",
+    "evening_reminder": "cd /project && python scripts/send_routine_reminder.py evening_start",
+    "evening_screens": "cd /project && python scripts/send_routine_reminder.py evening_screens",
+    "evening_bed": "cd /project && python scripts/send_routine_reminder.py evening_bed",
     "daily_planner": "cd /project && python scripts/daily_planner.py",
-    "auto_backup": "cd /project && bash scripts/auto_backup.sh",
+    "auto_backup": "cd /project && python scripts/robust_git_backup.py",
 }
 
 _CRON_SCHEDULE_RE = re.compile(r'^[\d\*/,\-]+(\s+[\d\*/,\-]+){4}$')
@@ -128,7 +130,7 @@ TOOLS = [
             "properties": {
                 "field": {
                     "type": "string",
-                    "enum": ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM"],
+                    "enum": ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM", "Energy", "Focus"],
                     "description": "The metric field to update"
                 },
                 "value": {"type": "string", "description": "The value to set"}
@@ -185,7 +187,7 @@ TOOLS = [
     },
     {
         "name": "manage_cron",
-        "description": "Manage persistent cron jobs. Jobs survive container restarts. command_name must be one of: morning_briefing, evening_reminder, daily_planner, auto_backup.",
+        "description": "Manage persistent cron jobs. Jobs survive container restarts. command_name must be one of: morning_briefing, evening_reminder, evening_screens, evening_bed, daily_planner, auto_backup.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -950,6 +952,13 @@ def get_system_status() -> str:
             lines.append("\n**Scheduled Jobs:** None configured")
     except Exception as e:
         lines.append(f"\n**Scheduled Jobs:** Error - {e}")
+
+    # Heartbeat status
+    try:
+        from heartbeat import get_health_status
+        lines.append("\n" + get_health_status())
+    except Exception as e:
+        lines.append(f"\n**Heartbeat:** Error - {e}")
 
     return "\n".join(lines)
 
