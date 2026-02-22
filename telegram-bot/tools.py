@@ -302,6 +302,35 @@ TOOLS = [
             "required": []
         }
     },
+    {
+        "name": "fact_check",
+        "description": (
+            "Verify a claim against stored knowledge: memory (people, projects, decisions, commitments), "
+            "daily logs, and conversation history. Returns evidence for/against with a verdict. "
+            "Use this when Ryan states something that should be verified, or when you want to "
+            "confirm facts before acting on them."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "claim": {
+                    "type": "string",
+                    "description": "The claim or statement to verify, e.g. 'I committed to calling John by Friday'"
+                },
+                "sources": {
+                    "type": "string",
+                    "default": "all",
+                    "description": "Comma-separated sources to check: memory, logs, history, or all"
+                },
+                "days": {
+                    "type": "integer",
+                    "default": 30,
+                    "description": "How many days back to search in logs"
+                }
+            },
+            "required": ["claim"]
+        }
+    },
 ]
 
 
@@ -346,6 +375,8 @@ async def execute_tool(name: str, inputs: dict) -> str:
         return check_git_health()
     elif name == "sync_with_remote":
         return sync_with_remote()
+    elif name == "fact_check":
+        return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30))
 
     return f"Unknown tool: {name}"
 
@@ -1028,5 +1059,234 @@ def sync_with_remote() -> str:
         lines.append("**Status:** TIMEOUT (network issue or large fetch)")
     except Exception as e:
         lines.append(f"**Status:** ERROR - {e}")
+
+    return "\n".join(lines)
+
+
+# --- Fact checker ---
+
+def _extract_keywords(claim: str) -> list[str]:
+    """Extract meaningful keywords from a claim for searching."""
+    stop_words = {
+        "i", "me", "my", "we", "our", "you", "your", "the", "a", "an", "is",
+        "are", "was", "were", "be", "been", "being", "have", "has", "had",
+        "do", "does", "did", "will", "would", "could", "should", "may",
+        "might", "shall", "can", "to", "of", "in", "for", "on", "with",
+        "at", "by", "from", "as", "into", "about", "that", "this", "it",
+        "not", "no", "but", "or", "and", "if", "then", "so", "than",
+        "said", "told", "going", "want", "think", "know",
+    }
+    words = re.findall(r"[a-zA-Z0-9]+", claim.lower())
+    return [w for w in words if w not in stop_words and len(w) > 2]
+
+
+def _search_memory(keywords: list[str]) -> list[dict]:
+    """Search memory JSON files for keyword matches."""
+    evidence = []
+    memory_root = REPO_ROOT / "memory"
+    if not memory_root.exists():
+        return evidence
+
+    for category in ["people", "projects", "decisions", "commitments"]:
+        category_dir = memory_root / category
+        if not category_dir.exists():
+            continue
+        for filepath in category_dir.glob("*.json"):
+            try:
+                content = filepath.read_text()
+                content_lower = content.lower()
+                matching_keywords = [kw for kw in keywords if kw in content_lower]
+                if matching_keywords:
+                    data = json.loads(content)
+                    # Build a summary based on category
+                    summary = _summarize_memory_entry(category, data)
+                    evidence.append({
+                        "source": f"memory/{category}/{filepath.name}",
+                        "matched_keywords": matching_keywords,
+                        "summary": summary,
+                    })
+            except (OSError, json.JSONDecodeError):
+                continue
+    return evidence
+
+
+def _summarize_memory_entry(category: str, data: dict) -> str:
+    """Create a concise summary of a memory entry."""
+    if category == "people":
+        parts = [f"Person: {data.get('name', '?')}"]
+        if data.get("role"):
+            parts.append(f"role={data['role']}")
+        if data.get("context"):
+            parts.append(f"context={data['context']}")
+        return ", ".join(parts)
+    elif category == "projects":
+        parts = [f"Project: {data.get('name', '?')}"]
+        if data.get("status"):
+            parts.append(f"status={data['status']}")
+        if data.get("description"):
+            parts.append(f"desc={data['description'][:100]}")
+        return ", ".join(parts)
+    elif category == "decisions":
+        parts = [f"Decision: {data.get('topic', '?')}"]
+        if data.get("choice"):
+            parts.append(f"choice={data['choice']}")
+        if data.get("status"):
+            parts.append(f"status={data['status']}")
+        return ", ".join(parts)
+    elif category == "commitments":
+        parts = [f"Commitment: {data.get('what', '?')}"]
+        if data.get("deadline"):
+            parts.append(f"deadline={data['deadline']}")
+        if data.get("status"):
+            parts.append(f"status={data['status']}")
+        if data.get("who"):
+            parts.append(f"who={data['who']}")
+        return ", ".join(parts)
+    return json.dumps(data)[:200]
+
+
+def _search_logs_for_claim(keywords: list[str], days: int) -> list[dict]:
+    """Search daily logs for evidence related to keywords."""
+    evidence = []
+    logs_dir = REPO_ROOT / "content" / "logs"
+    if not logs_dir.exists():
+        return evidence
+
+    cutoff = datetime.now() - timedelta(days=days)
+
+    for log_file in sorted(logs_dir.glob("*.md"), reverse=True):
+        try:
+            date_str = log_file.stem
+            log_date = datetime.strptime(date_str, "%Y-%m-%d")
+            if log_date < cutoff:
+                break
+        except ValueError:
+            continue
+
+        try:
+            content = log_file.read_text()
+        except OSError:
+            continue
+
+        content_lower = content.lower()
+        matching_keywords = [kw for kw in keywords if kw in content_lower]
+        if not matching_keywords:
+            continue
+
+        # Collect matching lines for context
+        matching_lines = []
+        for line in content.split("\n"):
+            line_lower = line.lower()
+            if any(kw in line_lower for kw in matching_keywords):
+                stripped = line.strip()
+                if stripped:
+                    matching_lines.append(stripped)
+
+        if matching_lines:
+            evidence.append({
+                "source": f"logs/{date_str}.md",
+                "matched_keywords": matching_keywords,
+                "summary": "; ".join(matching_lines[:5]),
+            })
+
+        if len(evidence) >= 10:
+            break
+
+    return evidence
+
+
+def _search_history_for_claim(keywords: list[str]) -> list[dict]:
+    """Search conversation history for evidence."""
+    evidence = []
+    history_file = PRIVATE_DIR / "conversation_history.json"
+    if not history_file.exists():
+        return evidence
+
+    try:
+        data = json.loads(history_file.read_text())
+    except (json.JSONDecodeError, OSError):
+        return evidence
+
+    for chat_id, entry in data.items():
+        history = entry.get("history", [])
+        for msg in history:
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                text_parts = []
+                for block in content:
+                    if isinstance(block, dict):
+                        if block.get("type") == "text":
+                            text_parts.append(block.get("text", ""))
+                        elif block.get("type") == "tool_result":
+                            text_parts.append(block.get("content", "") if isinstance(block.get("content"), str) else "")
+                content = " ".join(text_parts)
+            if not isinstance(content, str):
+                continue
+
+            content_lower = content.lower()
+            matching_keywords = [kw for kw in keywords if kw in content_lower]
+            if len(matching_keywords) >= 2:  # Require 2+ keyword matches to reduce noise
+                role = msg.get("role", "unknown")
+                preview = content[:300] + "..." if len(content) > 300 else content
+                evidence.append({
+                    "source": f"conversation ({role})",
+                    "matched_keywords": matching_keywords,
+                    "summary": preview,
+                })
+                if len(evidence) >= 5:
+                    return evidence
+
+    return evidence
+
+
+def fact_check(claim: str, sources: str = "all", days: int = 30) -> str:
+    """Verify a claim against stored knowledge and return evidence report."""
+    keywords = _extract_keywords(claim)
+    if not keywords:
+        return "Could not extract meaningful keywords from the claim. Please rephrase."
+
+    source_list = [s.strip().lower() for s in sources.split(",")]
+    check_all = "all" in source_list
+
+    all_evidence = []
+
+    # Search memory (people, projects, decisions, commitments)
+    if check_all or "memory" in source_list:
+        memory_evidence = _search_memory(keywords)
+        all_evidence.extend(memory_evidence)
+
+    # Search daily logs
+    if check_all or "logs" in source_list:
+        log_evidence = _search_logs_for_claim(keywords, days)
+        all_evidence.extend(log_evidence)
+
+    # Search conversation history
+    if check_all or "history" in source_list:
+        history_evidence = _search_history_for_claim(keywords)
+        all_evidence.extend(history_evidence)
+
+    # Build report
+    lines = [f"## Fact Check Report\n"]
+    lines.append(f"**Claim:** {claim}")
+    lines.append(f"**Keywords:** {', '.join(keywords)}")
+    lines.append(f"**Sources checked:** {sources}")
+    lines.append(f"**Evidence found:** {len(all_evidence)} item(s)\n")
+
+    if not all_evidence:
+        lines.append("**Verdict: UNVERIFIED**")
+        lines.append("No matching evidence found in the searched sources. "
+                      "This doesn't mean the claim is false -- it may simply "
+                      "not be recorded in the system.")
+    else:
+        lines.append("**Verdict: EVIDENCE FOUND** (review below)\n")
+        lines.append("### Evidence\n")
+        for i, ev in enumerate(all_evidence[:15], 1):
+            lines.append(f"**{i}. [{ev['source']}]** (matched: {', '.join(ev['matched_keywords'])})")
+            lines.append(f"   {ev['summary']}\n")
+
+        lines.append("---")
+        lines.append("*Note: This is keyword-based evidence retrieval. "
+                      "Review the evidence above to determine if it supports "
+                      "or contradicts the claim.*")
 
     return "\n".join(lines)
