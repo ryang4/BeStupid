@@ -91,7 +91,10 @@ def parse_approx_int(value: str) -> int:
 
 def read_inline_total(content: str, field_name: str) -> int:
     """Read a single inline total from the log content."""
-    match = re.search(rf'^{re.escape(field_name)}::\s*(.+)$', content, flags=re.MULTILINE)
+    match = re.search(
+        rf'(?m)^[ \t]*{re.escape(field_name)}::[ \t]*([^\n\r]*)[ \t]*$',
+        content
+    )
     if not match:
         return 0
     return parse_approx_int(match.group(1))

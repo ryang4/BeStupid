@@ -58,7 +58,10 @@ def parse_approx_int(value: str, treat_zero_as_none: bool = False) -> int | None
 
 def get_inline_total(content: str, field_name: str) -> int:
     """Extract an inline total field, returning 0 if missing/unparseable."""
-    match = re.search(rf'^{re.escape(field_name)}::\s*(.+)$', content, flags=re.MULTILINE)
+    match = re.search(
+        rf'(?m)^[ \t]*{re.escape(field_name)}::[ \t]*([^\n\r]*)[ \t]*$',
+        content
+    )
     if not match:
         return 0
     parsed = parse_approx_int(match.group(1), treat_zero_as_none=False)
@@ -67,12 +70,14 @@ def get_inline_total(content: str, field_name: str) -> int:
 
 def upsert_inline_total(content: str, field_name: str, value: int) -> str:
     """Update inline total field if it exists, otherwise append it to Fuel Log."""
-    if re.search(rf'^{re.escape(field_name)}::\s*.*$', content, flags=re.MULTILINE):
-        return re.sub(
-            rf'^{re.escape(field_name)}::\s*.*$',
-            f"{field_name}:: {value}",
-            content,
-            flags=re.MULTILINE
+    inline_line_pattern = re.compile(
+        rf'(?m)^([ \t]*){re.escape(field_name)}::[ \t]*[^\n\r]*[ \t]*$'
+    )
+
+    if inline_line_pattern.search(content):
+        return inline_line_pattern.sub(
+            lambda match: f"{match.group(1)}{field_name}:: {value}",
+            content
         )
 
     fuel_idx = content.find("## Fuel Log")
