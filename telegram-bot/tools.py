@@ -20,6 +20,8 @@ REPO_ROOT = PROJECT_ROOT
 # Use HISTORY_DIR env var to match claude_client.py, falling back to home dir
 PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 
+from agent_policy import apply_agent_policy_update, format_agent_policy, load_agent_policy
+
 # --- Security: path restrictions ---
 
 READABLE_PREFIXES = [
@@ -80,10 +82,12 @@ def _check_writable(path: Path) -> str | None:
 # --- Cron security ---
 
 ALLOWED_CRON_COMMANDS = {
-    "morning_briefing": "cd /project && python telegram-bot/send_notification.py morning",
-    "evening_reminder": "cd /project && python telegram-bot/send_notification.py evening",
+    "morning_briefing": "cd /project && python scripts/send_routine_reminder.py morning",
+    "evening_reminder": "cd /project && python scripts/send_routine_reminder.py evening_start",
+    "evening_screens": "cd /project && python scripts/send_routine_reminder.py evening_screens",
+    "evening_bed": "cd /project && python scripts/send_routine_reminder.py evening_bed",
     "daily_planner": "cd /project && python scripts/daily_planner.py",
-    "auto_backup": "cd /project && bash scripts/auto_backup.sh",
+    "auto_backup": "cd /project && python scripts/robust_git_backup.py",
 }
 
 _CRON_SCHEDULE_RE = re.compile(r'^[\d\*/,\-]+(\s+[\d\*/,\-]+){4}$')
@@ -126,7 +130,7 @@ TOOLS = [
             "properties": {
                 "field": {
                     "type": "string",
-                    "enum": ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM"],
+                    "enum": ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM", "Energy", "Focus"],
                     "description": "The metric field to update"
                 },
                 "value": {"type": "string", "description": "The value to set"}
@@ -183,7 +187,7 @@ TOOLS = [
     },
     {
         "name": "manage_cron",
-        "description": "Manage persistent cron jobs. Jobs survive container restarts. command_name must be one of: morning_briefing, evening_reminder, daily_planner, auto_backup.",
+        "description": "Manage persistent cron jobs. Jobs survive container restarts. command_name must be one of: morning_briefing, evening_reminder, evening_screens, evening_bed, daily_planner, auto_backup.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -303,6 +307,44 @@ TOOLS = [
         }
     },
     {
+        "name": "get_agent_policy",
+        "description": "Get the assistant's current self-updated operating policy for this chat.",
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": []
+        }
+    },
+    {
+        "name": "self_update_policy",
+        "description": "Update assistant operating policy for this chat. Use to adapt behavior after recurring friction.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string",
+                    "enum": ["append_rules", "replace_rules", "set_focus", "reset"],
+                    "description": "Policy update action"
+                },
+                "rules": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Behavior rules to append/replace"
+                },
+                "focus": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Focus priorities to set"
+                },
+                "reason": {
+                    "type": "string",
+                    "description": "Why this update is needed based on observed outcomes"
+                }
+            },
+            "required": ["action", "reason"]
+        }
+    },
+    {
         "name": "fact_check",
         "description": (
             "Verify a claim against stored knowledge: memory (people, projects, decisions, commitments), "
@@ -336,7 +378,7 @@ TOOLS = [
 
 # --- Tool dispatcher ---
 
-async def execute_tool(name: str, inputs: dict) -> str:
+async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
     """Execute a tool and return result string."""
 
     if name == "read_file":
@@ -375,6 +417,16 @@ async def execute_tool(name: str, inputs: dict) -> str:
         return check_git_health()
     elif name == "sync_with_remote":
         return sync_with_remote()
+    elif name == "get_agent_policy":
+        return get_agent_policy(chat_id=chat_id)
+    elif name == "self_update_policy":
+        return self_update_policy(
+            action=inputs["action"],
+            reason=inputs["reason"],
+            chat_id=chat_id,
+            rules=inputs.get("rules"),
+            focus=inputs.get("focus"),
+        )
     elif name == "fact_check":
         return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30))
 
@@ -932,6 +984,13 @@ def get_system_status() -> str:
     except Exception as e:
         lines.append(f"\n**Scheduled Jobs:** Error - {e}")
 
+    # Heartbeat status
+    try:
+        from heartbeat import get_health_status
+        lines.append("\n" + get_health_status())
+    except Exception as e:
+        lines.append(f"\n**Heartbeat:** Error - {e}")
+
     return "\n".join(lines)
 
 
@@ -1061,6 +1120,40 @@ def sync_with_remote() -> str:
         lines.append(f"**Status:** ERROR - {e}")
 
     return "\n".join(lines)
+
+
+def get_agent_policy(chat_id: int = 0) -> str:
+    if not chat_id:
+        return "Agent policy is unavailable: missing chat context."
+
+    policy = load_agent_policy(chat_id)
+    return format_agent_policy(policy)
+
+
+def self_update_policy(
+    action: str,
+    reason: str,
+    chat_id: int = 0,
+    rules: list[str] | None = None,
+    focus: list[str] | None = None,
+) -> str:
+    if not chat_id:
+        return "Self-update unavailable: missing chat context."
+
+    try:
+        updated = apply_agent_policy_update(
+            chat_id=chat_id,
+            action=action,
+            rules=rules,
+            focus=focus,
+            reason=reason,
+        )
+    except ValueError as e:
+        return f"Invalid self-update action: {e}"
+    except Exception as e:
+        return f"Self-update failed: {e}"
+
+    return "Self-update applied.\n\n" + format_agent_policy(updated)
 
 
 # --- Fact checker ---

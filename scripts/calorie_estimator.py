@@ -13,17 +13,84 @@ import os
 import sys
 import json
 import argparse
+import re
 from datetime import datetime
 from pathlib import Path
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
-from llm_client import estimate_macros
 
 # Configuration
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 LOGS_DIR = os.path.join(PROJECT_ROOT, "content", "logs")
+
+
+def parse_approx_int(value: str, treat_zero_as_none: bool = False) -> int | None:
+    """Parse values like '~2800', '160g', or '3500-4000' into an int."""
+    if value is None:
+        return None
+
+    text = str(value).strip().lower()
+    if text in ("", "none", "null", "n/a", "na", "missed", "-"):
+        return None
+
+    text = text.replace(",", "")
+
+    range_match = re.search(r'(-?\d+(?:\.\d+)?)\s*[-–]\s*(-?\d+(?:\.\d+)?)', text)
+    if range_match:
+        low = float(range_match.group(1))
+        high = float(range_match.group(2))
+        parsed = int(round((low + high) / 2))
+        if parsed == 0 and treat_zero_as_none:
+            return None
+        return parsed
+
+    number_match = re.search(r'-?\d+(?:\.\d+)?', text)
+    if not number_match:
+        return None
+
+    parsed = int(round(float(number_match.group(0))))
+    if parsed == 0 and treat_zero_as_none:
+        return None
+    return parsed
+
+
+def get_inline_total(content: str, field_name: str) -> int:
+    """Extract an inline total field, returning 0 if missing/unparseable."""
+    match = re.search(
+        rf'(?m)^[ \t]*{re.escape(field_name)}::[ \t]*([^\n\r]*)[ \t]*$',
+        content
+    )
+    if not match:
+        return 0
+    parsed = parse_approx_int(match.group(1), treat_zero_as_none=False)
+    return parsed if parsed is not None else 0
+
+
+def upsert_inline_total(content: str, field_name: str, value: int) -> str:
+    """Update inline total field if it exists, otherwise append it to Fuel Log."""
+    inline_line_pattern = re.compile(
+        rf'(?m)^([ \t]*){re.escape(field_name)}::[ \t]*[^\n\r]*[ \t]*$'
+    )
+
+    if inline_line_pattern.search(content):
+        return inline_line_pattern.sub(
+            lambda match: f"{match.group(1)}{field_name}:: {value}",
+            content
+        )
+
+    fuel_idx = content.find("## Fuel Log")
+    if fuel_idx == -1:
+        return content
+
+    next_section = content.find("\n## ", fuel_idx + 1)
+    insertion = f"\n{field_name}:: {value}"
+
+    if next_section == -1:
+        return content.rstrip() + insertion + "\n"
+
+    return content[:next_section].rstrip() + insertion + "\n\n" + content[next_section:]
 
 
 def estimate_food(food_description: str) -> dict:
@@ -53,6 +120,15 @@ def estimate_food(food_description: str) -> dict:
         }
 
     try:
+        try:
+            from llm_client import estimate_macros
+        except Exception as import_error:
+            return {
+                "success": False,
+                "food": food_description,
+                "error": f"Macro estimator unavailable: {import_error}"
+            }
+
         result = estimate_macros(food_description)
 
         if result is None:
@@ -92,6 +168,9 @@ def get_running_total(date_str: str = None) -> dict:
         dict with:
             - calories_so_far: int
             - protein_so_far: int
+            - carbs_so_far: int
+            - fat_so_far: int
+            - fiber_so_far: int
             - entries_count: int
     """
     if date_str is None:
@@ -103,6 +182,9 @@ def get_running_total(date_str: str = None) -> dict:
         return {
             "calories_so_far": 0,
             "protein_so_far": 0,
+            "carbs_so_far": 0,
+            "fat_so_far": 0,
+            "fiber_so_far": 0,
             "entries_count": 0
         }
 
@@ -110,16 +192,12 @@ def get_running_total(date_str: str = None) -> dict:
         with open(log_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # Look for running total in frontmatter or inline field
-        # Format: calories_so_far:: 1200
-        import re
-
-        calories_match = re.search(r'calories_so_far::\s*(\d+)', content)
-        protein_match = re.search(r'protein_so_far::\s*(\d+)', content)
-
         return {
-            "calories_so_far": int(calories_match.group(1)) if calories_match else 0,
-            "protein_so_far": int(protein_match.group(1)) if protein_match else 0,
+            "calories_so_far": get_inline_total(content, "calories_so_far"),
+            "protein_so_far": get_inline_total(content, "protein_so_far"),
+            "carbs_so_far": get_inline_total(content, "carbs_so_far"),
+            "fat_so_far": get_inline_total(content, "fat_so_far"),
+            "fiber_so_far": get_inline_total(content, "fiber_so_far"),
             "entries_count": content.count("- **") if "## Fuel Log" in content else 0
         }
 
@@ -127,6 +205,9 @@ def get_running_total(date_str: str = None) -> dict:
         return {
             "calories_so_far": 0,
             "protein_so_far": 0,
+            "carbs_so_far": 0,
+            "fat_so_far": 0,
+            "fiber_so_far": 0,
             "entries_count": 0
         }
 
@@ -183,13 +264,16 @@ def append_to_fuel_log(food_description: str, macros: dict, date_str: str = None
         running = get_running_total(date_str)
         new_calories = running["calories_so_far"] + macros["calories"]
         new_protein = running["protein_so_far"] + macros["protein_g"]
+        new_carbs = running["carbs_so_far"] + macros.get("carbs_g", 0)
+        new_fat = running["fat_so_far"] + macros.get("fat_g", 0)
+        new_fiber = running["fiber_so_far"] + macros.get("fiber_g", 0)
 
         # Update or add running totals
-        import re
-        if "calories_so_far::" in content:
-            content = re.sub(r'calories_so_far::\s*\d+', f'calories_so_far:: {new_calories}', content)
-        if "protein_so_far::" in content:
-            content = re.sub(r'protein_so_far::\s*\d+', f'protein_so_far:: {new_protein}', content)
+        content = upsert_inline_total(content, "calories_so_far", new_calories)
+        content = upsert_inline_total(content, "protein_so_far", new_protein)
+        content = upsert_inline_total(content, "carbs_so_far", new_carbs)
+        content = upsert_inline_total(content, "fat_so_far", new_fat)
+        content = upsert_inline_total(content, "fiber_so_far", new_fiber)
 
         with open(log_path, 'w', encoding='utf-8') as f:
             f.write(content)

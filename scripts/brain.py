@@ -379,7 +379,9 @@ def get_evening_reflection_data() -> dict:
 
         for field in metric_fields:
             import re
-            match = re.search(rf"^{field}::\s*(.+)$", content, re.MULTILINE)
+            # Only allow horizontal whitespace after `Field::` so blank lines
+            # are not treated as filled by consuming the next line.
+            match = re.search(rf"^{field}::[ \t]*(.*)$", content, re.MULTILINE)
             if match and match.group(1).strip():
                 result["metrics_filled"].append(field)
             else:

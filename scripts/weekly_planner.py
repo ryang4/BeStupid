@@ -17,6 +17,7 @@ import os
 import sys
 import json
 import argparse
+import re
 import frontmatter
 from datetime import datetime, timedelta
 
@@ -28,6 +29,7 @@ from llm_client import generate_weekly_protocol
 RYAN_CONFIG = "content/config/ryan.md"
 PROTOCOL_DIR = "content/config"
 LOGS_DIR = "content/logs"
+METRICS_FILE = "data/daily_metrics.json"
 
 
 def get_next_week():
@@ -100,9 +102,94 @@ def read_last_protocol(target_monday_str):
     return None
 
 
+def _parse_inline_field(content: str, field_name: str):
+    """Parse inline field values (Field:: value) from log markdown."""
+    match = re.search(
+        rf'(?m)^[ \t]*{re.escape(field_name)}::[ \t]*([^\n\r]*)[ \t]*$',
+        content
+    )
+    if not match:
+        return None
+    value = match.group(1).strip()
+    return value if value else None
+
+
+def _safe_float(value):
+    """Parse a value to float if possible, otherwise return None."""
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+
+    if ":" in text:
+        try:
+            hours_str, minutes_str = text.split(":", 1)
+            hours = int(hours_str)
+            minutes = int(minutes_str)
+            return round(hours + minutes / 60, 2)
+        except (ValueError, TypeError):
+            pass
+
+    text = text.replace(",", "")
+    number = re.search(r'-?\d+(?:\.\d+)?', text)
+    if not number:
+        return None
+    try:
+        return float(number.group(0))
+    except ValueError:
+        return None
+
+
+def _extract_todo_completion_rate(content: str) -> float:
+    """Extract checkbox completion rate from Today's Todos section."""
+    if "## Today's Todos" not in content:
+        return 0.0
+
+    todos_section = content.split("## Today's Todos", 1)[1]
+    next_section_idx = todos_section.find("\n## ")
+    if next_section_idx != -1:
+        todos_section = todos_section[:next_section_idx]
+
+    completed = 0
+    total = 0
+    for raw in todos_section.splitlines():
+        line = raw.strip()
+        if line.startswith("- [x]"):
+            completed += 1
+            total += 1
+        elif line.startswith("- [ ]"):
+            total += 1
+
+    if total == 0:
+        return 0.0
+    return round(completed / total, 2)
+
+
+def _load_metrics_index() -> dict:
+    """Load daily metrics and index by date."""
+    metrics_path = os.path.join(os.path.dirname(__file__), '..', METRICS_FILE)
+    if not os.path.exists(metrics_path):
+        return {}
+
+    try:
+        with open(metrics_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+    index = {}
+    for entry in data.get("entries", []):
+        date_str = entry.get("date")
+        if date_str:
+            index[date_str] = entry
+    return index
+
+
 def read_last_week_logs(year, week):
     """Read all daily logs from last week."""
     logs = []
+    metrics_index = _load_metrics_index()
 
     # Calculate last week's date range
     last_week = week - 1
@@ -128,27 +215,39 @@ def read_last_week_logs(year, week):
         if os.path.exists(log_path):
             try:
                 post = frontmatter.load(log_path)
+                content = post.content
+                metrics_entry = metrics_index.get(log_date_str, {})
+
+                completion_rate = metrics_entry.get("todos", {}).get("completion_rate")
+                if completion_rate is None:
+                    completion_rate = _extract_todo_completion_rate(content)
+                compliance_pct = round(completion_rate * 100, 1)
+
+                sleep_hours = metrics_entry.get("sleep", {}).get("hours")
+                if sleep_hours is None:
+                    sleep_hours = _safe_float(_parse_inline_field(content, "Sleep"))
+                sleep_hours = sleep_hours or 0
+
+                weight_lbs = metrics_entry.get("weight_lbs")
+                if weight_lbs is None:
+                    weight_lbs = _safe_float(_parse_inline_field(content, "Weight"))
+                weight_lbs = weight_lbs or 0
 
                 log_data = {
                     "date": log_date_str,
-                    "content": post.content,
+                    "content": content,
                     "stats": {
-                        "compliance": post.get('Compliance', 0),
-                        "sleep_hours": post.get('Sleep Hours', 0),
-                        "weight": post.get('Weight (lbs)', 0),
+                        "compliance": compliance_pct,
+                        "sleep_hours": sleep_hours,
+                        "weight": weight_lbs,
                     },
-                    "narrative": post.content  # Full text for AI analysis
+                    "narrative": content  # Full text for AI analysis
                 }
                 logs.append(log_data)
             except Exception as e:
                 print(f"⚠️  Warning: Could not read {log_path}: {e}")
 
     return logs
-
-
-# CONFIGURATION
-METRICS_FILE = "data/daily_metrics.json"
-
 
 def get_strength_exercise_history(weeks_back=4):
     """

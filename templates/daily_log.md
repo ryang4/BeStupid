@@ -23,6 +23,46 @@ tags: ["log"]
 - {{ tip }}
 {% endfor %}
 
+## Command Engine
+Workload_Tier:: {{ command_engine.workload_tier }}
+Capacity_Score:: {{ command_engine.capacity_score }}
+
+**Readiness Signals:**
+{% if command_engine.signals %}
+{% for signal in command_engine.signals %}
+- {{ signal }}
+{% endfor %}
+{% else %}
+- None logged
+{% endif %}
+
+### Must Win 3
+{% if command_engine.must_win %}
+{% for task in command_engine.must_win %}
+- [ ] {{ task }}
+{% endfor %}
+{% else %}
+- [ ] Define today's first must-win task.
+{% endif %}
+
+### Can Do 2
+{% if command_engine.can_do %}
+{% for task in command_engine.can_do %}
+- [ ] {{ task }}
+{% endfor %}
+{% else %}
+- [ ] Add one optional task only after Must Win 3 is complete.
+{% endif %}
+
+### Not Today
+{% if command_engine.not_today %}
+{% for task in command_engine.not_today %}
+- {{ task }}
+{% endfor %}
+{% else %}
+- Keep intake closed until Must Win 3 are complete.
+{% endif %}
+
 ## Today's Todos
 {{ todos_markdown }}
 
