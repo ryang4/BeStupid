@@ -258,6 +258,162 @@ class TestGrepFiles:
             assert "Invalid regex" in result
 
 
+class TestFactCheck:
+    """Test fact_check tool."""
+
+    def test_finds_memory_evidence(self, mock_env):
+        """Test that fact_check finds evidence in memory files."""
+        # Create a person in memory
+        people_dir = mock_env["project_root"] / "memory" / "people"
+        people_dir.mkdir(parents=True, exist_ok=True)
+        person = {
+            "name": "John Smith",
+            "role": "accountant",
+            "context": "Met at tech conference",
+            "source": "Notion",
+            "tags": [],
+            "notes": "",
+            "interactions": [],
+        }
+        (people_dir / "john-smith.json").write_text(json.dumps(person))
+
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            from tools import fact_check
+
+            result = fact_check("John Smith is my accountant")
+
+            assert "Evidence Found" in result or "EVIDENCE FOUND" in result
+            assert "john" in result.lower()
+
+    def test_finds_log_evidence(self, mock_env, sample_log_content):
+        """Test that fact_check finds evidence in daily logs."""
+        today = datetime.now().strftime("%Y-%m-%d")
+        log_file = mock_env["project_root"] / "content" / "logs" / f"{today}.md"
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_file.write_text(sample_log_content)
+
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            from tools import fact_check
+
+            result = fact_check("I did a morning workout today", sources="logs")
+
+            assert "EVIDENCE FOUND" in result
+            assert "workout" in result.lower()
+
+    def test_returns_unverified_for_no_matches(self, mock_env):
+        """Test that fact_check returns UNVERIFIED when no evidence found."""
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools.PRIVATE_DIR", mock_env["private_dir"]):
+                from tools import fact_check
+
+                result = fact_check("The moon is made of cheese")
+
+                assert "UNVERIFIED" in result
+
+    def test_finds_commitment_evidence(self, mock_env):
+        """Test that fact_check finds evidence in commitments."""
+        commitments_dir = mock_env["project_root"] / "memory" / "commitments"
+        commitments_dir.mkdir(parents=True, exist_ok=True)
+        commitment = {
+            "what": "Send proposal to John",
+            "who": "John Smith",
+            "deadline": "2026-02-15",
+            "status": "open",
+        }
+        (commitments_dir / "20260210-send-proposal.json").write_text(json.dumps(commitment))
+
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            from tools import fact_check
+
+            result = fact_check("I need to send a proposal to John")
+
+            assert "EVIDENCE FOUND" in result
+            assert "proposal" in result.lower()
+
+    def test_finds_decision_evidence(self, mock_env):
+        """Test that fact_check finds evidence in decisions."""
+        decisions_dir = mock_env["project_root"] / "memory" / "decisions"
+        decisions_dir.mkdir(parents=True, exist_ok=True)
+        decision = {
+            "topic": "tech-stack",
+            "choice": "React + FastAPI",
+            "rationale": "Team expertise",
+            "status": "active",
+        }
+        (decisions_dir / "tech-stack.json").write_text(json.dumps(decision))
+
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            from tools import fact_check
+
+            result = fact_check("We decided to use React and FastAPI")
+
+            assert "EVIDENCE FOUND" in result
+            assert "react" in result.lower() or "fastapi" in result.lower()
+
+    def test_respects_sources_filter(self, mock_env):
+        """Test that fact_check respects the sources parameter."""
+        # Create memory evidence
+        people_dir = mock_env["project_root"] / "memory" / "people"
+        people_dir.mkdir(parents=True, exist_ok=True)
+        person = {"name": "Alice", "role": "engineer", "context": "coworker"}
+        (people_dir / "alice.json").write_text(json.dumps(person))
+
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            from tools import fact_check
+
+            # Only search logs (not memory), so should find nothing
+            result = fact_check("Alice is an engineer", sources="logs")
+
+            assert "UNVERIFIED" in result
+
+    def test_extracts_keywords(self):
+        """Test keyword extraction from claims."""
+        from tools import _extract_keywords
+
+        keywords = _extract_keywords("I committed to calling John by Friday")
+
+        assert "john" in keywords
+        assert "friday" in keywords
+        assert "committed" in keywords
+        assert "calling" in keywords
+        # Stop words should be excluded
+        assert "i" not in keywords
+        assert "to" not in keywords
+        assert "by" not in keywords
+
+    def test_handles_empty_claim(self):
+        """Test fact_check with a claim that has no extractable keywords."""
+        from tools import fact_check
+
+        result = fact_check("I am")
+
+        assert "Could not extract" in result
+
+    def test_searches_conversation_history(self, mock_env):
+        """Test that fact_check finds evidence in conversation history."""
+        history = {
+            "12345": {
+                "history": [
+                    {"role": "user", "content": "I signed the contract with Acme Corp yesterday"},
+                    {"role": "assistant", "content": "Got it, I noted the Acme Corp contract signing."},
+                ],
+                "total_input_tokens": 0,
+                "total_output_tokens": 0,
+            }
+        }
+        history_file = mock_env["private_dir"] / "conversation_history.json"
+        history_file.write_text(json.dumps(history))
+
+        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools.PRIVATE_DIR", mock_env["private_dir"]):
+                from tools import fact_check
+
+                result = fact_check("I signed a contract with Acme Corp", sources="history")
+
+                assert "EVIDENCE FOUND" in result
+                assert "acme" in result.lower() or "contract" in result.lower()
+
+
 class TestGetSystemStatus:
     """Test get_system_status tool."""
 
