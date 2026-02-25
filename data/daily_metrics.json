@@ -6385,50 +6385,72 @@
     },
     {
       "date": "2026-02-23",
-      "extracted_at": "2026-02-24T11:19:36.995768",
+      "extracted_at": "2026-02-25T10:00:00.000000",
       "sleep": {
-        "hours": null,
-        "quality": null
+        "hours": 5.03,
+        "quality": 60
       },
-      "weight_lbs": null,
+      "weight_lbs": 258.2,
       "mood": {
-        "morning": null,
-        "bedtime": null
+        "morning": 6.0,
+        "bedtime": 7.0
       },
-      "energy": null,
-      "focus": null,
+      "energy": 3,
+      "focus": 3,
       "training": {
-        "workout_type": "recovery",
-        "activities": [],
+        "workout_type": "swim",
+        "activities": [
+          {
+            "type": "swim",
+            "distance_m": 500,
+            "duration_min": 12.5,
+            "notes": "400m continuous (PR - first 400m nonstop) + 4x25m sprints @ 19-20s",
+            "rpe": 2.5
+          }
+        ],
         "strength_exercises": []
       },
       "todos": {
-        "total": 7,
-        "completed": 0,
-        "completion_rate": 0.0
+        "total": 5,
+        "completed": 5,
+        "completion_rate": 1.0
       },
       "habits": {
-        "completed": [],
-        "missed": [
-          "ai_automation",
+        "completed": [
+          "meditation",
           "yoga"
         ],
-        "completion_rate": 0.0,
+        "missed": [],
+        "completion_rate": 1.0,
         "details": {
-          "ai_automation": false,
-          "yoga": false
+          "meditation": true,
+          "yoga": true
         }
       },
       "nutrition": {
-        "calories": null,
-        "protein_g": null,
-        "carbs_g": null,
-        "fat_g": null,
-        "fiber_g": null,
-        "line_items": []
+        "calories": 3436,
+        "protein_g": 240,
+        "carbs_g": 303,
+        "fat_g": 136,
+        "fiber_g": 24,
+        "line_items": [
+          "1 plain bagel",
+          "1/2 everything bagel",
+          "3 scrambled eggs",
+          "2oz cheese",
+          "1.2 slices Andy's cheese pizza",
+          "1/2 Andy's Caesar salad",
+          "77g dry WF organic penne",
+          "3 srv WF tomato & basil sauce",
+          "250g cooked chicken legs",
+          "3oz parmesan cheese",
+          "50g protein shamrock shake",
+          "3 clementines",
+          "200g WF nonfat greek yogurt + 10g honey + 40g Kirkland granola + 20 blueberries"
+        ]
       },
       "extraction_notes": [
-        "No fuel log found"
+        "Manually entered from conversation - original log was overwritten"
       ]
     }
   ],
