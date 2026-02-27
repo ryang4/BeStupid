@@ -1,13 +1,18 @@
 FROM python:3.12-slim
 
-# Install dependencies (no Node.js/npm needed)
+# Install system dependencies + Node.js 20 (for Claude Code CLI)
 RUN apt-get update && apt-get install -y \
     curl \
     git \
     openssh-client \
     cron \
     gosu \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Claude Code CLI (for Claude Max subscription usage)
+RUN npm install -g @anthropic-ai/claude-code
 
 # Set up working directory for bot code
 WORKDIR /app
@@ -17,7 +22,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy bot code and entrypoint
-COPY bot.py claude_client.py tools.py scheduler.py restore_cron.py ./
+COPY bot.py claude_client.py tools.py scheduler.py restore_cron.py tool_runner.py ./
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Create non-root user and ensure home dir is accessible for entrypoint setup
