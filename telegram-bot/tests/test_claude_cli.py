@@ -233,6 +233,7 @@ class TestCliIntegration:
 
         with patch("claude_cli.cli_available", return_value=True):
             with patch("claude_cli.call_claude_json", return_value=[]) as mock_cli:
-                result = extract_and_persist("Some conversation text")
-                assert result == []
-                mock_cli.assert_called_once()
+                with patch("memory.append_event"):
+                    result = extract_and_persist("Some conversation text")
+                    assert result == []
+                    mock_cli.assert_called_once()

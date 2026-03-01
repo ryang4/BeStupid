@@ -6,7 +6,6 @@ Stores documents, entities, relationships, embeddings, patterns, and preferences
 Uses OpenAI text-embedding-3-small for semantic search ($0.02/1M tokens).
 """
 
-import fcntl
 import json
 import logging
 import os
@@ -474,7 +473,7 @@ def embed_text(text: str) -> Optional[list[float]]:
     """Generate embedding for text using OpenAI API. Returns None on failure."""
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
-        logger.warning("OPENAI_API_KEY not set, skipping embedding")
+        logger.debug("OPENAI_API_KEY not set, skipping embedding")
         return None
 
     try:

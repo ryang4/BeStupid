@@ -101,13 +101,17 @@ def build_system_messages(chat_id: int = 0, user_message: str = "") -> list[dict
     try:
         import sys
         scripts_dir = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)) / "scripts"
-        sys.path.insert(0, str(scripts_dir))
+        scripts_dir_str = str(scripts_dir)
+        if scripts_dir_str not in sys.path:
+            sys.path.insert(0, scripts_dir_str)
         from brain_db import get_brain_context
         brain_context = get_brain_context(user_message=user_message)
         if brain_context:
             prompt = f"{prompt}\n\n{brain_context}"
+    except ImportError:
+        logger.debug("Brain DB not available; skipping brain context")
     except Exception:
-        pass  # Brain DB not available yet — graceful degradation
+        logger.warning("Unexpected error while building brain context", exc_info=True)
 
     return [
         {"type": "text", "text": prompt, "cache_control": {"type": "ephemeral"}}
