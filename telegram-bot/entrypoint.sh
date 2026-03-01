@@ -29,7 +29,7 @@ if [ -d "${HOME_DIR}/.ssh-mount" ]; then
 fi
 
 # Save env vars for cron jobs
-env | grep -E "^(TELEGRAM_BOT_TOKEN|OWNER_CHAT_ID|ANTHROPIC_API_KEY|PROJECT_ROOT|PATH|HOME|PYTHONUNBUFFERED|HISTORY_DIR)=" > "${HOME_DIR}/.cron_env" 2>/dev/null || true
+env | grep -E "^(TELEGRAM_BOT_TOKEN|OWNER_CHAT_ID|ANTHROPIC_API_KEY|CLAUDE_CODE_OAUTH_TOKEN|USE_CLI_MAIN_LOOP|OPENAI_API_KEY|PROJECT_ROOT|PATH|HOME|PYTHONUNBUFFERED|HISTORY_DIR)=" > "${HOME_DIR}/.cron_env" 2>/dev/null || true
 
 # Restore persistent cron jobs from config
 if [ -f "${HOME_DIR}/.bestupid-private/cron_jobs.json" ]; then

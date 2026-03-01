@@ -528,18 +528,60 @@ Interaction:
 
 
 def extract_and_persist(interaction_text: str, agent: str = "extractor"):
-    """Extract facts from interaction, dispatch to CRUD, log events."""
-    from llm_client import call_llm
+    """Extract facts from interaction, dispatch to CRUD, log events.
 
-    response = call_llm(
-        [{"role": "user", "content": EXTRACTION_PROMPT.format(interaction_text=interaction_text)}],
-        format_json=True,
-    )
+    Tries Claude Code CLI first (Claude Max, $0/token), falls back to Anthropic API.
+    """
+    import os
+
+    prompt = EXTRACTION_PROMPT.format(interaction_text=interaction_text[:4000])
+    operations = None
+
+    # Try CLI first (uses Claude Max subscription, $0/token)
     try:
-        operations = json.loads(response)
-    except json.JSONDecodeError:
-        append_event("extraction_failed", agent, "json_parse_error")
-        return []
+        from claude_cli import call_claude_json, cli_available
+        if cli_available():
+            result = call_claude_json(
+                prompt,
+                system_prompt="Return only a valid JSON array. No explanation or markdown.",
+            )
+            if isinstance(result, list):
+                operations = result
+    except ImportError:
+        pass
+
+    # Fall back to Anthropic API
+    if operations is None:
+        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+        if not api_key:
+            append_event("extraction_failed", agent, "no_api_key_or_cli")
+            return []
+
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=api_key)
+            message = client.messages.create(
+                model="claude-haiku-4-5-20251001",
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            response = message.content[0].text
+        except Exception as e:
+            append_event("extraction_failed", agent, f"api_error: {e}")
+            return []
+
+        # Robust JSON extraction: handle markdown code blocks
+        raw = response
+        if "```json" in raw:
+            raw = raw.split("```json")[1].split("```")[0]
+        elif "```" in raw:
+            raw = raw.split("```")[1].split("```")[0]
+
+        try:
+            operations = json.loads(raw.strip())
+        except json.JSONDecodeError:
+            append_event("extraction_failed", agent, "json_parse_error")
+            return []
 
     if not isinstance(operations, list):
         return []
