@@ -26,17 +26,35 @@ PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)
 JOB_COMMANDS = {
     "morning_briefing": ["python", "scripts/send_routine_reminder.py", "morning"],
     "evening_reminder": ["python", "scripts/send_routine_reminder.py", "evening_start"],
-    "evening_screens": ["python", "scripts/send_routine_reminder.py", "evening_screens"],  
+    "evening_screens": ["python", "scripts/send_routine_reminder.py", "evening_screens"],
     "evening_bed": ["python", "scripts/send_routine_reminder.py", "evening_bed"],
     "daily_planner": ["python", "scripts/daily_planner.py"],
     "auto_backup": ["python", "scripts/robust_git_backup.py"],
+    "brain_pattern_detection": None,  # Handled in-process, not via subprocess
 }
+
+
+def _run_brain_patterns():
+    """Run brain pattern detection in-process."""
+    try:
+        import sys
+        sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+        from brain_db import detect_patterns
+        patterns = detect_patterns(days=7)
+        logger.info(f"Brain pattern detection found {len(patterns)} patterns")
+    except Exception as e:
+        logger.error(f"Brain pattern detection failed: {e}")
 
 
 def _run_job(name: str):
     """Execute a scheduled job by name."""
     if name not in JOB_COMMANDS:
         logger.warning(f"Unknown job: {name}")
+        return
+
+    # Handle in-process jobs
+    if name == "brain_pattern_detection":
+        _run_brain_patterns()
         return
 
     cmd = JOB_COMMANDS[name]

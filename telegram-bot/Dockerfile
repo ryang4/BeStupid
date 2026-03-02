@@ -22,7 +22,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy bot code and entrypoint
-COPY bot.py claude_client.py tools.py scheduler.py restore_cron.py tool_runner.py ./
+COPY *.py ./
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Create non-root user and ensure home dir is accessible for entrypoint setup

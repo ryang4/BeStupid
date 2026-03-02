@@ -18,3 +18,8 @@ scripts/logs/
 telegram-bot/.env
 telegram-bot/conversation.json
 telegram-bot/*.log
+
+# Brain DB (generated, large binary)
+memory/brain.db
+memory/brain.db-wal
+memory/brain.db-shm

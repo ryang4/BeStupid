@@ -185,6 +185,44 @@ def format_persona_summary(profile: dict) -> str:
     return "\n".join(lines)
 
 
+def get_adaptive_persona(profile: dict) -> dict:
+    """Adjust persona based on detected mood patterns from brain DB.
+
+    When low mood signals are detected, auto-shift push intensity to 'gentle'.
+    Returns a potentially modified copy of the profile.
+    """
+    if not profile:
+        return profile
+
+    try:
+        import sys
+        import os
+        scripts_dir = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)) / "scripts"
+        sys.path.insert(0, str(scripts_dir))
+        from brain_db import get_active_patterns
+
+        mood_patterns = get_active_patterns(pattern_type="mood", min_confidence=0.6)
+        if not mood_patterns:
+            return profile
+
+        # Check for low mood signals
+        low_mood_keywords = ["low mood", "frustrated", "stressed", "tired", "exhausted", "burned out", "struggling"]
+        has_low_mood = any(
+            any(kw in p.get("description", "").lower() for kw in low_mood_keywords)
+            for p in mood_patterns
+        )
+
+        if has_low_mood and profile.get("push_intensity") in ("firm", "hard"):
+            adapted = dict(profile)
+            adapted["push_intensity"] = "gentle"
+            adapted["_mood_adapted"] = True
+            return adapted
+    except Exception:
+        pass  # Brain DB not available — return original profile
+
+    return profile
+
+
 def render_persona_instructions(profile: dict) -> str:
     if not profile:
         return ""

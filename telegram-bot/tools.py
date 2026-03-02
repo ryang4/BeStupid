@@ -88,6 +88,7 @@ ALLOWED_CRON_COMMANDS = {
     "evening_bed": "cd /project && python scripts/send_routine_reminder.py evening_bed",
     "daily_planner": "cd /project && python scripts/daily_planner.py",
     "auto_backup": "cd /project && python scripts/robust_git_backup.py",
+    "brain_pattern_detection": "cd /project && python scripts/brain_db.py patterns",
 }
 
 _CRON_SCHEDULE_RE = re.compile(r'^[\d\*/,\-]+(\s+[\d\*/,\-]+){4}$')
@@ -373,6 +374,91 @@ TOOLS = [
             "required": ["claim"]
         }
     },
+    {
+        "name": "semantic_search",
+        "description": (
+            "Search the second brain using semantic similarity + keyword matching. "
+            "Finds relevant documents even without exact keyword matches. "
+            "Use this for questions like 'what did I decide about X?' or 'what do I know about Y?'"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Natural language search query"
+                },
+                "doc_type": {
+                    "type": "string",
+                    "description": "Filter by type: conversation, log_entry, article, note, entity. Leave empty for all.",
+                    "default": ""
+                },
+                "limit": {
+                    "type": "integer",
+                    "default": 5,
+                    "description": "Maximum results to return"
+                }
+            },
+            "required": ["query"]
+        }
+    },
+    {
+        "name": "ingest_content",
+        "description": (
+            "Ingest content into the second brain. Stores the document, extracts entities "
+            "and relationships, and generates semantic embeddings. Use for articles, notes, ideas."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "description": "The text content to ingest"
+                },
+                "title": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Title for the content"
+                },
+                "doc_type": {
+                    "type": "string",
+                    "default": "note",
+                    "description": "Type: note, article, idea"
+                }
+            },
+            "required": ["content"]
+        }
+    },
+    {
+        "name": "explore_connections",
+        "description": (
+            "Explore entity connections in the knowledge graph. Find entities related to a given "
+            "name and see how they connect (1-2 hops). Good for questions like 'what's connected to project X?'"
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "entity_name": {
+                    "type": "string",
+                    "description": "Name of the entity to explore connections for"
+                },
+                "hops": {
+                    "type": "integer",
+                    "default": 1,
+                    "description": "Connection depth (1 or 2)"
+                }
+            },
+            "required": ["entity_name"]
+        }
+    },
+    {
+        "name": "brain_stats",
+        "description": "Get statistics about the second brain: document counts, entity counts, pattern counts.",
+        "input_schema": {
+            "type": "object",
+            "properties": {}
+        }
+    },
 ]
 
 
@@ -429,6 +515,14 @@ async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
         )
     elif name == "fact_check":
         return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30))
+    elif name == "semantic_search":
+        return tool_semantic_search(inputs["query"], inputs.get("doc_type", ""), inputs.get("limit", 5))
+    elif name == "ingest_content":
+        return tool_ingest_content(inputs["content"], inputs.get("title", ""), inputs.get("doc_type", "note"))
+    elif name == "explore_connections":
+        return tool_explore_connections(inputs["entity_name"], inputs.get("hops", 1))
+    elif name == "brain_stats":
+        return tool_brain_stats()
 
     return f"Unknown tool: {name}"
 
@@ -1383,3 +1477,114 @@ def fact_check(claim: str, sources: str = "all", days: int = 30) -> str:
                       "or contradicts the claim.*")
 
     return "\n".join(lines)
+
+
+# --- Brain DB tools ---
+
+def _get_brain_db():
+    """Import brain_db lazily."""
+    import brain_db
+    return brain_db
+
+
+def tool_semantic_search(query: str, doc_type: str = "", limit: int = 5) -> str:
+    """Semantic + keyword search across the second brain."""
+    try:
+        brain = _get_brain_db()
+        results = brain.semantic_search(
+            query,
+            doc_type=doc_type if doc_type else None,
+            limit=limit,
+        )
+
+        if not results:
+            return f"No results found for '{query}'."
+
+        lines = [f"## Semantic Search: {len(results)} results\n"]
+        for i, r in enumerate(results, 1):
+            title = r.get("title", "Untitled")
+            score = r.get("similarity", 0)
+            match_type = r.get("match_type", "unknown")
+            preview = r.get("chunk_text", "")[:300]
+            lines.append(f"**{i}. [{r['doc_type']}] {title}** (score: {score:.2f}, {match_type})")
+            lines.append(f"   Source: {r.get('source', 'unknown')}")
+            lines.append(f"   {preview}\n")
+
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Semantic search error: {e}"
+
+
+def tool_ingest_content(content: str, title: str = "", doc_type: str = "note") -> str:
+    """Ingest content into the second brain."""
+    try:
+        brain = _get_brain_db()
+        result = brain.ingest_document(
+            content=content,
+            doc_type=doc_type,
+            title=title,
+            source="bot_ingest",
+        )
+        return (
+            f"Ingested into brain:\n"
+            f"- Document ID: {result['doc_id']}\n"
+            f"- Entities extracted: {result['entities']}\n"
+            f"- Relationships found: {result['relationships']}\n"
+            f"- Preferences detected: {result['preferences']}"
+        )
+    except Exception as e:
+        return f"Ingestion error: {e}"
+
+
+def tool_explore_connections(entity_name: str, hops: int = 1) -> str:
+    """Explore entity connections in the knowledge graph."""
+    try:
+        brain = _get_brain_db()
+
+        # Find the entity first
+        entities = brain.find_entities(name=entity_name)
+        if not entities:
+            return f"No entity found matching '{entity_name}'."
+
+        entity = entities[0]
+        lines = [f"## Connections for: {entity['name']} ({entity['entity_type']})\n"]
+
+        props = json.loads(entity.get("properties", "{}")) if isinstance(entity.get("properties"), str) else entity.get("properties", {})
+        if props:
+            lines.append("**Properties:**")
+            for k, v in props.items():
+                if v:
+                    lines.append(f"  - {k}: {v}")
+            lines.append("")
+
+        connections = brain.get_connections(entity["id"], hops=min(hops, 2))
+        if connections:
+            lines.append(f"**Connected entities ({len(connections)}):**")
+            for c in connections:
+                hop_label = f"({c['hops']}-hop)" if c.get("hops", 1) > 1 else ""
+                c_props = json.loads(c.get("properties", "{}")) if isinstance(c.get("properties"), str) else c.get("properties", {})
+                detail = ""
+                if c_props:
+                    detail = " — " + ", ".join(f"{k}={v}" for k, v in c_props.items() if v)
+                lines.append(f"  - {c['name']} [{c['entity_type']}] via {c['relationship_type']} {hop_label}{detail}")
+        else:
+            lines.append("No connections found.")
+
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Connection exploration error: {e}"
+
+
+def tool_brain_stats() -> str:
+    """Get brain DB statistics."""
+    try:
+        brain = _get_brain_db()
+        stats = brain.get_brain_stats()
+
+        lines = ["## Second Brain Stats\n"]
+        for table, count in stats.items():
+            lines.append(f"- {table}: {count}")
+
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Brain stats error: {e}"

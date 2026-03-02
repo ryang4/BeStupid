@@ -17,12 +17,15 @@ BeStupid/
 │   ├── auto_backup.sh      # Git backup with locking/retry
 │   ├── notify_backup_failure.py  # Telegram alerts on failures
 │   ├── daily_planner.py    # Generate daily logs
-│   ├── memory.py           # People/facts/decisions storage
+│   ├── memory.py           # People/facts/decisions storage (legacy JSON)
+│   ├── brain_db.py         # Second brain: SQLite + embeddings + entity graph
+│   ├── migrate_to_brain_db.py  # One-time migration from JSON → SQLite
 │   └── context_briefing.py # Generate context for new sessions
 ├── content/                # PUBLIC Hugo site content
 │   ├── logs/               # Daily logs (public)
 │   └── config/             # Weekly protocols
 ├── memory/                 # Private memory storage
+│   └── brain.db            # SQLite brain database (gitignored)
 └── .bestupid-private/      # Private data (cron config, history)
 ```
 
@@ -81,6 +84,7 @@ pytest -k "atomic"      # Run specific tests
 - `test_heartbeat.py` - Health monitoring
 - `test_error_handling.py` - Error visibility
 - `test_tools.py` - Tool implementations
+- `test_brain_db.py` - Second brain: schema, CRUD, search, ingestion, patterns
 
 ## Deployment
 
@@ -103,6 +107,7 @@ docker-compose restart
 TELEGRAM_BOT_TOKEN=...
 OWNER_CHAT_ID=...
 ANTHROPIC_API_KEY=...
+OPENAI_API_KEY=...          # For embeddings (text-embedding-3-small, ~$0.02/1M tokens)
 PROJECT_ROOT=/project
 HISTORY_DIR=/project/.bestupid-private
 ```
@@ -128,6 +133,33 @@ Or use `/health` command
 ### Reset conversation history
 Delete `.bestupid-private/conversation_history.json`
 
+### Second Brain (brain_db)
+```bash
+# Initialize brain DB schema
+python scripts/brain_db.py init
+
+# Migrate existing data (JSON → SQLite, idempotent)
+python scripts/migrate_to_brain_db.py
+
+# Migrate with embeddings (costs OpenAI API calls)
+python scripts/migrate_to_brain_db.py --embed
+
+# View stats
+python scripts/brain_db.py stats
+
+# Semantic search
+python scripts/brain_db.py search "morning routine"
+
+# Run pattern detection
+python scripts/brain_db.py patterns
+```
+
+#### Bot Tools (available via Telegram)
+- `semantic_search` - Hybrid semantic + keyword search across all brain data
+- `ingest_content` - Store articles, notes, ideas with auto-extraction
+- `explore_connections` - Navigate the entity relationship graph
+- `brain_stats` - View brain DB table counts
+
 ## Architecture Decisions
 
 ### Why Python scheduler instead of cron?
@@ -146,3 +178,15 @@ Delete `.bestupid-private/conversation_history.json`
 - Prevents data corruption on crash/power loss
 - Especially critical for cron_jobs.json
 - Small overhead, big reliability win
+
+### Why SQLite for the second brain?
+- No external database dependencies (no Redis, no Postgres)
+- WAL mode enables concurrent reads during writes
+- Embeddings stored as BLOBs (fine at thousands of docs, not millions)
+- Single file backup (brain.db), easy to restore
+- Graceful degradation: bot works fine if brain.db doesn't exist yet
+
+### Why OpenAI for embeddings instead of Anthropic?
+- Anthropic doesn't offer an embedding model
+- text-embedding-3-small is $0.02/1M tokens (~$0.50/month at Ryan's volume)
+- 1536 dimensions, good balance of quality and storage size

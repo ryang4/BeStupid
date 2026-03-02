@@ -271,6 +271,32 @@ def generate_briefing(full=False):
     output.append("🧠 MEMORY SYSTEM:")
     output.append(f"  People: {memory['people']} | Projects: {memory['projects']} | "
                  f"Decisions: {memory['decisions']} | Commitments: {memory['commitments']}")
+
+    # Brain DB context
+    try:
+        from brain_db import get_brain_stats, get_active_patterns, get_preferences
+        stats = get_brain_stats()
+        output.append(f"  Brain DB: {stats.get('documents', 0)} docs | "
+                      f"{stats.get('entities', 0)} entities | "
+                      f"{stats.get('embeddings', 0)} embeddings | "
+                      f"{stats.get('patterns', 0)} patterns")
+
+        patterns = get_active_patterns(min_confidence=0.6)
+        if patterns:
+            output.append("")
+            output.append("🔍 ACTIVE PATTERNS:")
+            for p in patterns[:5]:
+                output.append(f"  [{p['pattern_type']}] {p['description']} ({p['confidence']:.0%})")
+
+        prefs = get_preferences()
+        if prefs:
+            output.append("")
+            output.append("⚙️ KNOWN PREFERENCES:")
+            for p in prefs[:8]:
+                output.append(f"  [{p['category']}] {p['key']}: {p['value']}")
+    except Exception:
+        pass  # Brain DB not yet initialized — graceful degradation
+
     output.append("")
 
     # Key file locations

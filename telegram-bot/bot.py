@@ -231,7 +231,7 @@ def _run_context_briefing() -> str:
 
 
 def _run_memory_extract(text: str):
-    """Run memory.py extract on text (fire-and-forget)."""
+    """Run memory.py extract on text (fire-and-forget, legacy)."""
     try:
         subprocess.run(
             [sys.executable, str(SCRIPTS_DIR / "memory.py"), "extract", text],
@@ -240,6 +240,31 @@ def _run_memory_extract(text: str):
         )
     except Exception as e:
         logger.error(f"Memory extraction failed: {e}")
+
+
+def _run_brain_ingest(user_text: str, response_text: str, chat_id: int = 0):
+    """Ingest conversation turn into brain DB (fire-and-forget).
+
+    Skips extraction on short/trivial messages to save API costs.
+    Documents are always stored; extraction only runs on substantial messages.
+    """
+    try:
+        sys.path.insert(0, str(SCRIPTS_DIR))
+        from brain_db import ingest_document
+
+        combined = f"User: {user_text}\n\nAssistant: {response_text}"
+        # Only run extraction (Haiku call) on substantial messages
+        should_extract = len(user_text) > 60
+        ingest_document(
+            content=combined,
+            doc_type="conversation",
+            title=user_text[:100],
+            source=f"chat_{chat_id}",
+            extract=should_extract,
+            embed=True,
+        )
+    except Exception as e:
+        logger.error(f"Brain ingestion failed: {e}")
 
 
 def _run_auto_backup():
@@ -362,9 +387,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await _send_message(update, response)
 
-        # Fire-and-forget: memory extraction + git backup
+        # Fire-and-forget: brain ingestion + git backup
         loop = asyncio.get_event_loop()
-        loop.run_in_executor(None, _run_memory_extract, user_text)
+        loop.run_in_executor(None, _run_brain_ingest, user_text, response, chat_id)
         loop.run_in_executor(None, _run_auto_backup)
 
 
