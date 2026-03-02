@@ -99,7 +99,6 @@ def build_system_messages(chat_id: int = 0, user_message: str = "") -> list[dict
 
     # Inject brain context (patterns, preferences, relevant memories)
     try:
-        import sys
         scripts_dir = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)) / "scripts"
         scripts_dir_str = str(scripts_dir)
         if scripts_dir_str not in sys.path:
@@ -345,10 +344,10 @@ def _format_history_for_cli(history: list[dict]) -> str:
                     elif block.get("type") == "tool_use":
                         lines.append(f"[TOOL CALL]: {block.get('name', '')}({json.dumps(block.get('input', {}))})")
                     elif block.get("type") == "tool_result":
-                        content = block.get("content", "")
-                        if len(content) > 500:
-                            content = content[:500] + "...(truncated)"
-                        lines.append(f"[TOOL RESULT]: {content}")
+                        result_text = block.get("content", "")
+                        if len(result_text) > 500:
+                            result_text = result_text[:500] + "...(truncated)"
+                        lines.append(f"[TOOL RESULT]: {result_text}")
     return "\n".join(lines)
 
 
@@ -390,6 +389,7 @@ async def _run_tool_loop_cli(
             "--system-prompt-file", sys_tmp.name,
             "--allowedTools", f"Bash(python {runner} *)",
             "--dangerously-skip-permissions",
+            "--no-session-persistence",
         ]
 
         # Strip CLAUDECODE env var to prevent nested session detection
