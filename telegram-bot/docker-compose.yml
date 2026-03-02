@@ -9,10 +9,13 @@ services:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - OWNER_CHAT_ID=${OWNER_CHAT_ID}
       - PROJECT_ROOT=/project
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN:-}
+      - USE_CLI_MAIN_LOOP=${USE_CLI_MAIN_LOOP:-1}
       - HISTORY_DIR=/project/.bestupid-private
       - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-haiku-4-5-20251001}
       - DAILY_TOKEN_BUDGET=${DAILY_TOKEN_BUDGET:-1000000}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - TZ=America/New_York
     volumes:
       # Mount the repo read-write - this is the ONLY host access
