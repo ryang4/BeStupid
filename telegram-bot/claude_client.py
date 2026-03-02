@@ -215,6 +215,22 @@ def _estimate_message_tokens(msg: dict) -> int:
     return 0
 
 
+def _has_tool_results(msg: dict) -> bool:
+    """Check if a message contains tool_result blocks."""
+    content = msg.get("content", [])
+    if not isinstance(content, list):
+        return False
+    return any(isinstance(b, dict) and b.get("type") == "tool_result" for b in content)
+
+
+def _has_tool_use(msg: dict) -> bool:
+    """Check if a message contains tool_use blocks."""
+    content = msg.get("content", [])
+    if not isinstance(content, list):
+        return False
+    return any(isinstance(b, dict) and b.get("type") == "tool_use" for b in content)
+
+
 def _prune_history(history: list[dict]) -> list[dict]:
     """Prune history to stay under token target."""
     total = sum(_estimate_message_tokens(m) for m in history)
@@ -230,36 +246,41 @@ def _prune_history(history: list[dict]) -> list[dict]:
             removed2 = history.pop(0)
             total -= _estimate_message_tokens(removed2)
 
+    # Drop orphaned tool_result messages at the front (their tool_use was pruned)
+    while history and _has_tool_results(history[0]):
+        total -= _estimate_message_tokens(history.pop(0))
+        # Also drop the following assistant response to keep pairs clean
+        if history and history[0].get("role") == "assistant":
+            total -= _estimate_message_tokens(history.pop(0))
+
     return history
 
 
 def _sanitize_history(history: list[dict]) -> list[dict]:
-    """Ensure no dangling tool_use without matching tool_result."""
+    """Ensure no dangling tool_use/tool_result blocks in history."""
     if not history:
         return history
 
-    last = history[-1]
-    if last.get("role") != "assistant":
-        return history
+    # 1. Remove orphaned tool_result messages (no preceding tool_use)
+    cleaned = []
+    for i, msg in enumerate(history):
+        if _has_tool_results(msg):
+            # Check that the previous message is an assistant with tool_use
+            if cleaned and cleaned[-1].get("role") == "assistant" and _has_tool_use(cleaned[-1]):
+                cleaned.append(msg)
+            # else: skip orphaned tool_result
+        else:
+            cleaned.append(msg)
+    history = cleaned
 
-    content = last.get("content", [])
-    if not isinstance(content, list):
-        return history
-
-    # Check if there are tool_use blocks
-    has_tool_use = any(
-        isinstance(b, dict) and b.get("type") == "tool_use" for b in content
-    )
-    if not has_tool_use:
-        return history
-
-    # Check if next message is tool_result (it won't be since this is last)
-    # Strip tool_use blocks from this last assistant message
-    text_blocks = [b for b in content if isinstance(b, dict) and b.get("type") == "text"]
-    if text_blocks:
-        history[-1] = {"role": "assistant", "content": text_blocks}
-    else:
-        history.pop()
+    # 2. Strip dangling tool_use from last assistant message (no following tool_result)
+    if history and history[-1].get("role") == "assistant" and _has_tool_use(history[-1]):
+        content = history[-1].get("content", [])
+        text_blocks = [b for b in content if isinstance(b, dict) and b.get("type") == "text"]
+        if text_blocks:
+            history[-1] = {"role": "assistant", "content": text_blocks}
+        else:
+            history.pop()
 
     return history
 
