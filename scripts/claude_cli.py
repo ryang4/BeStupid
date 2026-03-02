@@ -32,17 +32,19 @@ def cli_available() -> bool:
     return shutil.which("claude") is not None
 
 
-def call_claude(
+def _run_cli(
     prompt: str,
     *,
+    output_format: str = "text",
     model: str = DEFAULT_MODEL,
     system_prompt: Optional[str] = None,
     timeout: int = DEFAULT_TIMEOUT,
     max_turns: int = 1,
-) -> Optional[str]:
-    """Shell out to `claude -p` and return raw text response.
+) -> Optional[subprocess.CompletedProcess]:
+    """Run `claude -p` and return the CompletedProcess, or None on failure.
 
-    Returns None if CLI is unavailable or call fails (caller should fall back to API).
+    Shared implementation for call_claude() and call_claude_json().
+    Handles system prompt temp file, env sanitization, and error logging.
     """
     if not cli_available():
         return None
@@ -50,23 +52,27 @@ def call_claude(
     cmd = [
         "claude",
         "-p",  # print mode (non-interactive)
-        "--output-format", "text",
+        "--output-format", output_format,
         "--max-turns", str(max_turns),
         "--model", model,
     ]
 
+    sys_tmp_path: Optional[str] = None
     if system_prompt:
         # Write system prompt to a temp file to avoid CLI arg length limits
-        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
         try:
+            tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
             tmp.write(system_prompt)
             tmp.close()
-            cmd.extend(["--system-prompt-file", tmp.name])
+            sys_tmp_path = tmp.name
+            cmd.extend(["--system-prompt-file", sys_tmp_path])
         except OSError:
-            try:
-                os.unlink(tmp.name)
-            except OSError:
-                pass
+            if sys_tmp_path:
+                try:
+                    os.unlink(sys_tmp_path)
+                except OSError:
+                    pass
+            return None
 
     # Strip CLAUDECODE env var to prevent nested session detection
     env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
@@ -85,7 +91,7 @@ def call_claude(
             logger.warning("claude CLI failed (exit %d): %s", result.returncode, result.stderr[:500])
             return None
 
-        return result.stdout.strip()
+        return result
     except subprocess.TimeoutExpired:
         logger.warning("claude CLI timed out after %ds", timeout)
         return None
@@ -96,12 +102,36 @@ def call_claude(
         logger.warning("claude CLI OS error: %s", e)
         return None
     finally:
-        # Clean up system prompt temp file
-        if system_prompt:
+        if sys_tmp_path:
             try:
-                os.unlink(tmp.name)
-            except (OSError, UnboundLocalError):
+                os.unlink(sys_tmp_path)
+            except OSError:
                 pass
+
+
+def call_claude(
+    prompt: str,
+    *,
+    model: str = DEFAULT_MODEL,
+    system_prompt: Optional[str] = None,
+    timeout: int = DEFAULT_TIMEOUT,
+    max_turns: int = 1,
+) -> Optional[str]:
+    """Shell out to `claude -p` and return raw text response.
+
+    Returns None if CLI is unavailable or call fails (caller should fall back to API).
+    """
+    result = _run_cli(
+        prompt,
+        output_format="text",
+        model=model,
+        system_prompt=system_prompt,
+        timeout=timeout,
+        max_turns=max_turns,
+    )
+    if result is None:
+        return None
+    return result.stdout.strip()
 
 
 def call_claude_json(
@@ -116,49 +146,22 @@ def call_claude_json(
 
     Returns parsed JSON (dict or list), or None if CLI unavailable / parse fails.
     """
-    if not cli_available():
+    result = _run_cli(
+        prompt,
+        output_format="json",
+        model=model,
+        system_prompt=system_prompt,
+        timeout=timeout,
+        max_turns=max_turns,
+    )
+    if result is None:
         return None
 
-    cmd = [
-        "claude",
-        "-p",
-        "--output-format", "json",
-        "--max-turns", str(max_turns),
-        "--model", model,
-    ]
-
-    if system_prompt:
-        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False)
-        try:
-            tmp.write(system_prompt)
-            tmp.close()
-            cmd.extend(["--system-prompt-file", tmp.name])
-        except OSError:
-            try:
-                os.unlink(tmp.name)
-            except OSError:
-                pass
-
-    env = {k: v for k, v in os.environ.items() if k != "CLAUDECODE"}
+    raw = result.stdout.strip()
+    if not raw:
+        return None
 
     try:
-        result = subprocess.run(
-            cmd,
-            input=prompt,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            env=env,
-        )
-
-        if result.returncode != 0:
-            logger.warning("claude CLI JSON failed (exit %d): %s", result.returncode, result.stderr[:500])
-            return None
-
-        raw = result.stdout.strip()
-        if not raw:
-            return None
-
         # --output-format json wraps response in {"type":"result","result":"..."}
         outer = json.loads(raw)
         if isinstance(outer, dict) and "result" in outer:
@@ -171,25 +174,9 @@ def call_claude_json(
 
         # Direct JSON response (shouldn't happen with --output-format json, but handle it)
         return outer
-
     except json.JSONDecodeError as e:
         logger.warning("claude CLI JSON parse error: %s", e)
         return None
-    except subprocess.TimeoutExpired:
-        logger.warning("claude CLI JSON timed out after %ds", timeout)
-        return None
-    except FileNotFoundError:
-        logger.warning("claude CLI binary not found")
-        return None
-    except OSError as e:
-        logger.warning("claude CLI JSON OS error: %s", e)
-        return None
-    finally:
-        if system_prompt:
-            try:
-                os.unlink(tmp.name)
-            except (OSError, UnboundLocalError):
-                pass
 
 
 def _extract_json(text: str) -> Optional[dict | list]:

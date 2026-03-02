@@ -289,16 +289,24 @@ def _cli_available() -> bool:
         return False
     try:
         scripts_dir = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent)) / "scripts"
-        sys.path.insert(0, str(scripts_dir))
+        scripts_dir_str = str(scripts_dir)
+        if scripts_dir_str not in sys.path:
+            sys.path.insert(0, scripts_dir_str)
         from claude_cli import cli_available
         return cli_available()
     except ImportError:
         return False
 
 
+def _tool_runner_path() -> str:
+    """Return path to tool_runner.py (works in both Docker and local contexts)."""
+    return str(Path(__file__).parent / "tool_runner.py")
+
+
 def _build_tool_docs() -> str:
     """Format tool definitions as text documentation for CLI system prompt."""
-    lines = ["AVAILABLE TOOLS:", "Call tools by running: python /app/tool_runner.py <tool_name> '<json_args>'", ""]
+    runner = _tool_runner_path()
+    lines = ["AVAILABLE TOOLS:", f"Call tools by running: python {runner} <tool_name> '<json_args>'", ""]
     for tool in TOOLS:
         name = tool["name"]
         desc = tool.get("description", "")
@@ -337,7 +345,10 @@ def _format_history_for_cli(history: list[dict]) -> str:
                     elif block.get("type") == "tool_use":
                         lines.append(f"[TOOL CALL]: {block.get('name', '')}({json.dumps(block.get('input', {}))})")
                     elif block.get("type") == "tool_result":
-                        lines.append(f"[TOOL RESULT]: {block.get('content', '')[:500]}")
+                        content = block.get("content", "")
+                        if len(content) > 500:
+                            content = content[:500] + "...(truncated)"
+                        lines.append(f"[TOOL RESULT]: {content}")
     return "\n".join(lines)
 
 
@@ -368,9 +379,7 @@ async def _run_tool_loop_cli(
         sys_tmp.write(full_system)
         sys_tmp.close()
 
-        # Determine tool_runner path
-        app_dir = Path(__file__).parent
-        tool_runner_path = app_dir / "tool_runner.py"
+        runner = _tool_runner_path()
 
         cmd = [
             "claude",
@@ -379,7 +388,7 @@ async def _run_tool_loop_cli(
             "--max-turns", str(MAX_TOOL_ITERATIONS),
             "--model", MODEL,
             "--system-prompt-file", sys_tmp.name,
-            "--allowedTools", f"Bash(python {tool_runner_path} *)",
+            "--allowedTools", f"Bash(python {runner} *)",
             "--dangerously-skip-permissions",
         ]
 
