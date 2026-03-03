@@ -459,6 +459,36 @@ TOOLS = [
             "properties": {}
         }
     },
+    {
+        "name": "log_food",
+        "description": (
+            "Log a food item and get estimated macros. Estimates calories, protein, carbs, fat, fiber "
+            "using LLM, appends to today's Fuel Log, and returns the estimate with running daily totals."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "food_description": {
+                    "type": "string",
+                    "description": "What was eaten, e.g. '2 eggs and toast with butter'"
+                }
+            },
+            "required": ["food_description"]
+        }
+    },
+    {
+        "name": "get_nutrition_totals",
+        "description": "Get running nutrition totals (calories, protein, carbs, fat, fiber) for a given day.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string",
+                    "description": "Date in YYYY-MM-DD format (defaults to today)"
+                }
+            }
+        }
+    },
 ]
 
 
@@ -523,6 +553,10 @@ async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
         return tool_explore_connections(inputs["entity_name"], inputs.get("hops", 1))
     elif name == "brain_stats":
         return tool_brain_stats()
+    elif name == "log_food":
+        return tool_log_food(inputs["food_description"])
+    elif name == "get_nutrition_totals":
+        return tool_get_nutrition_totals(inputs.get("date"))
 
     return f"Unknown tool: {name}"
 
@@ -1588,3 +1622,62 @@ def tool_brain_stats() -> str:
         return "\n".join(lines)
     except Exception as e:
         return f"Brain stats error: {e}"
+
+
+# --- Nutrition tools ---
+
+def tool_log_food(food_description: str) -> str:
+    """Estimate macros for food, append to today's Fuel Log, return estimate + running totals."""
+    try:
+        from calorie_estimator import estimate_food, append_to_fuel_log, get_running_total
+    except ImportError as e:
+        return f"Calorie estimator unavailable: {e}"
+
+    result = estimate_food(food_description)
+    if not result.get("success"):
+        return f"Estimation failed: {result.get('error', 'Unknown error')}"
+
+    appended = append_to_fuel_log(food_description, result)
+    totals = get_running_total()
+
+    lines = [
+        f"**Logged:** {food_description}",
+        f"  Calories: {result['calories']} | Protein: {result['protein_g']}g | Carbs: {result['carbs_g']}g | Fat: {result['fat_g']}g | Fiber: {result.get('fiber_g', 0)}g",
+    ]
+
+    if result.get("line_items"):
+        lines.append("  Breakdown:")
+        for item in result["line_items"]:
+            lines.append(f"    - {item}")
+
+    if not appended:
+        lines.append("  (Warning: could not append to fuel log — does today's log have a Fuel Log section?)")
+
+    lines.append("")
+    lines.append(f"**Daily totals:** {totals['calories_so_far']} cal | {totals['protein_so_far']}g protein | {totals['carbs_so_far']}g carbs | {totals['fat_so_far']}g fat | {totals['fiber_so_far']}g fiber")
+    lines.append(f"  Entries today: {totals['entries_count']}")
+
+    return "\n".join(lines)
+
+
+def tool_get_nutrition_totals(date: str = None) -> str:
+    """Get running nutrition totals for a given day."""
+    try:
+        from calorie_estimator import get_running_total
+    except ImportError as e:
+        return f"Calorie estimator unavailable: {e}"
+
+    totals = get_running_total(date)
+    label = date if date else datetime.now().strftime("%Y-%m-%d")
+
+    lines = [
+        f"**Nutrition totals for {label}:**",
+        f"  Calories: {totals['calories_so_far']}",
+        f"  Protein: {totals['protein_so_far']}g",
+        f"  Carbs: {totals['carbs_so_far']}g",
+        f"  Fat: {totals['fat_so_far']}g",
+        f"  Fiber: {totals['fiber_so_far']}g",
+        f"  Entries: {totals['entries_count']}",
+    ]
+
+    return "\n".join(lines)

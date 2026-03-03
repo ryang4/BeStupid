@@ -275,8 +275,10 @@ def append_to_fuel_log(food_description: str, macros: dict, date_str: str = None
         content = upsert_inline_total(content, "fat_so_far", new_fat)
         content = upsert_inline_total(content, "fiber_so_far", new_fiber)
 
-        with open(log_path, 'w', encoding='utf-8') as f:
+        tmp_path = log_path + ".tmp"
+        with open(tmp_path, 'w', encoding='utf-8') as f:
             f.write(content)
+        os.rename(tmp_path, log_path)
 
         return True
 
