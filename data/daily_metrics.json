@@ -6452,78 +6452,1156 @@
       "extraction_notes": [
         "Manually entered from conversation - original log was overwritten"
       ]
+    },
+    {
+      "date": "2025-12-12",
+      "extracted_at": "2026-03-05T15:07:17.065212",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 2675,
+        "protein_g": 132,
+        "carbs_g": 215,
+        "fat_g": 165,
+        "fiber_g": 20,
+        "line_items": [
+          {
+            "food": "4 eggs cooked in olive oil",
+            "time": "Breakfast",
+            "calories": 360,
+            "protein_g": 24,
+            "carbs_g": 2,
+            "fat_g": 28,
+            "fiber_g": 0
+          },
+          {
+            "food": "two slices of Dave's Killer Bread",
+            "time": "Breakfast",
+            "calories": 200,
+            "protein_g": 10,
+            "carbs_g": 36,
+            "fat_g": 4,
+            "fiber_g": 6
+          },
+          {
+            "food": "blackberry jam",
+            "time": "Breakfast",
+            "calories": 50,
+            "protein_g": 0,
+            "carbs_g": 13,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "~24 ounces of coffee",
+            "time": "between 9am and 10:30am",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 slices of Andy's pepperoni pizza",
+            "time": "around 12:30pm",
+            "calories": 500,
+            "protein_g": 20,
+            "carbs_g": 50,
+            "fat_g": 24,
+            "fiber_g": 3
+          },
+          {
+            "food": "1/2 of a Coke Zero",
+            "time": "around 12:30pm",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "two sliders",
+            "time": "9pm",
+            "calories": 300,
+            "protein_g": 20,
+            "carbs_g": 20,
+            "fat_g": 18,
+            "fiber_g": 1
+          },
+          {
+            "food": "5 fried cheese curds",
+            "time": "9pm",
+            "calories": 350,
+            "protein_g": 15,
+            "carbs_g": 20,
+            "fat_g": 22,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 grilled chicken tender",
+            "time": "9pm",
+            "calories": 150,
+            "protein_g": 20,
+            "carbs_g": 5,
+            "fat_g": 7,
+            "fiber_g": 0
+          },
+          {
+            "food": "1/2 cup of fried calamari",
+            "time": "9pm",
+            "calories": 250,
+            "protein_g": 15,
+            "carbs_g": 10,
+            "fat_g": 14,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 cup of bean stew",
+            "time": "9pm",
+            "calories": 215,
+            "protein_g": 18,
+            "carbs_g": 31,
+            "fat_g": 5,
+            "fiber_g": 7
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2025-12-13",
+      "extracted_at": "2026-03-05T15:07:40.531731",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "brick",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 13,
+        "completed": 8,
+        "completion_rate": 0.62
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 3180,
+        "protein_g": 135,
+        "carbs_g": 360,
+        "fat_g": 145,
+        "fiber_g": 45,
+        "line_items": [
+          {
+            "food": "4 eggs and 2 slices whole foods whole wheat bread with blackberry jam",
+            "time": "9:30am",
+            "calories": 450,
+            "protein_g": 24,
+            "carbs_g": 50,
+            "fat_g": 20,
+            "fiber_g": 8
+          },
+          {
+            "food": "rice and beans 1.25 cups cooked",
+            "time": "1pm",
+            "calories": 350,
+            "protein_g": 15,
+            "carbs_g": 65,
+            "fat_g": 5,
+            "fiber_g": 15
+          },
+          {
+            "food": "1.25 cups bean stew and peanut butter jelly sandwich with 2 tbps kirkland peanut better and blackberry jam",
+            "time": "4pm",
+            "calories": 600,
+            "protein_g": 25,
+            "carbs_g": 80,
+            "fat_g": 30,
+            "fiber_g": 15
+          },
+          {
+            "food": "turkey and cheddar lunchable",
+            "time": "6pm",
+            "calories": 300,
+            "protein_g": 20,
+            "carbs_g": 25,
+            "fat_g": 15,
+            "fiber_g": 3
+          },
+          {
+            "food": "blueberry ginger synergy kombucha",
+            "time": "6pm",
+            "calories": 30,
+            "protein_g": 0,
+            "carbs_g": 7,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "Pho with beef, oxtail, full serving",
+            "time": "9pm",
+            "calories": 600,
+            "protein_g": 40,
+            "carbs_g": 50,
+            "fat_g": 25,
+            "fiber_g": 5
+          },
+          {
+            "food": "0.75 chik fil a sandwich",
+            "time": "10:30pm",
+            "calories": 360,
+            "protein_g": 25,
+            "carbs_g": 30,
+            "fat_g": 20,
+            "fiber_g": 2
+          },
+          {
+            "food": "trader joes chocolate covered english toffee three bars",
+            "time": "9:30pm",
+            "calories": 450,
+            "protein_g": 6,
+            "carbs_g": 50,
+            "fat_g": 25,
+            "fiber_g": 4
+          },
+          {
+            "food": "trader joes ketchup potato chips",
+            "time": "9:30pm",
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 15,
+            "fat_g": 10,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 cup of baby carrots with 1 tbsp honey mustard",
+            "time": "7pm",
+            "calories": 140,
+            "protein_g": 2,
+            "carbs_g": 18,
+            "fat_g": 5,
+            "fiber_g": 5
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2025-12-14",
+      "extracted_at": "2026-03-05T15:08:17.521836",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 3,
+        "completion_rate": 0.43
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 3578,
+        "protein_g": 112,
+        "carbs_g": 295,
+        "fat_g": 174,
+        "fiber_g": 28,
+        "line_items": [
+          {
+            "food": "two slices thin sliced Aldi whole wheat toast with blackberry and raspberry jam",
+            "time": null,
+            "calories": 220,
+            "protein_g": 8,
+            "carbs_g": 38,
+            "fat_g": 4,
+            "fiber_g": 6
+          },
+          {
+            "food": "4 eggs with parmesan and hot sauce",
+            "time": null,
+            "calories": 320,
+            "protein_g": 24,
+            "carbs_g": 2,
+            "fat_g": 24,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 cups coffee",
+            "time": null,
+            "calories": 2,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "turkey sandwich with mayonnaise, mustard, 4 slices of trader joes deli turkey and aldi thin sliced whole wheat bread",
+            "time": null,
+            "calories": 450,
+            "protein_g": 30,
+            "carbs_g": 45,
+            "fat_g": 18,
+            "fiber_g": 8
+          },
+          {
+            "food": "6 trader joes nut covered toffee logs",
+            "time": null,
+            "calories": 600,
+            "protein_g": 6,
+            "carbs_g": 78,
+            "fat_g": 30,
+            "fiber_g": 6
+          },
+          {
+            "food": "5 ounces of various cheeses",
+            "time": null,
+            "calories": 450,
+            "protein_g": 30,
+            "carbs_g": 2,
+            "fat_g": 36,
+            "fiber_g": 0
+          },
+          {
+            "food": "two servings of crackers",
+            "time": null,
+            "calories": 240,
+            "protein_g": 6,
+            "carbs_g": 44,
+            "fat_g": 8,
+            "fiber_g": 4
+          },
+          {
+            "food": "8 olives",
+            "time": null,
+            "calories": 40,
+            "protein_g": 1,
+            "carbs_g": 2,
+            "fat_g": 4,
+            "fiber_g": 1
+          },
+          {
+            "food": "thick cut of sourdough bread with jam and butter",
+            "time": null,
+            "calories": 300,
+            "protein_g": 6,
+            "carbs_g": 45,
+            "fat_g": 12,
+            "fiber_g": 3
+          },
+          {
+            "food": "La Colombe vanilla latte",
+            "time": null,
+            "calories": 200,
+            "protein_g": 8,
+            "carbs_g": 24,
+            "fat_g": 8,
+            "fiber_g": 0
+          },
+          {
+            "food": "0 sugar monster drink, 16 oz",
+            "time": null,
+            "calories": 100,
+            "protein_g": 2,
+            "carbs_g": 2,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1/4 cup of dip with hummus, cucumber, feta, pesto, sun dried tomatoes, onion, black olives",
+            "time": null,
+            "calories": 150,
+            "protein_g": 5,
+            "carbs_g": 10,
+            "fat_g": 10,
+            "fiber_g": 3
+          },
+          {
+            "food": "3 beers (yuengling, holiday, ipa) and one apple cider spiked",
+            "time": null,
+            "calories": 700,
+            "protein_g": 4,
+            "carbs_g": 50,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "half a slice of cheesecake",
+            "time": null,
+            "calories": 250,
+            "protein_g": 4,
+            "carbs_g": 25,
+            "fat_g": 16,
+            "fiber_g": 1
+          },
+          {
+            "food": "spin draft",
+            "time": null,
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 10,
+            "fat_g": 8,
+            "fiber_g": 1
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2025-12-25",
+      "extracted_at": "2026-03-05T15:09:52.839437",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "swim",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 8,
+        "completed": 2,
+        "completion_rate": 0.25
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "Fuel log found but macro estimation failed"
+      ]
+    },
+    {
+      "date": "2025-12-27",
+      "extracted_at": "2026-03-05T15:10:02.154772",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "brick",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 10,
+        "completed": 2,
+        "completion_rate": 0.2
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "Fuel log found but macro estimation failed"
+      ]
+    },
+    {
+      "date": "2025-12-30",
+      "extracted_at": "2026-03-05T15:10:05.087939",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "strength",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 21,
+        "completed": 7,
+        "completion_rate": 0.33
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 2860,
+        "protein_g": 120,
+        "carbs_g": 380,
+        "fat_g": 120,
+        "fiber_g": 45,
+        "line_items": [
+          {
+            "food": "protein shake (Optimum nutrition vanilla ice cream protein powder, trader joes ground flax seed, peanut butter, kirkland berry mix, 1/2 large banana, almond milk)",
+            "time": "10:30",
+            "calories": 400,
+            "protein_g": 30,
+            "carbs_g": 40,
+            "fat_g": 20,
+            "fiber_g": 10
+          },
+          {
+            "food": "2 trader joes pupusas",
+            "time": "10:45",
+            "calories": 500,
+            "protein_g": 15,
+            "carbs_g": 60,
+            "fat_g": 25,
+            "fiber_g": 5
+          },
+          {
+            "food": "1 mcdonalds mcchicken sandwich",
+            "time": "12:00",
+            "calories": 400,
+            "protein_g": 15,
+            "carbs_g": 45,
+            "fat_g": 18,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 mcdonalds large coffee",
+            "time": "12:15",
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 serving of dried seaweed, 15 rice chips",
+            "time": "13:00",
+            "calories": 150,
+            "protein_g": 2,
+            "carbs_g": 25,
+            "fat_g": 5,
+            "fiber_g": 5
+          },
+          {
+            "food": "1 peanut butter cliff bar",
+            "time": "13:30",
+            "calories": 250,
+            "protein_g": 10,
+            "carbs_g": 35,
+            "fat_g": 10,
+            "fiber_g": 5
+          },
+          {
+            "food": "monster energy drink",
+            "time": "14:00",
+            "calories": 210,
+            "protein_g": 0,
+            "carbs_g": 54,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "chicken broth",
+            "time": "17:00",
+            "calories": 50,
+            "protein_g": 5,
+            "carbs_g": 5,
+            "fat_g": 2,
+            "fiber_g": 0
+          },
+          {
+            "food": "1/4 cup cooked noodles",
+            "time": "17:00",
+            "calories": 100,
+            "protein_g": 2,
+            "carbs_g": 20,
+            "fat_g": 1,
+            "fiber_g": 1
+          },
+          {
+            "food": "two small beef Uzbek somsa",
+            "time": "17:00",
+            "calories": 300,
+            "protein_g": 15,
+            "carbs_g": 30,
+            "fat_g": 15,
+            "fiber_g": 3
+          },
+          {
+            "food": "large serving of Uzbek plov with yogurt, cucumber, tomato, onions and radishes",
+            "time": "19:30",
+            "calories": 800,
+            "protein_g": 25,
+            "carbs_g": 100,
+            "fat_g": 30,
+            "fiber_g": 15
+          },
+          {
+            "food": "clementine, apple, grapes and tea",
+            "time": "21:00",
+            "calories": 100,
+            "protein_g": 1,
+            "carbs_g": 25,
+            "fat_g": 0,
+            "fiber_g": 4
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2026-01-09",
+      "extracted_at": "2026-03-05T15:10:32.561664",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "recovery",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 21,
+        "completed": 4,
+        "completion_rate": 0.19
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 2478,
+        "protein_g": 105,
+        "carbs_g": 322,
+        "fat_g": 108,
+        "fiber_g": 32,
+        "line_items": [
+          {
+            "food": "1/3 taco bell steak poblano burrito",
+            "time": null,
+            "calories": 230,
+            "protein_g": 10,
+            "carbs_g": 30,
+            "fat_g": 10,
+            "fiber_g": 4
+          },
+          {
+            "food": "2 slices daves killer bread",
+            "time": null,
+            "calories": 200,
+            "protein_g": 8,
+            "carbs_g": 38,
+            "fat_g": 4,
+            "fiber_g": 6
+          },
+          {
+            "food": "2 tbsps peanut butter",
+            "time": null,
+            "calories": 190,
+            "protein_g": 8,
+            "carbs_g": 8,
+            "fat_g": 16,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 tbsp jam",
+            "time": null,
+            "calories": 50,
+            "protein_g": 0,
+            "carbs_g": 12,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "2 cups lo mein noodles only cooked",
+            "time": null,
+            "calories": 400,
+            "protein_g": 8,
+            "carbs_g": 80,
+            "fat_g": 4,
+            "fiber_g": 2
+          },
+          {
+            "food": "1 skirt steak",
+            "time": null,
+            "calories": 400,
+            "protein_g": 50,
+            "carbs_g": 0,
+            "fat_g": 20,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 protein shake with 30g protein 190 calories",
+            "time": null,
+            "calories": 190,
+            "protein_g": 30,
+            "carbs_g": 5,
+            "fat_g": 5,
+            "fiber_g": 0
+          },
+          {
+            "food": "1 peanut butter cliff bar",
+            "time": null,
+            "calories": 240,
+            "protein_g": 8,
+            "carbs_g": 30,
+            "fat_g": 10,
+            "fiber_g": 4
+          },
+          {
+            "food": "50 grapes",
+            "time": null,
+            "calories": 100,
+            "protein_g": 1,
+            "carbs_g": 25,
+            "fat_g": 0,
+            "fiber_g": 1
+          },
+          {
+            "food": "30 pretzel sticks",
+            "time": null,
+            "calories": 210,
+            "protein_g": 4,
+            "carbs_g": 45,
+            "fat_g": 3,
+            "fiber_g": 1
+          },
+          {
+            "food": "1 southwest egg / rice / bean burrito, 690 calories",
+            "time": null,
+            "calories": 690,
+            "protein_g": 25,
+            "carbs_g": 80,
+            "fat_g": 25,
+            "fiber_g": 10
+          },
+          {
+            "food": "1/2 falafel wrap, 300 calories",
+            "time": null,
+            "calories": 300,
+            "protein_g": 12,
+            "carbs_g": 40,
+            "fat_g": 15,
+            "fiber_g": 5
+          },
+          {
+            "food": "coffee",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "tea",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          },
+          {
+            "food": "water",
+            "time": null,
+            "calories": 0,
+            "protein_g": 0,
+            "carbs_g": 0,
+            "fat_g": 0,
+            "fiber_g": 0
+          }
+        ]
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2026-01-14",
+      "extracted_at": "2026-03-05T15:11:57.463000",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "run",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 14,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "Fuel log found but macro estimation failed"
+      ]
+    },
+    {
+      "date": "2026-02-24",
+      "extracted_at": "2026-03-05T15:11:57.470985",
+      "sleep": {
+        "hours": 4.63,
+        "quality": 5.8
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": 2.0,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 7,
+        "completed": 0,
+        "completion_rate": 0.0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [
+          "meditation",
+          "yoga"
+        ],
+        "completion_rate": 0.0,
+        "details": {
+          "meditation": false,
+          "yoga": false
+        }
+      },
+      "nutrition": {
+        "calories": 3147,
+        "protein_g": 180,
+        "carbs_g": 325,
+        "fat_g": 126,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": []
+    },
+    {
+      "date": "2026-03-02",
+      "extracted_at": "2026-03-05T15:11:57.476963",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 0,
+        "completed": 0,
+        "completion_rate": 0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "No fuel log found"
+      ]
+    },
+    {
+      "date": "2026-03-03",
+      "extracted_at": "2026-03-05T15:11:57.482682",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 0,
+        "completed": 0,
+        "completion_rate": 0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": null,
+        "protein_g": null,
+        "carbs_g": null,
+        "fat_g": null,
+        "fiber_g": null,
+        "line_items": []
+      },
+      "extraction_notes": [
+        "Fuel log found but macro estimation failed"
+      ]
+    },
+    {
+      "date": "2026-03-04",
+      "extracted_at": "2026-03-05T15:11:57.488739",
+      "sleep": {
+        "hours": null,
+        "quality": null
+      },
+      "weight_lbs": null,
+      "mood": {
+        "morning": null,
+        "bedtime": null
+      },
+      "energy": null,
+      "focus": null,
+      "training": {
+        "workout_type": "",
+        "activities": [],
+        "strength_exercises": []
+      },
+      "todos": {
+        "total": 0,
+        "completed": 0,
+        "completion_rate": 0
+      },
+      "habits": {
+        "completed": [],
+        "missed": [],
+        "completion_rate": 0,
+        "details": {}
+      },
+      "nutrition": {
+        "calories": 1685,
+        "protein_g": 84,
+        "carbs_g": 211,
+        "fat_g": 74,
+        "fiber_g": 44,
+        "line_items": []
+      },
+      "extraction_notes": []
     }
   ],
-  "last_updated": "2026-02-24T11:19:36.999067",
+  "last_updated": "2026-03-05T15:11:57.490114",
   "streaks": {
-    "ai_automation": {
-      "current": 0,
-      "longest": 0
-    },
     "yoga": {
+      "current": 0,
+      "longest": 1
+    },
+    "meditation": {
       "current": 0,
       "longest": 1
     }
   },
   "weekly_summaries": {
     "2025-W51": {
-      "ai_automation": null,
       "yoga": null,
+      "meditation": null,
       "_overall": null
     },
     "2025-W52": {
-      "ai_automation": null,
       "yoga": null,
+      "meditation": null,
       "_overall": null
     },
     "2026-W01": {
-      "ai_automation": null,
       "yoga": null,
+      "meditation": 0.0,
       "_overall": 0.41
     },
     "2026-W02": {
-      "ai_automation": null,
       "yoga": null,
+      "meditation": 0.17,
       "_overall": 0.3
     },
     "2026-W03": {
-      "ai_automation": null,
       "yoga": null,
+      "meditation": 0.5,
       "_overall": 0.31
     },
     "2026-W04": {
-      "ai_automation": null,
       "yoga": null,
+      "meditation": 0.0,
       "_overall": 0.0
     },
     "2026-W05": {
-      "ai_automation": 0.0,
       "yoga": 0.0,
+      "meditation": 0.0,
       "_overall": 0.0
     },
     "2026-W06": {
-      "ai_automation": 0.0,
       "yoga": 0.0,
+      "meditation": null,
       "_overall": 0.0
     },
     "2026-W07": {
-      "ai_automation": 0.0,
       "yoga": 0.2,
+      "meditation": null,
       "_overall": 0.12
     },
     "2026-W08": {
-      "ai_automation": 0.0,
       "yoga": 0.14,
+      "meditation": null,
       "_overall": 0.09
     },
     "2026-W09": {
-      "ai_automation": 0.0,
-      "yoga": 0.0,
-      "_overall": 0.0
+      "yoga": 0.5,
+      "meditation": 0.5,
+      "_overall": 0.5
+    },
+    "2025-W50": {
+      "yoga": null,
+      "meditation": null,
+      "_overall": null
+    },
+    "2026-W10": {
+      "yoga": null,
+      "meditation": null,
+      "_overall": null
     }
   },
   "trends": {
-    "ai_automation": "stable",
-    "yoga": "declining"
+    "yoga": "insufficient_data",
+    "meditation": "insufficient_data"
   }
 }

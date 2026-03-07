@@ -477,12 +477,6 @@ async def run_tool_loop(
     Tries Claude Code CLI first (if available), falls back to Anthropic API.
     """
 
-    if not state.check_daily_budget():
-        return (
-            f"Daily token budget ({DAILY_TOKEN_BUDGET:,} tokens) reached. "
-            "Budget resets at midnight. Use /cost to see details."
-        )
-
     state.history.append({"role": "user", "content": user_message})
     state.history = _prune_history(state.history)
 
@@ -501,7 +495,12 @@ async def run_tool_loop(
         except Exception as e:
             logger.warning("CLI main loop exception, falling back to API: %s", e)
 
-    # Fall back to Anthropic API
+    # Fall back to Anthropic API — enforce budget only for paid API calls
+    if not state.check_daily_budget():
+        return (
+            f"Daily token budget ({DAILY_TOKEN_BUDGET:,} tokens) reached. "
+            "Budget resets at midnight. Use /cost to see details."
+        )
     system_messages = build_system_messages(chat_id, user_message=user_message)
 
     loop_start = time.monotonic()
