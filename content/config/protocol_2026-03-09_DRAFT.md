@@ -1,10 +1,10 @@
 ---
-title: "Protocol 2026-W01: Base Building"
-date: 2026-02-24
-week_number: W01
+title: "Protocol 2026-W11: Base Building"
+date: 2026-03-05
+week_number: W11
 tags: ["protocol"]
 phase: "Base Building"
-focus: "Swim Technique, Bike Form, Run Maintenance, Strength Preservation"
+focus: "Triathlon Training & Strength Preservation"
 target_compliance: 85%
 ---
 
@@ -12,19 +12,18 @@ target_compliance: 85%
 
 | Day | Type | Workout |
 |-----|------|---------|
-| Monday | Swim | 800m swim with technique drills: 4x100m freestyle (focus on breathing and form), 4x100m kickboard, 4x100m pull buoy |
+| Monday | Swim | 800m technique drills: 4x200m (focus on form, slow and controlled) |
 | Tuesday | Strength | Workout A: Close grip bench press 3x8 @ 115 lbs, Cable seated row 3x11 @ 120 lbs, Barbell shoulder press 3x7 @ 85 lbs, Assisted pull up 3x2 @ 50 lbs, Dumbbell lying tricep extension 3x9 @ 20 lbs, Dumbbell incline curl 3x8 @ 20 lbs, Walking lunges 3x8 @ 20 lbs, Lying leg curl 3x10 @ 125 lbs |
-| Wednesday | Bike | 60min indoor trainer: 20min warm-up, 30min at 85-95rpm, 10min cool-down |
-| Thursday | Run | 4mi easy run (HR <150) |
+| Wednesday | Bike | 60min indoor trainer: 10min warm-up, 40min steady-state at 85-95rpm, 10min cool-down |
+| Thursday | Run | 4mi easy run: Zone 2, HR <150 |
 | Friday | Strength | Workout B: Dumbbell bench press 3x10 @ 65 lbs, Dumbbell rows 3x11 @ 75 lbs, Cable tricep push downs 3x10 @ 140 lbs, Cable bicep curl 3x9 @ 100 lbs, Dumbbell overhead lateral raise 3x10 @ 12 lbs, Machine seated leg press 3x10 @ 330 lbs, Lying hamstring curls 3x9 @ 130 lbs |
-| Saturday | Brick | 30min bike + 20min run (low intensity, focus on transitions) |
-| Sunday | Rest | Active recovery: 30min walk, stretching, foam rolling |
+| Saturday | Brick | 30min bike + 20min run: Focus on smooth transitions and form |
+| Sunday | Active Recovery | 30min light walk + stretching: Focus on hip flexors and IT band |
 
 ## Training Goals
-- Establish a consistent swim routine focusing on technique
-- Build a solid base on the bike with proper form and cadence
-- Maintain running volume while keeping intensity low
-- Preserve full body strength with 2x/week full body workouts
+- Build a solid base in swimming and cycling while maintaining running fitness.
+- Maintain full body strength through consistent 2x/week workouts.
+- Ensure adequate recovery to prevent overtraining and injury.
 
 ## Weekly Targets
 
@@ -34,13 +33,15 @@ target_compliance: 85%
 - Run: 4 miles
 
 **Strength:**
-- Increase reps on cable bicep curl and cable tricep push downs by 1 rep per set
-- Maintain current weights on other lifts, focus on form and progressive overload
+- Increase weight by 2.5-5 lbs on all exercises where possible.
+- Ensure perfect form and control on all lifts.
 
 ## AI Rationale
 
-This protocol is designed to help Ryan transition smoothly from marathon running to triathlon training while preserving his strength. Given that he is a beginner in swimming and cycling, the initial focus is on technique and form to prevent injuries and build a strong foundation. The swim session is kept short and focused on drills to ensure he masters the basics. The bike session is also moderate, emphasizing form and cadence to build endurance gradually. Running is maintained at a low intensity to leverage his existing base without overloading his body.
+Given Ryan's current state of zero compliance and zero sleep hours for the past three days, it's clear that he needs a structured and manageable plan to get back on track. The focus this week is on building a solid base in swimming and cycling, leveraging his existing running base, and maintaining full body strength. The volume is kept relatively low to ensure he can handle the workload and recover effectively.
 
-Strength training is crucial to prevent muscle loss and support overall fitness. By alternating between two full-body workouts, Ryan can maintain balanced development and ensure progressive overload. The inclusion of a brick workout on Saturday helps him practice transitions, which is essential for triathlon performance.
+The swim workout focuses on technique drills to build a strong foundation, which is crucial for a beginner. The bike session is a steady-state ride to build endurance and get used to the cadence. The run is kept easy to avoid overloading his system, especially given his lower back soreness and the need to manage fatigue.
 
-The rest day on Sunday ensures adequate recovery, which is critical for sustained high performance. This balanced approach aligns with Ryan's goal of achieving top 0.01% performance across multiple domains while managing his startup and content creation responsibilities.
+Strength workouts are scheduled on Tuesday and Friday to allow for adequate recovery between sessions. Each workout alternates between Workout A and Workout B to ensure balanced development and progressive overload. The brick workout on Saturday simulates race conditions and helps with transition practice, but the volume is kept low to prevent overtraining.
+
+By focusing on consistency and gradual progression, this protocol aims to build a sustainable training routine that will support Ryan's ambitious goals while minimizing the risk of injury and burnout.
