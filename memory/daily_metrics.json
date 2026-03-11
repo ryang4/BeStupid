@@ -1,0 +1,74 @@
+{
+  "2026-03-09": {
+    "date": "2026-03-09",
+    "day": "Monday",
+    "weight_lbs": 256.2,
+    "sleep_hours": null,
+    "mood_am": null,
+    "mood_pm": null,
+    "energy": "Good",
+    "workout": {
+      "type": "Run",
+      "distance_miles": 4,
+      "duration_minutes": 55.07,
+      "avg_pace_per_mile": "13:46",
+      "avg_hr": 133,
+      "notes": "Zone 2 focus, barefoot/minimal shoes, conversational pace"
+    },
+    "nutrition": {
+      "calories": 3327,
+      "protein_g": 113,
+      "carbs_g": 450,
+      "fat_g": 114,
+      "fiber_g": 39
+    },
+    "habits": {
+      "meditation_3min": false,
+      "yoga_10min": false
+    }
+  },
+  "2026-03-10": {
+    "date": "2026-03-10",
+    "day": "Tuesday",
+    "weight_lbs": 258.2,
+    "sleep_hours": null,
+    "mood_am": null,
+    "mood_pm": null,
+    "energy": null,
+    "workout": {
+      "type": "Bike + Strength A",
+      "bike": {
+        "workout": "5x4min hard intervals",
+        "distance_miles": null,
+        "duration_minutes": 50,
+        "intensity": "Threshold, 85-90% HR"
+      },
+      "strength_a": {
+        "exercises": [
+          {"name": "Incline Bench Press", "weight_lbs": 135, "sets": 3, "reps": "10-12"},
+          {"name": "Cable Seated Row", "weight_lbs": 160, "sets": 3, "reps": "12-14", "note": "Use wrist straps"},
+          {"name": "Assisted Chin-ups", "equipment": "Black band", "sets": 3, "reps": "4-6"},
+          {"name": "Dumbbell Lying Tricep Extension", "weight_lbs": 25, "sets": 3, "reps": "12-14"}
+        ],
+        "duration_minutes": 40
+      }
+    },
+    "nutrition": {
+      "calories": 780,
+      "protein_g": 38,
+      "carbs_g": 96,
+      "fat_g": 32,
+      "fiber_g": 15,
+      "target_calories": [3000, 3500],
+      "target_protein_g": [205, 230],
+      "target_carbs_g": [812, 1160],
+      "target_fat_g": [90, 135],
+      "target_fiber_g": [25, 35],
+      "note": "Breakfast logged, need lunch + dinner"
+    },
+    "habits": {
+      "meditation_3min": null,
+      "yoga_10min": null
+    }
+  }
+}
