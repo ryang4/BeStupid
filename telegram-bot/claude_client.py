@@ -372,6 +372,28 @@ def _format_history_for_cli(history: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def _strip_hallucinated_turns(text: str) -> str:
+    """Strip hallucinated user/tool turns from CLI response.
+
+    The CLI path formats history with [USER]:, [TOOL CALL]:, etc. prefixes.
+    If the model generates these in its response, it's hallucinating a
+    multi-turn conversation. Truncate at the first hallucinated turn.
+    """
+    lines = text.split("\n")
+    clean_lines = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("[USER]:") or stripped.startswith("[TOOL CALL]:") or stripped.startswith("[TOOL RESULT]:"):
+            break
+        clean_lines.append(line)
+    result = "\n".join(clean_lines).strip()
+    if not result:
+        # If the entire response was hallucinated turns, return the original
+        # (better to show something than nothing)
+        return text
+    return result
+
+
 async def _run_tool_loop_cli(
     state: ConversationState,
     user_message: str,
@@ -387,10 +409,18 @@ async def _run_tool_loop_cli(
     system_parts = build_system_messages(chat_id, user_message=user_message)
     system_text = system_parts[0]["text"] if system_parts else SYSTEM_PROMPT
     tool_docs = _build_tool_docs()
-    full_system = f"{system_text}\n\n{tool_docs}"
+    full_system = (
+        f"{system_text}\n\n{tool_docs}\n\n"
+        "CRITICAL: You are responding to a SINGLE user message. "
+        "Do NOT simulate, predict, or generate any user replies. "
+        "Do NOT write lines starting with [USER]. "
+        "Respond ONLY as the assistant, then STOP."
+    )
 
     # Build prompt from history + current message
-    history_text = _format_history_for_cli(state.history[:-1])  # Exclude the just-appended user msg
+    # Limit history to last few turns to reduce role confusion in flat-text format
+    recent_history = state.history[-7:-1] if len(state.history) > 1 else []  # Last ~3 pairs, exclude just-appended user msg
+    history_text = _format_history_for_cli(recent_history)
     prompt = f"{history_text}\n\n[USER]: {user_message}" if history_text else user_message
 
     # Write system prompt to temp file (can be large)
@@ -450,7 +480,7 @@ async def _run_tool_loop_cli(
             response_text = raw
 
         if isinstance(response_text, str) and response_text.strip():
-            return response_text.strip()
+            return _strip_hallucinated_turns(response_text.strip())
         return ""
 
     except subprocess.TimeoutExpired:
