@@ -62,15 +62,8 @@ def _run_v2_housekeeping():
     day = services.store.ensure_day_open(resolved)
     services.projection.render_private_day_log(day["day_id"])
 
-    for action in services.reminder_policy.next_actions(OWNER_CHAT_ID, services.clock.now_utc()):
-        if services.store.record_reminder_send(
-            OWNER_CHAT_ID,
-            action.reminder_kind,
-            action.target_id,
-            action.scheduled_slot_local,
-            outcome="attempted",
-        ):
-            _send_v2_message(action.message)
+    # Reminder delivery disabled — coaching heartbeat handles proactive messaging.
+    # SimpleReminderPolicy is still available as a data source for the coaching fallback.
 
 
 def _run_brain_patterns():
