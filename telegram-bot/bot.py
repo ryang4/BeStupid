@@ -31,6 +31,7 @@ from personality import (
     save_persona_profile,
 )
 from heartbeat import get_health_status, get_heartbeat_monitor, init_heartbeat_monitor
+from coaching_heartbeat import CoachingHeartbeat, _send_telegram_async
 from scheduler import start_scheduler
 from v2.bootstrap import get_services
 
@@ -52,6 +53,7 @@ _conversations: dict[int, ConversationState] = {}
 _chat_locks: dict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
 _onboarding_sessions: dict[int, dict] = {}
 _heartbeat_task: asyncio.Task | None = None
+_coaching_heartbeat: CoachingHeartbeat | None = None
 
 
 def _get_conversation(chat_id: int) -> ConversationState:
@@ -300,21 +302,41 @@ def _split_message(text: str, max_len: int = 4000) -> list[str]:
 async def _post_init(app: Application):
     """Initialize async background services after the bot event loop starts."""
     del app  # Unused
-    interval_minutes = int(os.environ.get("HEARTBEAT_INTERVAL_MINUTES", "60"))
-    monitor = init_heartbeat_monitor(interval_minutes=interval_minutes)
-    global _heartbeat_task
-    _heartbeat_task = asyncio.create_task(monitor.run_forever(), name="heartbeat-monitor")
-    logger.info(f"Heartbeat monitor started ({interval_minutes} minute interval)")
+
+    # Health monitor (passive — no longer runs as a task, just tracks metrics)
+    init_heartbeat_monitor(interval_minutes=60)
+
+    # Coaching heartbeat (replaces old heartbeat messaging)
+    global _coaching_heartbeat, _heartbeat_task
+    prompt_path = Path(__file__).parent / "prompts" / "coaching_prompt.md"
+    try:
+        services = get_services()
+        _coaching_heartbeat = CoachingHeartbeat(
+            chat_id=OWNER_CHAT_ID,
+            get_conversation=_get_conversation,
+            chat_lock=_chat_locks[OWNER_CHAT_ID],
+            services=services,
+            send_telegram=_send_telegram_async,
+            prompt_path=prompt_path,
+        )
+        _heartbeat_task = asyncio.create_task(
+            _coaching_heartbeat.run_forever(), name="coaching-heartbeat"
+        )
+        logger.info("Coaching heartbeat started")
+    except FileNotFoundError:
+        logger.warning("Coaching prompt not found at %s — coaching disabled", prompt_path)
+    except Exception:
+        logger.exception("Failed to start coaching heartbeat")
 
 
 async def _post_shutdown(app: Application):
     """Stop async background services cleanly."""
     del app  # Unused
-    monitor = get_heartbeat_monitor()
-    if monitor:
-        monitor.stop()
+    global _coaching_heartbeat, _heartbeat_task
 
-    global _heartbeat_task
+    if _coaching_heartbeat:
+        _coaching_heartbeat.stop()
+
     if _heartbeat_task:
         _heartbeat_task.cancel()
         try:
@@ -322,6 +344,7 @@ async def _post_shutdown(app: Application):
         except asyncio.CancelledError:
             pass
         _heartbeat_task = None
+        _coaching_heartbeat = None
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -343,6 +366,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         monitor = get_heartbeat_monitor()
         if monitor:
             monitor.record_activity()
+        if _coaching_heartbeat:
+            _coaching_heartbeat.record_activity()
 
         if chat_id in _onboarding_sessions:
             onboarding_reply, _ = _apply_onboarding_answer(chat_id, user_text)
@@ -651,6 +676,33 @@ async def cmd_close_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await _send_message(update, f"Closed `{resolved.local_date}`.")
 
 
+async def cmd_mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    if not _coaching_heartbeat:
+        await _send_message(update, "Coaching heartbeat is not active.")
+        return
+    minutes = 60
+    if context.args:
+        try:
+            minutes = int(context.args[0])
+        except ValueError:
+            await _send_message(update, "Usage: `/mute [minutes]` (1-1440)")
+            return
+    actual = _coaching_heartbeat.mute(minutes)
+    await _send_message(update, f"Coaching muted for {actual} minutes.")
+
+
+async def cmd_unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    if not _coaching_heartbeat:
+        await _send_message(update, "Coaching heartbeat is not active.")
+        return
+    _coaching_heartbeat.unmute()
+    await _send_message(update, "Coaching unmuted.")
+
+
 def main():
     if not TELEGRAM_TOKEN:
         print("Error: TELEGRAM_BOT_TOKEN not set")
@@ -683,6 +735,8 @@ def main():
     app.add_handler(CommandHandler("resetpersona", cmd_resetpersona))
     app.add_handler(CommandHandler("policy", cmd_policy))
     app.add_handler(CommandHandler("resetpolicy", cmd_resetpolicy))
+    app.add_handler(CommandHandler("mute", cmd_mute))
+    app.add_handler(CommandHandler("unmute", cmd_unmute))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     logger.info("Bot starting (Anthropic SDK mode)")
