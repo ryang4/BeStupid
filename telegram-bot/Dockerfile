@@ -23,6 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy bot code and entrypoint
 COPY *.py ./
+COPY v2/ ./v2/
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Create non-root user and ensure home dir is accessible for entrypoint setup
