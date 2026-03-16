@@ -9,6 +9,7 @@ import sys
 import logging
 import asyncio
 import subprocess
+import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -31,6 +32,7 @@ from personality import (
 )
 from heartbeat import get_health_status, get_heartbeat_monitor, init_heartbeat_monitor
 from scheduler import start_scheduler
+from v2.bootstrap import get_services
 
 load_dotenv(Path(__file__).parent / ".env")
 
@@ -216,55 +218,34 @@ def _apply_onboarding_answer(chat_id: int, user_text: str) -> tuple[str, bool]:
     ), True
 
 
-def _run_context_briefing() -> str:
-    """Run context_briefing.py --full and return output."""
-    try:
-        result = subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "context_briefing.py"), "--full"],
-            capture_output=True, text=True, timeout=30,
-            cwd=str(PROJECT_ROOT),
+def _render_v2_context(chat_id: int) -> str:
+    services = get_services()
+    resolved = services.timezone_resolver.resolve_now(chat_id)
+    services.store.ensure_day_open(resolved)
+    envelope = services.context_assembler.build(chat_id, user_text="")
+    return envelope.dynamic_system_prompt or "No V2 context available."
+
+
+def _preprocess_user_corrections(chat_id: int, user_text: str):
+    """Apply explicit day/time corrections before the model sees the message."""
+    services = get_services()
+    timezone_match = re.search(
+        r"\b(?:i am at|i'm at|my timezone is|timezone is)\s+([A-Za-z_]+\/[A-Za-z_]+|UTC[+-]\d{1,2}(?::?\d{2})?|[+-]\d{1,2}(?::?\d{2})?)",
+        user_text,
+        re.IGNORECASE,
+    )
+    if timezone_match:
+        tz_text = timezone_match.group(1).strip()
+        services.timezone_resolver.set_current_timezone(chat_id, tz_text, source="explicit_user")
+
+    day_match = re.search(r"\btoday is ([A-Za-z]+)\b", user_text, re.IGNORECASE)
+    if day_match:
+        resolved = services.timezone_resolver.resolve_now(chat_id)
+        services.store.record_day_correction(
+            chat_id,
+            resolved.local_date,
+            f"User corrected the day reference to {day_match.group(1).strip().title()}",
         )
-        return result.stdout.strip() if result.stdout.strip() else "No context available."
-    except Exception as e:
-        logger.error(f"Context briefing failed: {e}")
-        return f"Context briefing failed: {e}"
-
-
-def _run_memory_extract(text: str):
-    """Run memory.py extract on text (fire-and-forget, legacy)."""
-    try:
-        subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "memory.py"), "extract", text],
-            capture_output=True, text=True, timeout=60,
-            cwd=str(PROJECT_ROOT),
-        )
-    except Exception as e:
-        logger.error(f"Memory extraction failed: {e}")
-
-
-def _run_brain_ingest(user_text: str, response_text: str, chat_id: int = 0):
-    """Ingest conversation turn into brain DB (fire-and-forget).
-
-    Skips extraction on short/trivial messages to save API costs.
-    Documents are always stored; extraction only runs on substantial messages.
-    """
-    try:
-        sys.path.insert(0, str(SCRIPTS_DIR))
-        from brain_db import ingest_document
-
-        combined = f"User: {user_text}\n\nAssistant: {response_text}"
-        # Only run extraction (Haiku call) on substantial messages
-        should_extract = len(user_text) > 60
-        ingest_document(
-            content=combined,
-            doc_type="conversation",
-            title=user_text[:100],
-            source=f"chat_{chat_id}",
-            extract=should_extract,
-            embed=True,
-        )
-    except Exception as e:
-        logger.error(f"Brain ingestion failed: {e}")
 
 
 def _run_auto_backup():
@@ -277,6 +258,20 @@ def _run_auto_backup():
         )
     except Exception as e:
         logger.error(f"Auto backup failed: {e}")
+
+
+def _run_memory_extract(text: str):
+    """Run legacy memory extraction fire-and-forget path for compatibility."""
+    try:
+        subprocess.run(
+            [sys.executable, str(SCRIPTS_DIR / "memory.py"), "extract", text],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            cwd=str(PROJECT_ROOT),
+        )
+    except Exception as e:
+        logger.error(f"Memory extraction failed: {e}")
 
 
 def _is_authorized(update: Update) -> bool:
@@ -342,6 +337,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     async with lock:
+        services = get_services()
         state = _get_conversation(chat_id)
         user_text = (update.message.text or "").strip()
         monitor = get_heartbeat_monitor()
@@ -353,20 +349,13 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await _send_message(update, onboarding_reply)
             return
 
-        # On new session (empty history), inject context briefing
-        if not state.history:
-            briefing = await asyncio.to_thread(_run_context_briefing)
-            context_msg = f"[AUTO-CONTEXT] New session. Here's my current context:\n\n{briefing}"
-            persona_hint = ""
-            if not load_persona_profile(chat_id):
-                persona_hint = "\nRun /onboard to configure your assistant's personality."
-            # Run tool loop with context briefing first (no save needed, next call saves)
-            await asyncio.to_thread(lambda: None)  # yield
-            state.history.append({"role": "user", "content": context_msg})
-            state.history.append({
-                "role": "assistant",
-                "content": "Got it — I've reviewed your current context. How can I help?" + persona_hint,
-            })
+        if not services.store.mark_update_processed(chat_id, update.update_id):
+            logger.info("Skipping duplicate Telegram update %s for chat %s", update.update_id, chat_id)
+            return
+
+        _preprocess_user_corrections(chat_id, user_text)
+        resolved = services.timezone_resolver.resolve_now(chat_id)
+        day = services.store.ensure_day_open(resolved)
 
         async def typing_callback():
             await context.bot.send_chat_action(chat_id=chat_id, action="typing")
@@ -387,9 +376,27 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await _send_message(update, response)
 
-        # Fire-and-forget: brain ingestion + git backup
+        session = services.store.get_or_create_session(chat_id, resolved.utc_now)
+        user_turn_id = services.store.record_turn(
+            chat_id=chat_id,
+            session_id=session["session_id"],
+            update_id=update.update_id,
+            role="user",
+            text=user_text,
+        )
+        services.memory_review.extract_candidates(chat_id, user_turn_id, user_text)
+        services.store.record_turn(
+            chat_id=chat_id,
+            session_id=session["session_id"],
+            update_id=update.update_id,
+            role="assistant",
+            text=response,
+        )
+        services.store.refresh_session_summary(session["session_id"])
+        services.projection.render_private_day_log(day["day_id"])
+
+        # Fire-and-forget: keep existing backup behavior for resilience.
         loop = asyncio.get_event_loop()
-        loop.run_in_executor(None, _run_brain_ingest, user_text, response, chat_id)
         loop.run_in_executor(None, _run_auto_backup)
 
 
@@ -397,13 +404,19 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_authorized(update):
         return
     await update.message.reply_text(
-        "BeStupid assistant (Anthropic SDK)\n\n"
+        "BeStupid assistant (V2 core)\n\n"
         "Just chat naturally:\n"
-        "- 'Read today's log'\n"
         "- 'Log weight 241'\n"
-        "- 'Find files mentioning protein'\n"
-        "- 'Remember that John is my accountant'\n\n"
-        "/context - Show current briefing\n"
+        "- 'I am at UTC-5'\n"
+        "- 'Remember that John is my accountant'\n"
+        "- 'Remind me to follow up with Sarah tomorrow'\n\n"
+        "/today - Show canonical day snapshot\n"
+        "/travel - Update current timezone\n"
+        "/review - Review pending memory candidates\n"
+        "/followups - Show due open loops and follow-ups\n"
+        "/snooze - Snooze an open loop by id or title\n"
+        "/close_day - Close the current local day\n"
+        "/context - Show current V2 dynamic context\n"
         "/health - Bot health + heartbeat status\n"
         "/cost - Token usage\n"
         "/onboard - Configure assistant personality\n"
@@ -417,8 +430,9 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_context(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_authorized(update):
         return
-    briefing = await asyncio.to_thread(_run_context_briefing)
-    await _send_message(update, briefing)
+    del context
+    chat_id = update.effective_chat.id
+    await _send_message(update, _render_v2_context(chat_id))
 
 
 async def cmd_health(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -502,10 +516,147 @@ async def cmd_resetpolicy(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await _send_message(update, "Agent policy reset.\n\n" + format_agent_policy(updated))
 
 
+async def cmd_today(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    del context
+    chat_id = update.effective_chat.id
+    services = get_services()
+    resolved = services.timezone_resolver.resolve_now(chat_id)
+    services.store.ensure_day_open(resolved)
+    snapshot = services.store.get_day_snapshot(chat_id, resolved.local_date)
+    if not snapshot:
+        await _send_message(update, "No current day snapshot is available.")
+        return
+    lines = [
+        f"*Today* `{snapshot.local_date}`",
+        f"- Timezone: `{snapshot.timezone}`",
+        f"- Status: `{snapshot.status}`",
+        f"- State version: `{snapshot.state_version}`",
+    ]
+    if snapshot.metrics:
+        lines.append("- Metrics:")
+        for field, value in sorted(snapshot.metrics.items()):
+            lines.append(f"  `{field}` = {value}")
+    if snapshot.habits:
+        lines.append("- Habits:")
+        for habit in snapshot.habits:
+            lines.append(f"  {habit['name']}: `{habit['status']}`")
+    if snapshot.open_loops:
+        lines.append("- Open loops:")
+        for item in snapshot.open_loops[:5]:
+            lines.append(f"  `{item['loop_id']}` [{item['priority']}] {item['title']}")
+    await _send_message(update, "\n".join(lines))
+
+
+async def cmd_travel(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    chat_id = update.effective_chat.id
+    services = get_services()
+    timezone_text = " ".join(context.args).strip()
+    if not timezone_text:
+        resolved = services.timezone_resolver.resolve_now(chat_id)
+        await _send_message(update, f"Current timezone: `{resolved.timezone_label}`. Use `/travel America/Los_Angeles` or `/travel UTC-5`.")
+        return
+    resolved = services.timezone_resolver.set_current_timezone(chat_id, timezone_text, source="explicit_user")
+    services.store.ensure_day_open(resolved)
+    await _send_message(update, f"Timezone updated to `{resolved.timezone_label}`. Local date is `{resolved.local_date}`.")
+
+
+async def cmd_review(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    chat_id = update.effective_chat.id
+    services = get_services()
+    if len(context.args) >= 2:
+        candidate_id = context.args[0]
+        action = context.args[1].lower()
+        result = services.memory_review.review_candidate(chat_id, candidate_id, action)
+        if not result:
+            await _send_message(update, f"Candidate not found: `{candidate_id}`")
+            return
+        await _send_message(update, f"Candidate `{candidate_id}` -> `{result['status']}`")
+        return
+    pending = services.store.list_pending_memory_candidates(chat_id, limit=20)
+    if not pending:
+        await _send_message(update, "No pending memory candidates.")
+        return
+    lines = ["*Pending Memory Candidates*"]
+    for item in pending:
+        lines.append(f"- `{item.candidate_id}` [{item.kind}] {item.payload} ({item.reason})")
+    await _send_message(update, "\n".join(lines))
+
+
+async def cmd_followups(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    del context
+    chat_id = update.effective_chat.id
+    services = get_services()
+    due = services.store.list_due_followups(chat_id, now_utc=services.clock.now_utc(), limit=10)
+    if not due:
+        await _send_message(update, "No due follow-ups.")
+        return
+    lines = ["*Due Follow-ups*"]
+    for item in due:
+        suffix = f" due `{item['due_at_utc']}`" if item.get("due_at_utc") else ""
+        lines.append(f"- `{item['loop_id']}` [{item['priority']}] {item['title']}{suffix}")
+    await _send_message(update, "\n".join(lines))
+
+
+async def cmd_snooze(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    chat_id = update.effective_chat.id
+    services = get_services()
+    if not context.args:
+        await _send_message(update, "Usage: `/snooze <loop_id_or_title> [minutes]`")
+        return
+    minutes = 60
+    target_parts = list(context.args)
+    if target_parts and target_parts[-1].isdigit():
+        try:
+            minutes = int(target_parts[-1])
+            target_parts = target_parts[:-1]
+        except ValueError:
+            await _send_message(update, "Minutes must be an integer.")
+            return
+    target = " ".join(target_parts).strip()
+    if not target:
+        await _send_message(update, "Usage: `/snooze <loop_id_or_title> [minutes]`")
+        return
+    result = services.store.snooze_open_loop(chat_id, target, minutes)
+    if not result:
+        await _send_message(update, f"No open loop found for `{target}`.")
+        return
+    await _send_message(update, f"Snoozed `{result['title']}` until `{result['snoozed_until_utc']}`.")
+
+
+async def cmd_close_day(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_authorized(update):
+        return
+    del context
+    chat_id = update.effective_chat.id
+    services = get_services()
+    resolved = services.timezone_resolver.resolve_now(chat_id)
+    if not services.store.close_day(chat_id, resolved.local_date):
+        await _send_message(update, f"No open day found for `{resolved.local_date}`.")
+        return
+    snapshot = services.store.get_day_snapshot(chat_id, resolved.local_date)
+    if snapshot:
+        path = services.projection.render_private_day_log(snapshot.day_id)
+        await _send_message(update, f"Closed `{resolved.local_date}` and rendered private log to `{path}`.")
+    else:
+        await _send_message(update, f"Closed `{resolved.local_date}`.")
+
+
 def main():
     if not TELEGRAM_TOKEN:
         print("Error: TELEGRAM_BOT_TOKEN not set")
         sys.exit(1)
+
+    get_services()
 
     # Start background scheduler for cron-like jobs
     start_scheduler()
@@ -518,6 +669,12 @@ def main():
         .build()
     )
     app.add_handler(CommandHandler("start", cmd_start))
+    app.add_handler(CommandHandler("today", cmd_today))
+    app.add_handler(CommandHandler("travel", cmd_travel))
+    app.add_handler(CommandHandler("review", cmd_review))
+    app.add_handler(CommandHandler("followups", cmd_followups))
+    app.add_handler(CommandHandler("snooze", cmd_snooze))
+    app.add_handler(CommandHandler("close_day", cmd_close_day))
     app.add_handler(CommandHandler("context", cmd_context))
     app.add_handler(CommandHandler("health", cmd_health))
     app.add_handler(CommandHandler("cost", cmd_cost))

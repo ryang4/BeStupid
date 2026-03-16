@@ -3,10 +3,8 @@ Tests for git backup operations.
 Verifies locking, retry logic, and pull-before-push behavior.
 """
 
-import os
 import subprocess
 import sys
-import tempfile
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch, call
@@ -20,27 +18,34 @@ class TestBackupLocking:
     """Test that concurrent backups are prevented via locking."""
 
     def test_only_one_backup_runs_at_a_time(self, tmp_path):
-        """Test that flock prevents concurrent backup runs."""
+        """Test that file locking prevents concurrent backup runs."""
         lock_file = tmp_path / "backup.lock"
 
-        # Create a test script that simulates backup with locking
-        test_script = tmp_path / "test_lock.sh"
-        test_script.write_text(f"""#!/bin/bash
-exec 200>{lock_file}
-if ! flock -n 200; then
-    echo "LOCKED"
-    exit 1
-fi
-sleep 0.5
-echo "COMPLETED"
-""")
+        # Use Python fcntl locking so the test stays portable across hosts.
+        test_script = tmp_path / "test_lock.py"
+        test_script.write_text(
+            f"""#!/usr/bin/env python3
+import fcntl
+import time
+
+with open(r"{lock_file}", "a+") as handle:
+    try:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("LOCKED")
+        raise SystemExit(1)
+
+    time.sleep(0.5)
+    print("COMPLETED")
+"""
+        )
         test_script.chmod(0o755)
 
         results = []
 
         def run_backup(idx):
             result = subprocess.run(
-                ["bash", str(test_script)],
+                [sys.executable, str(test_script)],
                 capture_output=True,
                 text=True,
                 timeout=5

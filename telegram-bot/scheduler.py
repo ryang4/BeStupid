@@ -13,7 +13,9 @@ import threading
 import time
 from pathlib import Path
 
+import requests
 import schedule
+from v2.bootstrap import get_services
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +23,8 @@ logger = logging.getLogger(__name__)
 PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 CRON_CONFIG = PRIVATE_DIR / "cron_jobs.json"
 PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", "0") or 0)
 
 # Map job names to their actual implementations
 JOB_COMMANDS = {
@@ -29,9 +33,44 @@ JOB_COMMANDS = {
     "evening_screens": ["python", "scripts/send_routine_reminder.py", "evening_screens"],
     "evening_bed": ["python", "scripts/send_routine_reminder.py", "evening_bed"],
     "daily_planner": ["python", "scripts/daily_planner.py"],
-    "auto_backup": ["python", "scripts/robust_git_backup.py"],
+    "auto_backup": ["bash", "scripts/auto_backup.sh"],
     "brain_pattern_detection": None,  # Handled in-process, not via subprocess
 }
+_last_v2_housekeeping = 0.0
+
+
+def _send_v2_message(text: str) -> bool:
+    if not TELEGRAM_BOT_TOKEN or not OWNER_CHAT_ID:
+        return False
+    try:
+        response = requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
+            json={"chat_id": OWNER_CHAT_ID, "text": text, "parse_mode": "Markdown"},
+            timeout=10,
+        )
+        return response.status_code == 200
+    except Exception:
+        logger.exception("Failed to send V2 reminder")
+        return False
+
+
+def _run_v2_housekeeping():
+    if not OWNER_CHAT_ID:
+        return
+    services = get_services()
+    resolved = services.timezone_resolver.resolve_now(OWNER_CHAT_ID)
+    day = services.store.ensure_day_open(resolved)
+    services.projection.render_private_day_log(day["day_id"])
+
+    for action in services.reminder_policy.next_actions(OWNER_CHAT_ID, services.clock.now_utc()):
+        if services.store.record_reminder_send(
+            OWNER_CHAT_ID,
+            action.reminder_kind,
+            action.target_id,
+            action.scheduled_slot_local,
+            outcome="attempted",
+        ):
+            _send_v2_message(action.message)
 
 
 def _run_brain_patterns():
@@ -105,6 +144,35 @@ def _cron_to_schedule_time(cron_schedule: str) -> str | None:
         return None
 
 
+def _schedule_from_cron(name: str, cron_schedule: str) -> bool:
+    """Schedule daily or simple hourly-interval jobs."""
+    parts = cron_schedule.strip().split()
+    if len(parts) != 5:
+        return False
+
+    minute, hour, day, month, dow = parts
+    if day != "*" or month != "*" or dow != "*":
+        logger.warning(f"Unsupported cron schedule (only daily/hourly supported): {cron_schedule}")
+        return False
+
+    time_str = _cron_to_schedule_time(cron_schedule)
+    if time_str:
+        schedule.every().day.at(time_str).do(_run_job, name)
+        logger.info(f"Scheduled {name} at {time_str}")
+        return True
+
+    if minute.isdigit() and hour.startswith("*/") and hour[2:].isdigit():
+        interval = int(hour[2:])
+        if interval <= 0:
+            return False
+        schedule.every(interval).hours.at(f":{int(minute):02d}").do(_run_job, name)
+        logger.info(f"Scheduled {name} every {interval} hours at minute {minute}")
+        return True
+
+    logger.warning(f"Unsupported cron schedule: {cron_schedule}")
+    return False
+
+
 def load_and_schedule_jobs():
     """Load jobs from config and schedule them."""
     schedule.clear()  # Clear any existing jobs
@@ -129,12 +197,8 @@ def load_and_schedule_jobs():
             continue
 
         cron_schedule = entry.get("schedule", "")
-        time_str = _cron_to_schedule_time(cron_schedule)
-        if not time_str:
+        if not _schedule_from_cron(name, cron_schedule):
             continue
-
-        schedule.every().day.at(time_str).do(_run_job, name)
-        logger.info(f"Scheduled {name} at {time_str}")
         scheduled += 1
 
     return scheduled
@@ -142,10 +206,15 @@ def load_and_schedule_jobs():
 
 def _scheduler_loop():
     """Main scheduler loop - runs in background thread."""
+    global _last_v2_housekeeping
     logger.info("Scheduler thread started")
     while True:
         try:
             schedule.run_pending()
+            now = time.time()
+            if now - _last_v2_housekeeping >= 300:
+                _run_v2_housekeeping()
+                _last_v2_housekeeping = now
         except Exception as e:
             logger.error(f"Scheduler error: {e}")
         time.sleep(30)  # Check every 30 seconds

@@ -11,6 +11,11 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
+import requests
+
+module = sys.modules[__name__]
+sys.modules.setdefault("notify_backup_failure", module)
+sys.modules.setdefault("scripts.notify_backup_failure", module)
 
 # Add project paths
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -27,8 +32,6 @@ OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", 0))
 def send_telegram_message(text: str, parse_mode: str = "Markdown") -> bool:
     """Send a message to OWNER_CHAT_ID via Telegram Bot API."""
     try:
-        import requests
-
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
         payload = {
             "chat_id": OWNER_CHAT_ID,

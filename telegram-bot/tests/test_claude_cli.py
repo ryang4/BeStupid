@@ -358,7 +358,7 @@ class TestClaudeClientHelpers:
         docs = claude_client._build_tool_docs()
         assert "AVAILABLE TOOLS:" in docs
         # Should contain at least one tool
-        from tools import TOOLS
+        from tools_v2 import TOOLS
         for tool in TOOLS[:3]:  # Check first 3 tools
             assert tool["name"] in docs
 

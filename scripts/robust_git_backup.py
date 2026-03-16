@@ -7,8 +7,12 @@ import subprocess
 import os
 import sys
 import time
+import fcntl
 from pathlib import Path
 from datetime import datetime
+
+
+LOCK_PATH = Path(os.environ.get("BACKUP_LOCK_PATH", "/project/.bestupid-private/backup.lock"))
 
 def run_cmd(cmd, timeout=60, max_retries=3):
     """Run a command with retries and timeout handling"""
@@ -136,27 +140,57 @@ def health_check():
     print("✅ Git health check passed")
     return True
 
+
+def acquire_backup_lock():
+    """Acquire a non-blocking process lock for backup runs."""
+    LOCK_PATH.parent.mkdir(parents=True, exist_ok=True)
+    lock_file = open(LOCK_PATH, "a+")
+    try:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lock_file
+    except BlockingIOError:
+        lock_file.close()
+        return None
+
+
+def release_backup_lock(lock_file):
+    """Release a previously acquired backup lock."""
+    if not lock_file:
+        return
+    try:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+    finally:
+        lock_file.close()
+
 def main():
     print("=== ROBUST GIT BACKUP ===")
     print(f"Starting at {datetime.now()}")
-    
-    # Step 1: Health check
-    if not health_check():
-        print("💔 Health check failed - aborting")
-        return False
-    
-    # Step 2: Force sync to get clean state
-    if not force_sync_with_remote():
-        print("💔 Force sync failed - aborting")
-        return False
-    
-    # Step 3: Safe commit and push
-    if not safe_commit_and_push():
-        print("💔 Commit/push failed")
-        return False
-    
-    print("🎉 Robust backup completed successfully!")
-    return True
+
+    lock_file = acquire_backup_lock()
+    if lock_file is None:
+        print("Another backup already running")
+        return True
+
+    try:
+        # Step 1: Health check
+        if not health_check():
+            print("💔 Health check failed - aborting")
+            return False
+
+        # Step 2: Force sync to get clean state
+        if not force_sync_with_remote():
+            print("💔 Force sync failed - aborting")
+            return False
+
+        # Step 3: Safe commit and push
+        if not safe_commit_and_push():
+            print("💔 Commit/push failed")
+            return False
+
+        print("🎉 Robust backup completed successfully!")
+        return True
+    finally:
+        release_backup_lock(lock_file)
 
 if __name__ == "__main__":
     success = main()

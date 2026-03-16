@@ -24,26 +24,41 @@ from agent_policy import apply_agent_policy_update, format_agent_policy, load_ag
 
 # --- Security: path restrictions ---
 
-READABLE_PREFIXES = [
-    REPO_ROOT / "content",
-    REPO_ROOT / "memory",
-    REPO_ROOT / "scripts",
-    REPO_ROOT / "telegram-bot",  # Read-only access to its own code
-    REPO_ROOT / "logs",          # Access to debug logs
-    REPO_ROOT / "data",          # Access to data files
-    REPO_ROOT / "docs",          # Access to documentation
-    PRIVATE_DIR,
-]
-
-WRITABLE_PREFIXES = [
-    REPO_ROOT / "content" / "logs",
-    REPO_ROOT / "memory",
-    REPO_ROOT / "scripts",
-    REPO_ROOT / "logs",          # Can manage log files
-    PRIVATE_DIR,
-]
+READABLE_PREFIXES = None
+WRITABLE_PREFIXES = None
 
 BLOCKED_PATTERNS = [".env", ".git/", ".git\\", "__pycache__"]
+
+
+def _default_readable_prefixes() -> list[Path]:
+    return [
+        REPO_ROOT / "content",
+        REPO_ROOT / "memory",
+        REPO_ROOT / "scripts",
+        REPO_ROOT / "telegram-bot",
+        REPO_ROOT / "logs",
+        REPO_ROOT / "data",
+        REPO_ROOT / "docs",
+        PRIVATE_DIR,
+    ]
+
+
+def _default_writable_prefixes() -> list[Path]:
+    return [
+        REPO_ROOT / "content" / "logs",
+        REPO_ROOT / "memory",
+        REPO_ROOT / "scripts",
+        REPO_ROOT / "logs",
+        PRIVATE_DIR,
+    ]
+
+
+def _get_readable_prefixes() -> list[Path]:
+    return READABLE_PREFIXES if READABLE_PREFIXES is not None else _default_readable_prefixes()
+
+
+def _get_writable_prefixes() -> list[Path]:
+    return WRITABLE_PREFIXES if WRITABLE_PREFIXES is not None else _default_writable_prefixes()
 
 
 def _is_path_blocked(path: Path) -> bool:
@@ -56,7 +71,7 @@ def _check_readable(path: Path) -> str | None:
     resolved = path.resolve()
     if _is_path_blocked(resolved):
         return f"Access denied: {path}"
-    for prefix in READABLE_PREFIXES:
+    for prefix in _get_readable_prefixes():
         try:
             resolved.relative_to(prefix.resolve())
             return None
@@ -70,7 +85,7 @@ def _check_writable(path: Path) -> str | None:
     resolved = path.resolve()
     if _is_path_blocked(resolved):
         return f"Access denied: {path}"
-    for prefix in WRITABLE_PREFIXES:
+    for prefix in _get_writable_prefixes():
         try:
             resolved.relative_to(prefix.resolve())
             return None
@@ -496,67 +511,69 @@ TOOLS = [
 
 async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
     """Execute a tool and return result string."""
-
-    if name == "read_file":
-        return read_file(inputs["path"])
-    elif name == "write_file":
-        return write_file(inputs["path"], inputs["content"])
-    elif name == "update_metric":
-        return update_metric_in_log(inputs["field"], inputs["value"])
-    elif name == "run_daily_planner":
-        return run_daily_planner()
-    elif name == "run_weekly_planner":
-        return run_weekly_planner(this_week=inputs.get("this_week", False))
-    elif name == "get_brain_status":
-        return get_brain_status()
-    elif name == "capture_to_inbox":
-        return capture_to_inbox(inputs["text"])
-    elif name == "search_logs":
-        return search_logs(inputs["query"], inputs.get("days", 30))
-    elif name == "manage_cron":
-        return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"))
-    elif name == "list_files":
-        return list_files(inputs["path"], inputs.get("pattern", "*"))
-    elif name == "grep_files":
-        return grep_files(inputs["pattern"], inputs.get("path", "."), inputs.get("file_glob", "*.md"))
-    elif name == "run_memory_command":
-        return run_memory_command(inputs["args"])
-    elif name == "run_script":
-        return run_script(inputs["script_name"], inputs.get("args", ""))
-    elif name == "search_conversation_history":
-        return search_conversation_history(inputs["query"], inputs.get("limit", 20))
-    elif name == "get_system_status":
-        return get_system_status()
-    elif name == "get_current_datetime":
-        return get_current_datetime()
-    elif name == "check_git_health":
-        return check_git_health()
-    elif name == "sync_with_remote":
-        return sync_with_remote()
-    elif name == "get_agent_policy":
-        return get_agent_policy(chat_id=chat_id)
-    elif name == "self_update_policy":
-        return self_update_policy(
-            action=inputs["action"],
-            reason=inputs["reason"],
-            chat_id=chat_id,
-            rules=inputs.get("rules"),
-            focus=inputs.get("focus"),
-        )
-    elif name == "fact_check":
-        return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30))
-    elif name == "semantic_search":
-        return tool_semantic_search(inputs["query"], inputs.get("doc_type", ""), inputs.get("limit", 5))
-    elif name == "ingest_content":
-        return tool_ingest_content(inputs["content"], inputs.get("title", ""), inputs.get("doc_type", "note"))
-    elif name == "explore_connections":
-        return tool_explore_connections(inputs["entity_name"], inputs.get("hops", 1))
-    elif name == "brain_stats":
-        return tool_brain_stats()
-    elif name == "log_food":
-        return tool_log_food(inputs["food_description"])
-    elif name == "get_nutrition_totals":
-        return tool_get_nutrition_totals(inputs.get("date"))
+    try:
+        if name == "read_file":
+            return read_file(inputs["path"])
+        elif name == "write_file":
+            return write_file(inputs["path"], inputs["content"])
+        elif name == "update_metric":
+            return update_metric_in_log(inputs["field"], inputs["value"])
+        elif name == "run_daily_planner":
+            return run_daily_planner()
+        elif name == "run_weekly_planner":
+            return run_weekly_planner(this_week=inputs.get("this_week", False))
+        elif name == "get_brain_status":
+            return get_brain_status()
+        elif name == "capture_to_inbox":
+            return capture_to_inbox(inputs["text"])
+        elif name == "search_logs":
+            return search_logs(inputs["query"], inputs.get("days", 30))
+        elif name == "manage_cron":
+            return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"))
+        elif name == "list_files":
+            return list_files(inputs["path"], inputs.get("pattern", "*"))
+        elif name == "grep_files":
+            return grep_files(inputs["pattern"], inputs.get("path", "."), inputs.get("file_glob", "*.md"))
+        elif name == "run_memory_command":
+            return run_memory_command(inputs["args"])
+        elif name == "run_script":
+            return run_script(inputs["script_name"], inputs.get("args", ""))
+        elif name == "search_conversation_history":
+            return search_conversation_history(inputs["query"], inputs.get("limit", 20))
+        elif name == "get_system_status":
+            return get_system_status()
+        elif name == "get_current_datetime":
+            return get_current_datetime()
+        elif name == "check_git_health":
+            return check_git_health()
+        elif name == "sync_with_remote":
+            return sync_with_remote()
+        elif name == "get_agent_policy":
+            return get_agent_policy(chat_id=chat_id)
+        elif name == "self_update_policy":
+            return self_update_policy(
+                action=inputs["action"],
+                reason=inputs["reason"],
+                chat_id=chat_id,
+                rules=inputs.get("rules"),
+                focus=inputs.get("focus"),
+            )
+        elif name == "fact_check":
+            return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30))
+        elif name == "semantic_search":
+            return tool_semantic_search(inputs["query"], inputs.get("doc_type", ""), inputs.get("limit", 5))
+        elif name == "ingest_content":
+            return tool_ingest_content(inputs["content"], inputs.get("title", ""), inputs.get("doc_type", "note"))
+        elif name == "explore_connections":
+            return tool_explore_connections(inputs["entity_name"], inputs.get("hops", 1))
+        elif name == "brain_stats":
+            return tool_brain_stats()
+        elif name == "log_food":
+            return tool_log_food(inputs["food_description"])
+        elif name == "get_nutrition_totals":
+            return tool_get_nutrition_totals(inputs.get("date"))
+    except Exception as e:
+        return f"Tool error: {e}"
 
     return f"Unknown tool: {name}"
 
@@ -589,7 +606,9 @@ def write_file(path: str, content: str) -> str:
         return err
 
     full_path.parent.mkdir(parents=True, exist_ok=True)
-    full_path.write_text(content)
+    tmp_path = full_path.with_suffix(".tmp")
+    tmp_path.write_text(content)
+    tmp_path.rename(full_path)
     return f"Wrote {len(content)} bytes to {path}"
 
 
@@ -808,13 +827,18 @@ CRON_CONFIG = PRIVATE_DIR / "cron_jobs.json"
 
 def _load_cron_config() -> dict:
     if CRON_CONFIG.exists():
-        return json.loads(CRON_CONFIG.read_text())
+        try:
+            return json.loads(CRON_CONFIG.read_text())
+        except (json.JSONDecodeError, OSError):
+            return {}
     return {}
 
 
 def _save_cron_config(config: dict) -> None:
     CRON_CONFIG.parent.mkdir(parents=True, exist_ok=True)
-    CRON_CONFIG.write_text(json.dumps(config, indent=2) + "\n")
+    tmp_path = CRON_CONFIG.with_suffix(".tmp")
+    tmp_path.write_text(json.dumps(config, indent=2) + "\n")
+    tmp_path.rename(CRON_CONFIG)
 
 
 def _sync_cron_to_scheduler() -> str | None:
