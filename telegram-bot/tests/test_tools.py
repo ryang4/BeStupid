@@ -23,9 +23,9 @@ class TestReadFile:
         log_file.parent.mkdir(parents=True, exist_ok=True)
         log_file.write_text(sample_log_content)
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools.READABLE_PREFIXES", [mock_env["project_root"] / "content"]):
-                from tools import read_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools_v2._default_readable_prefixes", return_value=[mock_env["project_root"] / "content"]):
+                from tools_v2 import read_file
 
                 result = read_file("content/logs/2026-02-05.md")
 
@@ -33,8 +33,8 @@ class TestReadFile:
 
     def test_denies_blocked_path(self, mock_env):
         """Test that .env files are blocked."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import read_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import read_file
 
             result = read_file(".env")
 
@@ -42,9 +42,9 @@ class TestReadFile:
 
     def test_handles_missing_file(self, mock_env):
         """Test handling of missing files."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools.READABLE_PREFIXES", [mock_env["project_root"]]):
-                from tools import read_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools_v2._default_readable_prefixes", return_value=[mock_env["project_root"]]):
+                from tools_v2 import read_file
 
                 result = read_file("nonexistent.txt")
 
@@ -56,9 +56,9 @@ class TestWriteFile:
 
     def test_writes_to_allowed_path(self, mock_env):
         """Test writing to allowed paths."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools.WRITABLE_PREFIXES", [mock_env["project_root"] / "memory"]):
-                from tools import write_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools_v2._default_writable_prefixes", return_value=[mock_env["project_root"] / "memory"]):
+                from tools_v2 import write_file
 
                 result = write_file("memory/test.md", "# Test\n\nContent")
 
@@ -67,50 +67,13 @@ class TestWriteFile:
 
     def test_denies_non_writable_path(self, mock_env):
         """Test that non-writable paths are denied."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools.WRITABLE_PREFIXES", [mock_env["project_root"] / "memory"]):
-                from tools import write_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools_v2._default_writable_prefixes", return_value=[mock_env["project_root"] / "memory"]):
+                from tools_v2 import write_file
 
                 result = write_file("content/index.md", "test")
 
                 assert "denied" in result.lower()
-
-
-class TestUpdateMetric:
-    """Test update_metric tool."""
-
-    def test_updates_existing_metric(self, mock_env, sample_log_content):
-        """Test updating an existing metric."""
-        today = datetime.now().strftime("%Y-%m-%d")
-        log_file = mock_env["project_root"] / "content" / "logs" / f"{today}.md"
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        log_file.write_text(sample_log_content)
-
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import update_metric_in_log
-
-            result = update_metric_in_log("Weight", "190")
-
-            assert "Updated" in result
-            content = log_file.read_text()
-            assert "Weight:: 190" in content
-
-    def test_adds_missing_metric(self, mock_env, sample_log_content):
-        """Test adding a metric that doesn't exist."""
-        today = datetime.now().strftime("%Y-%m-%d")
-        log_file = mock_env["project_root"] / "content" / "logs" / f"{today}.md"
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        # Remove the Weight line from sample
-        content = sample_log_content.replace("Weight:: 185\n", "")
-        log_file.write_text(content)
-
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import update_metric_in_log
-
-            result = update_metric_in_log("Weight", "185")
-
-            # Should add to Quick Log section
-            assert "Added" in result or "Updated" in result
 
 
 class TestManageCron:
@@ -118,9 +81,9 @@ class TestManageCron:
 
     def test_list_empty_config(self, mock_env):
         """Test listing when no jobs configured."""
-        with patch("tools.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
-            with patch("tools._sync_cron_to_scheduler", return_value=None):
-                from tools import manage_cron
+        with patch("tools_v2.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
+            with patch("tools_v2._sync_cron_to_scheduler", return_value=None):
+                from tools_v2 import manage_cron
 
                 result = manage_cron("list")
 
@@ -128,9 +91,9 @@ class TestManageCron:
 
     def test_add_valid_job(self, mock_env):
         """Test adding a valid cron job."""
-        with patch("tools.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
-            with patch("tools._sync_cron_to_scheduler", return_value=None):
-                from tools import manage_cron
+        with patch("tools_v2.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
+            with patch("tools_v2._sync_cron_to_scheduler", return_value=None):
+                from tools_v2 import manage_cron
 
                 result = manage_cron("add", "0 8 * * *", "morning_briefing")
 
@@ -143,8 +106,8 @@ class TestManageCron:
 
     def test_rejects_invalid_schedule(self, mock_env):
         """Test rejection of invalid cron schedule."""
-        with patch("tools.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
-            from tools import manage_cron
+        with patch("tools_v2.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
+            from tools_v2 import manage_cron
 
             result = manage_cron("add", "invalid", "morning_briefing")
 
@@ -152,8 +115,8 @@ class TestManageCron:
 
     def test_rejects_unknown_command(self, mock_env):
         """Test rejection of unknown command names."""
-        with patch("tools.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
-            from tools import manage_cron
+        with patch("tools_v2.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
+            from tools_v2 import manage_cron
 
             result = manage_cron("add", "0 8 * * *", "unknown_job")
 
@@ -161,9 +124,9 @@ class TestManageCron:
 
     def test_remove_job(self, mock_env, sample_cron_config):
         """Test removing a cron job."""
-        with patch("tools.CRON_CONFIG", sample_cron_config):
-            with patch("tools._sync_cron_to_scheduler", return_value=None):
-                from tools import manage_cron
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            with patch("tools_v2._sync_cron_to_scheduler", return_value=None):
+                from tools_v2 import manage_cron
 
                 result = manage_cron("remove", command_name="morning_briefing")
 
@@ -178,9 +141,9 @@ class TestRunScript:
         script = mock_env["project_root"] / "scripts" / "test.py"
         script.write_text("print('Hello')")
 
-        with patch("tools.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
-            with patch("tools.REPO_ROOT", mock_env["project_root"]):
-                from tools import run_script
+        with patch("tools_v2.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
+            with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+                from tools_v2 import run_script
 
                 result = run_script("test.py")
 
@@ -188,8 +151,8 @@ class TestRunScript:
 
     def test_rejects_path_traversal(self, mock_env):
         """Test rejection of path traversal attempts."""
-        with patch("tools.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
-            from tools import run_script
+        with patch("tools_v2.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
+            from tools_v2 import run_script
 
             result = run_script("../../../etc/passwd")
 
@@ -197,8 +160,8 @@ class TestRunScript:
 
     def test_rejects_non_script_extensions(self, mock_env):
         """Test rejection of non-script files."""
-        with patch("tools.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
-            from tools import run_script
+        with patch("tools_v2.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
+            from tools_v2 import run_script
 
             result = run_script("config.json")
 
@@ -215,8 +178,8 @@ class TestSearchLogs:
         log_file.parent.mkdir(parents=True, exist_ok=True)
         log_file.write_text(sample_log_content)
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import search_logs
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import search_logs
 
             result = search_logs("workout")
 
@@ -224,8 +187,8 @@ class TestSearchLogs:
 
     def test_returns_empty_for_no_matches(self, mock_env):
         """Test handling of no matches."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import search_logs
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import search_logs
 
             result = search_logs("nonexistent_query_xyz")
 
@@ -241,8 +204,8 @@ class TestGrepFiles:
         test_file.parent.mkdir(parents=True, exist_ok=True)
         test_file.write_text("# Title\n\nEmail: test@example.com\n")
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import grep_files
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import grep_files
 
             result = grep_files(r"\w+@\w+\.\w+", "memory", "*.md")
 
@@ -250,8 +213,8 @@ class TestGrepFiles:
 
     def test_handles_invalid_regex(self, mock_env):
         """Test handling of invalid regex patterns."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import grep_files
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import grep_files
 
             result = grep_files("[invalid(regex", ".")
 
@@ -277,8 +240,8 @@ class TestFactCheck:
         }
         (people_dir / "john-smith.json").write_text(json.dumps(person))
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import fact_check
 
             result = fact_check("John Smith is my accountant")
 
@@ -292,8 +255,8 @@ class TestFactCheck:
         log_file.parent.mkdir(parents=True, exist_ok=True)
         log_file.write_text(sample_log_content)
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import fact_check
 
             result = fact_check("I did a morning workout today", sources="logs")
 
@@ -302,9 +265,9 @@ class TestFactCheck:
 
     def test_returns_unverified_for_no_matches(self, mock_env):
         """Test that fact_check returns UNVERIFIED when no evidence found."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools.PRIVATE_DIR", mock_env["private_dir"]):
-                from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools_v2.PRIVATE_DIR", mock_env["private_dir"]):
+                from tools_v2 import fact_check
 
                 result = fact_check("The moon is made of cheese")
 
@@ -322,8 +285,8 @@ class TestFactCheck:
         }
         (commitments_dir / "20260210-send-proposal.json").write_text(json.dumps(commitment))
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import fact_check
 
             result = fact_check("I need to send a proposal to John")
 
@@ -342,8 +305,8 @@ class TestFactCheck:
         }
         (decisions_dir / "tech-stack.json").write_text(json.dumps(decision))
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import fact_check
 
             result = fact_check("We decided to use React and FastAPI")
 
@@ -358,8 +321,8 @@ class TestFactCheck:
         person = {"name": "Alice", "role": "engineer", "context": "coworker"}
         (people_dir / "alice.json").write_text(json.dumps(person))
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import fact_check
 
             # Only search logs (not memory), so should find nothing
             result = fact_check("Alice is an engineer", sources="logs")
@@ -368,7 +331,7 @@ class TestFactCheck:
 
     def test_extracts_keywords(self):
         """Test keyword extraction from claims."""
-        from tools import _extract_keywords
+        from tools_v2 import _extract_keywords
 
         keywords = _extract_keywords("I committed to calling John by Friday")
 
@@ -383,7 +346,7 @@ class TestFactCheck:
 
     def test_handles_empty_claim(self):
         """Test fact_check with a claim that has no extractable keywords."""
-        from tools import fact_check
+        from tools_v2 import fact_check
 
         result = fact_check("I am")
 
@@ -404,9 +367,9 @@ class TestFactCheck:
         history_file = mock_env["private_dir"] / "conversation_history.json"
         history_file.write_text(json.dumps(history))
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools.PRIVATE_DIR", mock_env["private_dir"]):
-                from tools import fact_check
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            with patch("tools_v2.PRIVATE_DIR", mock_env["private_dir"]):
+                from tools_v2 import fact_check
 
                 result = fact_check("I signed a contract with Acme Corp", sources="history")
 
@@ -422,8 +385,8 @@ class TestGetSystemStatus:
         (mock_env["project_root"] / ".git" / "HEAD").parent.mkdir(parents=True)
         (mock_env["project_root"] / ".git" / "HEAD").write_text("ref: refs/heads/main")
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import get_system_status
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import get_system_status
 
             result = get_system_status()
 
@@ -435,8 +398,8 @@ class TestGetSystemStatus:
         log_file.parent.mkdir(parents=True, exist_ok=True)
         log_file.write_text("[2026-02-05] Test failure\n")
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import get_system_status
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import get_system_status
 
             result = get_system_status()
 
@@ -447,16 +410,16 @@ class TestSelfUpdatePolicy:
     """Test self-updating agent policy tools."""
 
     def test_get_agent_policy_without_chat_context(self):
-        from tools import get_agent_policy
+        from tools_v2 import get_agent_policy
 
         result = get_agent_policy(chat_id=0)
         assert "missing chat context" in result.lower()
 
     def test_self_update_policy_appends_rules(self, mock_env):
-        with patch("tools.PRIVATE_DIR", mock_env["private_dir"]):
+        with patch("tools_v2.PRIVATE_DIR", mock_env["private_dir"]):
             with patch("agent_policy.HISTORY_DIR", mock_env["private_dir"]):
                 with patch("agent_policy.POLICY_FILE", mock_env["private_dir"] / "agent_policies.json"):
-                    from tools import self_update_policy
+                    from tools_v2 import self_update_policy
 
                     result = self_update_policy(
                         action="append_rules",

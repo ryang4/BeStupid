@@ -22,11 +22,11 @@ class TestAtomicCronConfig:
 
     def test_save_cron_config_creates_file(self, mock_env):
         """Test that _save_cron_config creates config file atomically."""
-        from tools import _save_cron_config, CRON_CONFIG
+        from tools_v2 import _save_cron_config, CRON_CONFIG
 
         # Patch CRON_CONFIG to use test directory
         test_config_path = mock_env["private_dir"] / "cron_jobs.json"
-        with patch("tools.CRON_CONFIG", test_config_path):
+        with patch("tools_v2.CRON_CONFIG", test_config_path):
             config = {"test_job": {"schedule": "0 8 * * *", "enabled": True}}
             _save_cron_config(config)
 
@@ -42,8 +42,8 @@ class TestAtomicCronConfig:
         initial = {"existing": {"schedule": "0 7 * * *", "enabled": True}}
         test_config_path.write_text(json.dumps(initial))
 
-        with patch("tools.CRON_CONFIG", test_config_path):
-            from tools import _save_cron_config
+        with patch("tools_v2.CRON_CONFIG", test_config_path):
+            from tools_v2 import _save_cron_config
 
             # Simulate write with new config
             new_config = {"new_job": {"schedule": "0 9 * * *", "enabled": True}}
@@ -72,8 +72,8 @@ class TestAtomicCronConfig:
         """Test that _load_cron_config returns empty dict for missing file."""
         test_config_path = mock_env["private_dir"] / "cron_jobs.json"
 
-        with patch("tools.CRON_CONFIG", test_config_path):
-            from tools import _load_cron_config
+        with patch("tools_v2.CRON_CONFIG", test_config_path):
+            from tools_v2 import _load_cron_config
 
             # File doesn't exist
             assert not test_config_path.exists()
@@ -85,8 +85,8 @@ class TestAtomicCronConfig:
         test_config_path = mock_env["private_dir"] / "cron_jobs.json"
         test_config_path.write_text("{ invalid json ")
 
-        with patch("tools.CRON_CONFIG", test_config_path):
-            from tools import _load_cron_config
+        with patch("tools_v2.CRON_CONFIG", test_config_path):
+            from tools_v2 import _load_cron_config
 
             # Should not raise, should return empty dict
             result = _load_cron_config()
@@ -98,10 +98,10 @@ class TestAtomicWriteFile:
 
     def test_write_file_atomic(self, mock_env):
         """Test that write_file uses atomic write pattern."""
-        from tools import write_file
+        from tools_v2 import write_file
 
         # Patch module-level constants
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
             test_path = "memory/test.md"
             content = "# Test Content\n\nThis is a test."
 
@@ -120,8 +120,8 @@ class TestAtomicWriteFile:
         original_content = "Original content that must not be corrupted"
         test_file.write_text(original_content)
 
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import write_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import write_file
 
             # Simulate crash during rename
             with patch.object(Path, "rename", side_effect=OSError("Simulated crash")):

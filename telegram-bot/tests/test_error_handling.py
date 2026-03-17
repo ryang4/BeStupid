@@ -18,10 +18,10 @@ class TestToolErrorVisibility:
     @pytest.mark.asyncio
     async def test_tool_exception_not_swallowed(self):
         """Test that tool exceptions produce visible error messages."""
-        from tools import execute_tool
+        from tools_v2 import execute_tool
 
         # Test with a tool that will fail
-        with patch("tools.run_script") as mock_run:
+        with patch("tools_v2.run_script") as mock_run:
             mock_run.side_effect = Exception("Script not found")
 
             result = await execute_tool("run_script", {"script_name": "nonexistent.py"})
@@ -45,8 +45,8 @@ class TestToolErrorVisibility:
 
     def test_read_file_error_visible(self, mock_env):
         """Test that read_file errors are visible."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import read_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import read_file
 
             result = read_file("nonexistent/path/file.txt")
 
@@ -54,8 +54,8 @@ class TestToolErrorVisibility:
 
     def test_write_file_permission_error_visible(self, mock_env):
         """Test that write permission errors are visible."""
-        with patch("tools.REPO_ROOT", mock_env["project_root"]):
-            from tools import write_file
+        with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
+            from tools_v2 import write_file
 
             # Try to write to a non-writable path
             result = write_file("content/public/test.md", "test")
@@ -109,7 +109,7 @@ class TestTruncationWarning:
 
     def test_run_script_truncation(self, mock_env):
         """Test that run_script output truncation is indicated."""
-        from tools import run_script
+        from tools_v2 import run_script
 
         # Mock subprocess to return very long output
         with patch("subprocess.run") as mock_run:
@@ -119,7 +119,7 @@ class TestTruncationWarning:
                 stderr=""
             )
 
-            with patch("tools.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
+            with patch("tools_v2.SCRIPTS_DIR", mock_env["project_root"] / "scripts"):
                 # Create a dummy script
                 script = mock_env["project_root"] / "scripts" / "test.py"
                 script.write_text("print('test')")
@@ -136,7 +136,7 @@ class TestBareExceptClauses:
         """Check that tools.py has no bare except clauses."""
         import ast
 
-        tools_path = Path(__file__).parent.parent / "tools.py"
+        tools_path = Path(__file__).parent.parent / "tools_v2.py"
         content = tools_path.read_text()
         tree = ast.parse(content)
 
