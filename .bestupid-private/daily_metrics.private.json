@@ -4,7 +4,9 @@
     "2026-03-16": {
       "timezone": "America/New_York",
       "status": "open",
-      "metrics": {}
+      "metrics": {
+        "Energy": "moderate - breathing rhythm issues, shorter intervals"
+      }
     }
   }
 }
