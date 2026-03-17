@@ -922,10 +922,36 @@ def get_brain_status() -> str:
         days_since_monday = today.weekday()
         monday = today - timedelta(days=days_since_monday)
         monday_str = monday.strftime("%Y-%m-%d")
-        protocol_path = REPO_ROOT / "content" / "config" / f"protocol_{monday_str}.md"
 
-        if protocol_path.exists():
-            protocol_content = protocol_path.read_text()
+        # Search multiple locations and naming patterns for protocol files
+        protocol_content = None
+        search_dirs = [
+            REPO_ROOT / "content" / "config",
+            REPO_ROOT / "memory",
+        ]
+        for search_dir in search_dirs:
+            if not search_dir.exists():
+                continue
+            for candidate in sorted(search_dir.glob(f"protocol_{monday_str}*"), reverse=True):
+                protocol_content = candidate.read_text()
+                break
+            if protocol_content:
+                break
+
+        # If no protocol for this week, try last week's (still relevant early in the week)
+        if not protocol_content:
+            last_monday = monday - timedelta(days=7)
+            last_monday_str = last_monday.strftime("%Y-%m-%d")
+            for search_dir in search_dirs:
+                if not search_dir.exists():
+                    continue
+                for candidate in sorted(search_dir.glob(f"protocol_{last_monday_str}*"), reverse=True):
+                    protocol_content = candidate.read_text()
+                    break
+                if protocol_content:
+                    break
+
+        if protocol_content:
             output.append("### Today's Planned Workout")
             if "## Weekly Schedule" in protocol_content:
                 schedule_section = protocol_content.split("## Weekly Schedule")[1]
