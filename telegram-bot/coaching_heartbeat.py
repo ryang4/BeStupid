@@ -10,6 +10,7 @@ import asyncio
 import json
 import logging
 import os
+import sqlite3
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Awaitable, Callable
@@ -236,11 +237,92 @@ class CoachingHeartbeat:
             raise RuntimeError(f"CLI error: {outer.get('subtype')}")
         return outer["result"]
 
+    def _get_habit_streaks(self) -> dict[str, int]:
+        """Query consecutive days each habit was completed (most recent streak)."""
+        try:
+            with self.services.store._connect() as conn:
+                rows = conn.execute("""
+                    SELECT hd.name, dc.local_date, hi.status
+                    FROM habit_instance hi
+                    JOIN habit_definition hd ON hd.habit_id = hi.habit_id
+                    JOIN day_context dc ON dc.day_id = hi.day_id
+                    WHERE hd.active = 1
+                    ORDER BY hd.name, dc.local_date DESC
+                """).fetchall()
+        except (sqlite3.Error, OSError):
+            return {}
+
+        from itertools import groupby
+        streaks = {}
+        for name, group in groupby(rows, key=lambda r: r["name"]):
+            streak = 0
+            for row in group:
+                if row["status"] == "done":
+                    streak += 1
+                else:
+                    break
+            streaks[name] = streak
+        return streaks
+
+    def _render_yesterday_snapshot(self) -> str:
+        """Get yesterday's completion summary."""
+        try:
+            yesterday = (date.today() - timedelta(days=1)).isoformat()
+            snapshot = self.services.store.get_day_snapshot(self.chat_id, yesterday)
+            if not snapshot:
+                return ""
+            parts = [f"Yesterday ({yesterday}):"]
+            if snapshot.metrics:
+                m = snapshot.metrics
+                if m.get("Sleep"):
+                    parts.append(f"  Sleep: {m['Sleep']}")
+                if m.get("Weight"):
+                    parts.append(f"  Weight: {m['Weight']}")
+            if snapshot.habits:
+                done = sum(1 for h in snapshot.habits if h["status"] == "done")
+                total = len(snapshot.habits)
+                parts.append(f"  Habits: {done}/{total} completed")
+            return "\n".join(parts) if len(parts) > 1 else ""
+        except (sqlite3.Error, OSError):
+            return ""
+
+    def _render_time_specific_prompts(self, window: str, snapshot) -> list[str]:
+        """Return window-specific coaching prompts."""
+        prompts = []
+        metrics = snapshot.metrics if snapshot else {}
+        habits = snapshot.habits if snapshot else []
+        pending = [h["name"] for h in habits if h["status"] == "pending"]
+
+        if window == "morning":
+            missing = []
+            if not metrics.get("Weight"):
+                missing.append("Weight")
+            if not metrics.get("Sleep"):
+                missing.append("Sleep")
+            if not metrics.get("Mood_AM"):
+                missing.append("Mood_AM")
+            if missing:
+                prompts.append(f"Missing morning metrics: {', '.join(missing)}")
+
+        elif window == "afternoon":
+            afternoon_habits = {"Write for 1 hour", "Read for 30 min", "Post 1 Substack note"}
+            still_pending = [h for h in pending if h in afternoon_habits]
+            if still_pending:
+                prompts.append(f"Afternoon habits pending: {', '.join(still_pending)}")
+
+        elif window == "evening":
+            if pending:
+                prompts.append(f"End-of-day habits still pending: {', '.join(pending)}")
+            prompts.append("Prompt: Fill out Top 3 for Tomorrow and What Went Well/Poorly")
+
+        return prompts
+
     def _assemble_context(self, window: str) -> str:
         """Build the user message for Claude with today's state."""
         now = datetime.now()
         lines = [f"Current time: {now.strftime('%I:%M %p')} ({window} check-in)"]
 
+        snapshot = None
         # Day snapshot
         try:
             snapshot = self.services.store.get_day_snapshot(
@@ -267,7 +349,6 @@ class CoachingHeartbeat:
 
                 if snapshot.foods:
                     lines.append(f"Meals logged: {len(snapshot.foods)}")
-                    # Summarize macros if available
                     total_cal = 0
                     total_protein = 0
                     for food in snapshot.foods:
@@ -290,10 +371,28 @@ class CoachingHeartbeat:
             logger.exception("Failed to get day snapshot for coaching")
             lines.append("(Day snapshot unavailable)")
 
+        # Habit streaks
+        try:
+            streaks = self._get_habit_streaks()
+            if streaks:
+                streak_parts = [f"{name}: {days}d" for name, days in sorted(streaks.items()) if days > 0]
+                if streak_parts:
+                    lines.append(f"Habit streaks: {', '.join(streak_parts)}")
+        except Exception:
+            pass
+
+        # Yesterday's snapshot
+        yesterday_text = self._render_yesterday_snapshot()
+        if yesterday_text:
+            lines.append(yesterday_text)
+
+        # Time-specific prompts
+        time_prompts = self._render_time_specific_prompts(window, snapshot)
+        lines.extend(time_prompts)
+
         # Weekly protocol (workout schedule)
         protocol = self._read_latest_protocol()
         if protocol:
-            # Extract just today's workout from the protocol
             day_name = now.strftime("%A")
             for line in protocol.split("\n"):
                 if day_name in line and "|" in line:

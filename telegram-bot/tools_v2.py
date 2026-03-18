@@ -36,6 +36,7 @@ ALLOWED_CRON_COMMANDS = {
     "daily_planner": "cd /project && python scripts/daily_planner.py",
     "auto_backup": "cd /project && python scripts/robust_git_backup.py",
     "brain_pattern_detection": "cd /project && python scripts/brain_db.py patterns",
+    "weekly_planner": "cd /project && python scripts/weekly_planner.py --this-week",
 }
 _CRON_SCHEDULE_RE = re.compile(r'^[\d\*/,\-]+(\s+[\d\*/,\-]+){4}$')
 CRON_CONFIG = PRIVATE_DIR / "cron_jobs.json"

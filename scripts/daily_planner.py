@@ -65,6 +65,17 @@ def get_weekly_protocol():
         except Exception as e:
             print(f"Warning: Error reading protocol: {e}")
 
+    # Fallback: check for DRAFT version
+    draft_path = os.path.join(PROTOCOL_DIR, f"protocol_{monday_str}_DRAFT.md")
+    print(f"   No finalized protocol, checking DRAFT: {draft_path}")
+    if os.path.exists(draft_path):
+        try:
+            with open(draft_path, 'r', encoding='utf-8') as f:
+                print(f"   Using DRAFT protocol (no finalized version)")
+                return f.read()
+        except Exception as e:
+            print(f"Warning: Error reading DRAFT protocol: {e}")
+
     return ""
 
 

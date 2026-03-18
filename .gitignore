@@ -23,3 +23,7 @@ telegram-bot/*.log
 memory/brain.db
 memory/brain.db-wal
 memory/brain.db-shm
+
+# SQLite WAL/SHM journaling files (transient, snapshot_sqlite_databases handles this)
+.bestupid-private/assistant_state.db-wal
+.bestupid-private/assistant_state.db-shm

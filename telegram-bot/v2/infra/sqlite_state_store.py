@@ -1132,3 +1132,80 @@ class SQLiteStateStore:
                 entry["metrics"][row["field"]] = row["value"]
         metrics_path.write_text(json.dumps({"chat_id": chat_id, "days": aggregated}, indent=2))
         return metrics_path
+
+    def get_all_metrics_entries(self, chat_id: int) -> list[dict[str, Any]]:
+        """Return all days as metrics entries matching the daily_metrics.json schema."""
+        with self._connect() as conn:
+            days = conn.execute(
+                "SELECT day_id, local_date FROM day_context WHERE chat_id = ? ORDER BY local_date",
+                (chat_id,),
+            ).fetchall()
+
+            entries = []
+            for day in days:
+                day_id = day["day_id"]
+                local_date = day["local_date"]
+
+                metrics = {
+                    row["field"]: row["value"]
+                    for row in conn.execute(
+                        "SELECT field, value FROM day_metric WHERE day_id = ?", (day_id,)
+                    ).fetchall()
+                }
+
+                habits_rows = conn.execute(
+                    """
+                    SELECT hd.name, hi.status
+                    FROM habit_instance hi
+                    JOIN habit_definition hd ON hd.habit_id = hi.habit_id
+                    WHERE hi.day_id = ?
+                    """,
+                    (day_id,),
+                ).fetchall()
+                completed = [r["name"] for r in habits_rows if r["status"] == "done"]
+                missed = [r["name"] for r in habits_rows if r["status"] != "done"]
+                total = len(habits_rows)
+
+                entries.append({
+                    "date": local_date,
+                    "sleep": {
+                        "hours": _safe_float(metrics.get("Sleep")),
+                        "quality": _safe_float(metrics.get("Sleep_Quality")),
+                    },
+                    "weight_lbs": _safe_float(metrics.get("Weight")),
+                    "mood": {
+                        "morning": _safe_float(metrics.get("Mood_AM")),
+                        "bedtime": _safe_float(metrics.get("Mood_PM")),
+                    },
+                    "energy": _safe_float(metrics.get("Energy")),
+                    "focus": _safe_float(metrics.get("Focus")),
+                    "training": {"workout_type": "", "activities": [], "strength_exercises": []},
+                    "todos": {"total": 0, "completed": 0, "completion_rate": 0},
+                    "habits": {
+                        "completed": completed,
+                        "missed": missed,
+                        "completion_rate": round(len(completed) / total, 2) if total else 0,
+                    },
+                    "nutrition": {"calories": None, "protein_g": None},
+                    "extraction_notes": [],
+                })
+        return entries
+
+
+def _safe_float(value: str | None) -> float | None:
+    """Convert a string metric value to float, handling time formats like '6:20'."""
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    if ":" in text:
+        try:
+            h, m = text.split(":", 1)
+            return round(int(h) + int(m) / 60, 2)
+        except (ValueError, TypeError):
+            pass
+    try:
+        return float(re.sub(r'[^\d.\-]', '', text))
+    except (ValueError, TypeError):
+        return None

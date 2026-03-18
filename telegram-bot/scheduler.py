@@ -35,6 +35,13 @@ JOB_COMMANDS = {
     "daily_planner": ["python", "scripts/daily_planner.py"],
     "auto_backup": ["bash", "scripts/auto_backup.sh"],
     "brain_pattern_detection": None,  # Handled in-process, not via subprocess
+    "weekly_planner": ["python", "scripts/weekly_planner.py", "--this-week"],
+}
+
+DOW_MAP = {
+    "0": "sunday", "7": "sunday",
+    "1": "monday", "2": "tuesday", "3": "wednesday",
+    "4": "thursday", "5": "friday", "6": "saturday",
 }
 _last_v2_housekeeping = 0.0
 
@@ -137,15 +144,75 @@ def _cron_to_schedule_time(cron_schedule: str) -> str | None:
         return None
 
 
+def _parse_dow_field(dow_str: str) -> list[str]:
+    """Parse a cron DOW field into a list of day names.
+
+    Supports single values ('0'), comma-separated ('1,3,5'), and ranges ('1-5').
+    Returns deduplicated day names, or empty list on parse error.
+    """
+    if dow_str == "*":
+        return []
+
+    day_nums: set[int] = set()
+    for part in dow_str.split(","):
+        part = part.strip()
+        if "-" in part:
+            try:
+                start, end = part.split("-", 1)
+                for i in range(int(start), int(end) + 1):
+                    day_nums.add(i)
+            except (ValueError, TypeError):
+                return []
+        else:
+            try:
+                day_nums.add(int(part))
+            except (ValueError, TypeError):
+                return []
+
+    names = []
+    seen: set[str] = set()
+    for num in sorted(day_nums):
+        name = DOW_MAP.get(str(num))
+        if not name:
+            logger.warning(f"Invalid DOW value: {num}")
+            return []
+        if name not in seen:
+            names.append(name)
+            seen.add(name)
+    return names
+
+
 def _schedule_from_cron(name: str, cron_schedule: str) -> bool:
-    """Schedule daily or simple hourly-interval jobs."""
+    """Schedule daily, hourly-interval, or day-of-week jobs."""
     parts = cron_schedule.strip().split()
     if len(parts) != 5:
         return False
 
     minute, hour, day, month, dow = parts
-    if day != "*" or month != "*" or dow != "*":
-        logger.warning(f"Unsupported cron schedule (only daily/hourly supported): {cron_schedule}")
+    if month != "*":
+        logger.warning(f"Unsupported cron schedule (monthly not supported): {cron_schedule}")
+        return False
+
+    # Day-of-week schedule: "M H * * DOW"
+    if dow != "*" and day == "*":
+        day_names = _parse_dow_field(dow)
+        if not day_names:
+            logger.warning(f"Failed to parse DOW field: {dow}")
+            return False
+        try:
+            h = int(hour)
+            m = int(minute)
+            time_str = f"{h:02d}:{m:02d}"
+        except ValueError:
+            logger.warning(f"Invalid time in DOW schedule: {cron_schedule}")
+            return False
+        for day_name in day_names:
+            getattr(schedule.every(), day_name).at(time_str).do(_run_job, name)
+        logger.info(f"Scheduled {name} on {', '.join(day_names)} at {time_str}")
+        return True
+
+    if day != "*" or dow != "*":
+        logger.warning(f"Unsupported cron schedule: {cron_schedule}")
         return False
 
     time_str = _cron_to_schedule_time(cron_schedule)

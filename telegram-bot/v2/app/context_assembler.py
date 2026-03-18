@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+import json
+import logging
+import os
+from pathlib import Path
 from typing import Any
 
 from v2.domain.models import ContextBlock, PromptEnvelope
 from v2.interfaces.ports import TimezoneResolver
 from v2.infra.sqlite_state_store import SQLiteStateStore
+
+logger = logging.getLogger(__name__)
+
+PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", str(Path(__file__).resolve().parents[3])))
+BRAIN_DB_PATH = PROJECT_ROOT / "memory" / "brain.db"
 
 
 def _estimate_tokens(text: str) -> int:
@@ -37,6 +46,7 @@ class ContextAssemblerImpl:
             ContextBlock("active_open_loops", self._render_open_loops(open_loops), priority=3),
             ContextBlock("approved_memories", self._render_memories(memories), priority=4),
             ContextBlock("recent_corrections", self._render_corrections(corrections), priority=5),
+            ContextBlock("brain_context", self._render_brain_context(), priority=6),
         ]
 
         selected_texts: list[str] = []
@@ -99,8 +109,8 @@ class ContextAssemblerImpl:
         topics = session.get("active_topics_json")
         if topics:
             try:
-                parsed_topics = __import__("json").loads(topics)
-            except Exception:
+                parsed_topics = json.loads(topics)
+            except (json.JSONDecodeError, TypeError):
                 parsed_topics = []
             if parsed_topics:
                 lines.append(f"- Active topics: {', '.join(parsed_topics[:4])}")
@@ -131,3 +141,26 @@ class ContextAssemblerImpl:
         for item in corrections[:2]:
             lines.append(f"- {item['summary']}")
         return "\n".join(lines)
+
+    def _render_brain_context(self) -> str:
+        """Render relevant brain_db context (patterns, preferences). Gracefully degrades."""
+        if not BRAIN_DB_PATH.exists():
+            return ""
+        try:
+            import sys
+            scripts_dir = str(PROJECT_ROOT / "scripts")
+            if scripts_dir not in sys.path:
+                sys.path.insert(0, scripts_dir)
+            import brain_db
+
+            parts = ["BRAIN CONTEXT:"]
+            patterns = brain_db.get_active_patterns(min_confidence=0.5)
+            for p in patterns[:3]:
+                parts.append(f"- Pattern: {str(p.get('description', ''))[:100]}")
+            prefs = brain_db.get_preferences()
+            for p in prefs[:5]:
+                parts.append(f"- Pref: {p.get('key', '')}: {str(p.get('value', ''))[:80]}")
+            return "\n".join(parts) if len(parts) > 1 else ""
+        except Exception:
+            logger.debug("Brain context unavailable", exc_info=True)
+            return ""

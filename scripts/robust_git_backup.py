@@ -71,16 +71,56 @@ def force_sync_with_remote():
     print("✅ Force sync completed")
     return True
 
+def snapshot_sqlite_databases():
+    """Create clean SQLite snapshots before committing.
+
+    Uses `sqlite3 .backup` to produce a consistent copy that excludes the WAL
+    and SHM journaling files.  The snapshot overwrites the DB file in-place so
+    git only sees a single clean binary — no stale -wal/-shm artifacts.
+    """
+    db_files = [
+        Path("/project/.bestupid-private/assistant_state.db"),
+    ]
+    for db_path in db_files:
+        if not db_path.exists():
+            continue
+        tmp_path = db_path.with_suffix(".db.bak")
+        try:
+            result = subprocess.run(
+                ["sqlite3", str(db_path), f".backup {tmp_path}"],
+                capture_output=True, text=True, timeout=30,
+            )
+            if result.returncode == 0 and tmp_path.exists():
+                tmp_path.replace(db_path)
+                # Remove leftover WAL/SHM files so git doesn't track them
+                for suffix in (".db-wal", ".db-shm"):
+                    wal = db_path.with_name(db_path.name.replace(".db", suffix))
+                    if wal.exists():
+                        wal.unlink()
+                print(f"✅ Snapshot: {db_path.name}")
+            else:
+                print(f"⚠️  SQLite backup returned {result.returncode}: {result.stderr}")
+                if tmp_path.exists():
+                    tmp_path.unlink()
+        except Exception as e:
+            print(f"⚠️  SQLite snapshot failed for {db_path.name}: {e}")
+            if tmp_path.exists():
+                tmp_path.unlink()
+
+
 def safe_commit_and_push():
     """Safely commit and push changes"""
     print("🔧 Safe commit and push...")
-    
+
+    # Step 0: Snapshot SQLite databases for a clean commit
+    snapshot_sqlite_databases()
+
     # Step 1: Check if there are changes
     success, stdout, stderr = run_cmd("git status --porcelain")
     if not success or not stdout.strip():
         print("ℹ️  No changes to commit")
         return True
-    
+
     # Step 2: Add all changes
     success, stdout, stderr = run_cmd("git add .", timeout=30)
     if not success:

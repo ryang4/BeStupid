@@ -28,5 +28,10 @@
     "schedule": "0 0 * * *",
     "enabled": true,
     "description": "Automated git backup"
+  },
+  "weekly_planner": {
+    "schedule": "0 20 * * 0",
+    "enabled": true,
+    "description": "Generate next week's training protocol (Sunday 8pm)"
   }
 }

@@ -186,12 +186,8 @@ def _load_metrics_index() -> dict:
     return index
 
 
-def read_last_week_logs(year, week):
-    """Read all daily logs from last week."""
-    logs = []
-    metrics_index = _load_metrics_index()
-
-    # Calculate last week's date range
+def _calculate_last_week_range(year, week):
+    """Calculate the Monday and date range for last week."""
     last_week = week - 1
     last_year = year
     if last_week < 1:
@@ -199,17 +195,92 @@ def read_last_week_logs(year, week):
         dec_31 = datetime(last_year, 12, 31)
         last_week = dec_31.isocalendar()[1]
 
-    # Get Monday of last week
-    # ISO week 1 starts on the first Monday of the year
-    jan_4 = datetime(last_year, 1, 4)  # Week 1 always contains Jan 4
+    jan_4 = datetime(last_year, 1, 4)
     week_1_monday = jan_4 - timedelta(days=jan_4.weekday())
     target_monday = week_1_monday + timedelta(weeks=last_week - 1)
+    return target_monday
 
-    # Read 7 days of logs
+
+def _read_private_day_log(date_str: str) -> str:
+    """Read private day log markdown for narrative context."""
+    private_dir = os.environ.get("HISTORY_DIR", os.path.expanduser("~/.bestupid-private"))
+    private_logs_dir = os.path.join(private_dir, "day_logs")
+
+    for dir_path in [LOGS_DIR, private_logs_dir]:
+        path = os.path.join(dir_path, f"{date_str}.md")
+        if os.path.exists(path):
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except OSError:
+                pass
+    return ""
+
+
+def _read_logs_from_v2(year, week) -> list:
+    """Read last week's data from V2 SQLite."""
+    import sys as _sys
+    _sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'telegram-bot'))
+    from v2.infra.sqlite_state_store import SQLiteStateStore
+
+    store = SQLiteStateStore()
+    chat_id = int(os.environ.get("OWNER_CHAT_ID", "0"))
+    if not chat_id:
+        raise ValueError("OWNER_CHAT_ID not set")
+
+    target_monday = _calculate_last_week_range(year, week)
+
+    logs = []
+    for day_offset in range(7):
+        log_date = target_monday + timedelta(days=day_offset)
+        date_str = log_date.strftime("%Y-%m-%d")
+
+        snapshot = store.get_day_snapshot(chat_id, date_str)
+        if not snapshot:
+            continue
+
+        metrics = snapshot.metrics or {}
+        sleep_hours = _safe_float(metrics.get("Sleep")) or 0
+        weight = _safe_float(metrics.get("Weight")) or 0
+
+        habits = snapshot.habits or []
+        done_count = sum(1 for h in habits if h["status"] == "done")
+        total = len(habits)
+        compliance = round((done_count / total * 100) if total else 0, 1)
+
+        narrative = _read_private_day_log(date_str)
+
+        logs.append({
+            "date": date_str,
+            "content": narrative,
+            "stats": {
+                "compliance": compliance,
+                "sleep_hours": sleep_hours,
+                "weight": weight,
+            },
+            "narrative": narrative,
+        })
+    return logs
+
+
+def read_last_week_logs(year, week):
+    """Read all daily logs from last week. Tries V2 SQLite first, falls back to markdown."""
+    try:
+        logs = _read_logs_from_v2(year, week)
+        if logs:
+            print(f"   Read {len(logs)} days from V2 SQLite")
+            return logs
+    except Exception as e:
+        print(f"   V2 read failed ({e}), falling back to markdown logs")
+
+    # Legacy fallback: read from markdown files
+    logs = []
+    metrics_index = _load_metrics_index()
+    target_monday = _calculate_last_week_range(year, week)
+
     for day_offset in range(7):
         log_date = target_monday + timedelta(days=day_offset)
         log_date_str = log_date.strftime("%Y-%m-%d")
-        # Flat file path (not page bundle)
         log_path = os.path.join(LOGS_DIR, f"{log_date_str}.md")
 
         if os.path.exists(log_path):
@@ -241,11 +312,11 @@ def read_last_week_logs(year, week):
                         "sleep_hours": sleep_hours,
                         "weight": weight_lbs,
                     },
-                    "narrative": content  # Full text for AI analysis
+                    "narrative": content,
                 }
                 logs.append(log_data)
             except Exception as e:
-                print(f"⚠️  Warning: Could not read {log_path}: {e}")
+                print(f"Warning: Could not read {log_path}: {e}")
 
     return logs
 
@@ -429,6 +500,17 @@ def main():
         os.rename(draft_path, final_path)
         print(f"Finalized: {latest_draft} -> {os.path.basename(final_path)}")
         sys.exit(0)
+
+    # Auto-finalize DRAFTs older than 2 weeks
+    from pathlib import Path as _Path
+    for draft in sorted(_Path(PROTOCOL_DIR).glob("protocol_*_DRAFT.md")):
+        date_match = re.search(r'protocol_(\d{4}-\d{2}-\d{2})_DRAFT', draft.name)
+        if date_match:
+            draft_monday = datetime.strptime(date_match.group(1), "%Y-%m-%d")
+            if (datetime.now() - draft_monday).days >= 14:
+                final = draft.with_name(draft.name.replace("_DRAFT.md", ".md"))
+                draft.rename(final)
+                print(f"Auto-finalized old draft: {draft.name}")
 
     # Determine target week
     if args.date:
