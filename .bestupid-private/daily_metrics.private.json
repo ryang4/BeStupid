@@ -4,7 +4,9 @@
     "2026-03-18": {
       "timezone": "America/New_York",
       "status": "open",
-      "metrics": {}
+      "metrics": {
+        "Energy": "The bike was hard, may be too hard for Z2. Avg HR 123 bpm, ~10.75 miles in 1 hour. Highest ever on bike: 160 bpm (final interval). Quads fatigue quickly at 130+ HR with resistance \u2014 lacking cycling endurance, heavy lifting background. Need to build aerobic base before pushing resistance higher."
+      }
     },
     "2026-03-17": {
       "timezone": "America/New_York",
