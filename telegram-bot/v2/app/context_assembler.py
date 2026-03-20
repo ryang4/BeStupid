@@ -42,11 +42,12 @@ class ContextAssemblerImpl:
         blocks = [
             ContextBlock("timezone_and_clock_snapshot", self._render_timezone_block(resolved), priority=0, always_include=True),
             ContextBlock("current_day_snapshot", self._render_day_block(day), priority=1, always_include=True),
-            ContextBlock("session_summary", self._render_session_block(session), priority=2),
-            ContextBlock("active_open_loops", self._render_open_loops(open_loops), priority=3),
-            ContextBlock("approved_memories", self._render_memories(memories), priority=4),
-            ContextBlock("recent_corrections", self._render_corrections(corrections), priority=5),
-            ContextBlock("brain_context", self._render_brain_context(), priority=6),
+            ContextBlock("analytics_dimensions", self._render_analytics_dimensions(chat_id), priority=2, always_include=True),
+            ContextBlock("session_summary", self._render_session_block(session), priority=3),
+            ContextBlock("active_open_loops", self._render_open_loops(open_loops), priority=4),
+            ContextBlock("approved_memories", self._render_memories(memories), priority=5),
+            ContextBlock("recent_corrections", self._render_corrections(corrections), priority=6),
+            ContextBlock("brain_context", self._render_brain_context(), priority=7),
         ]
 
         selected_texts: list[str] = []
@@ -140,6 +141,34 @@ class ContextAssemblerImpl:
         lines = ["RECENT CORRECTIONS:"]
         for item in corrections[:2]:
             lines.append(f"- {item['summary']}")
+        return "\n".join(lines)
+
+    def _render_analytics_dimensions(self, chat_id: int) -> str:
+        """Render available analytics dimensions so the LLM knows what data exists."""
+        try:
+            with self.store._connect() as conn:
+                min_date_row = conn.execute(
+                    "SELECT MIN(local_date) AS min_d FROM day_context WHERE chat_id = ?", (chat_id,)
+                ).fetchone()
+                min_date = min_date_row["min_d"] if min_date_row else "unknown"
+
+                habit_rows = conn.execute(
+                    "SELECT name FROM habit_definition WHERE chat_id = ? AND active = 1 ORDER BY name",
+                    (chat_id,),
+                ).fetchall()
+                habit_names = [r["name"] for r in habit_rows]
+        except Exception:
+            min_date = "unknown"
+            habit_names = []
+
+        lines = [
+            "ANALYTICS DIMENSIONS:",
+            "- Metrics: Weight, Sleep, Sleep_Quality, Mood_AM, Mood_PM, Energy, Focus",
+            f"- Habits: {', '.join(habit_names) if habit_names else '(none defined)'}",
+            f"- Data range: {min_date} to present",
+            "- Databases: assistant_state (day tracking), brain (documents, entities)",
+            "- Query tools: metric_trend, habit_completion, nutrition_summary, correlate, get_computed_insights, run_query",
+        ]
         return "\n".join(lines)
 
     def _render_brain_context(self) -> str:

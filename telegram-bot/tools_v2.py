@@ -340,17 +340,6 @@ TOOLS = [
         }
     },
     {
-        "name": "run_memory_command",
-        "description": "Run a memory.py command, e.g. 'people add \"John\" --role accountant' or 'search \"protein\"'",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "args": {"type": "string", "description": "Arguments to pass to memory.py"}
-            },
-            "required": ["args"]
-        }
-    },
-    {
         "name": "run_script",
         "description": "Run a Python (.py) or Bash (.sh) script from scripts/ or ~/.bestupid-private/",
         "input_schema": {
@@ -591,6 +580,127 @@ TOOLS = [
                 }
             }
         }
+    },
+    {
+        "name": "run_query",
+        "description": (
+            "Execute a read-only SQL query against assistant_state or brain databases. "
+            "Returns up to 200 rows. Use PRAGMA table_info(table_name) for schema discovery. "
+            "Blocked: INSERT, UPDATE, DELETE, ATTACH, or any write operation."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "db": {
+                    "type": "string",
+                    "enum": ["state", "brain"],
+                    "description": "Database to query: 'state' (day tracking) or 'brain' (documents, entities)"
+                },
+                "sql": {"type": "string", "description": "SQL query to execute (read-only)"},
+            },
+            "required": ["db", "sql"],
+        },
+    },
+    {
+        "name": "metric_trend",
+        "description": "Get time series data and trend analysis for a metric. Returns min/max/mean, linear trend slope, and direction.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "field": {"type": "string", "enum": ALLOWED_METRICS, "description": "Metric field name"},
+                "days": {"type": "integer", "default": 30, "description": "Number of days to analyze"},
+            },
+            "required": ["field"],
+        },
+    },
+    {
+        "name": "habit_completion",
+        "description": "Get completion rate and streak info for a specific habit.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "habit_name": {"type": "string", "description": "Habit name (case-insensitive match)"},
+                "days": {"type": "integer", "default": 30, "description": "Number of days to analyze"},
+            },
+            "required": ["habit_name"],
+        },
+    },
+    {
+        "name": "nutrition_summary",
+        "description": "Get daily nutrition totals (calories, protein, carbs, fat, fiber) from food log entries.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "Specific YYYY-MM-DD date, or omit for last N days"},
+                "days": {"type": "integer", "default": 7, "description": "Number of days if no specific date"},
+            },
+        },
+    },
+    {
+        "name": "correlate",
+        "description": "Compute Pearson correlation between two metrics. Requires 7+ paired data points.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "field_a": {"type": "string", "enum": ALLOWED_METRICS},
+                "field_b": {"type": "string", "enum": ALLOWED_METRICS},
+                "days": {"type": "integer", "default": 30},
+            },
+            "required": ["field_a", "field_b"],
+        },
+    },
+    {
+        "name": "get_computed_insights",
+        "description": "Get computed insights: weight trend, TDEE estimate, key correlations, and pattern detection.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "log_workout",
+        "description": (
+            "Log a workout session with optional exercises and cardio activities. "
+            "Use for strength training, runs, swims, bike rides, etc."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "workout_type": {
+                    "type": "string",
+                    "description": "Type of workout: strength, run, swim, bike, yoga, recovery, etc."
+                },
+                "exercises": {
+                    "type": "array",
+                    "description": "Strength exercises: [{name, sets, reps, weight_lbs}]",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "sets": {"type": "integer"},
+                            "reps": {"type": "integer"},
+                            "weight_lbs": {"type": "number"},
+                        },
+                        "required": ["name"],
+                    },
+                },
+                "cardio": {
+                    "type": "array",
+                    "description": "Cardio activities: [{type, distance, distance_unit, duration_minutes, avg_hr}]",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string"},
+                            "distance": {"type": "number"},
+                            "distance_unit": {"type": "string", "default": "mi"},
+                            "duration_minutes": {"type": "number"},
+                            "avg_hr": {"type": "integer"},
+                        },
+                        "required": ["type"],
+                    },
+                },
+                "notes": {"type": "string", "description": "Optional workout notes"},
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD in local time"},
+            },
+            "required": ["workout_type"],
+        },
     },
 ]
 
@@ -849,13 +959,14 @@ def run_weekly_planner(this_week: bool = False) -> str:
         return f"Error creating weekly protocol: {e}"
 
 
-def get_brain_status() -> str:
+def get_brain_status(chat_id: int = 0) -> str:
     today = datetime.now()
     today_str = today.strftime("%Y-%m-%d")
     day_name = today.strftime("%A")
 
     output = [f"## Brain Status - {day_name}, {today_str}\n"]
 
+    # Todos: still read from markdown (not in SQLite yet)
     log_path = REPO_ROOT / "content" / "logs" / f"{today_str}.md"
     if log_path.exists():
         log_content = log_path.read_text()
@@ -875,18 +986,15 @@ def get_brain_status() -> str:
                 output.append(todo)
             output.append("")
 
-        metrics = {}
-        for field in ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM"]:
-            match = re.search(rf"^{field}::\s*(.*)$", log_content, re.MULTILINE)
-            if match and match.group(1).strip():
-                metrics[field] = match.group(1).strip()
-
-        if metrics:
-            output.append("### Today's Metrics")
-            for k, v in metrics.items():
-                output.append(f"- {k}: {v}")
-            output.append("")
-    else:
+    # Metrics: read from SQLite via get_day_snapshot
+    services = get_services()
+    snapshot = services.store.get_day_snapshot(chat_id, today_str)
+    if snapshot and snapshot.metrics:
+        output.append("### Today's Metrics")
+        for k, v in sorted(snapshot.metrics.items()):
+            output.append(f"- {k}: {v}")
+        output.append("")
+    elif not log_path.exists():
         output.append("*Today's log doesn't exist yet. Run daily planner to create it.*\n")
 
     try:
@@ -1111,30 +1219,6 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
     return f"Unknown action: {action}"
 
 
-def run_memory_command(args: str) -> str:
-    memory_script = SCRIPTS_DIR / "memory.py"
-    if not memory_script.exists():
-        return "Error: memory.py not found in scripts/"
-
-    try:
-        parsed_args = shlex.split(args)
-    except ValueError as e:
-        return f"Error parsing args: {e}"
-
-    cmd = ["python", str(memory_script)] + parsed_args
-    try:
-        result = subprocess.run(
-            cmd, capture_output=True, text=True,
-            cwd=str(REPO_ROOT), timeout=30, shell=False,
-        )
-        output = (result.stdout + result.stderr).strip()
-        return output if output else "Command completed (no output)."
-    except subprocess.TimeoutExpired:
-        return "Memory command timed out (30s)."
-    except Exception as e:
-        return f"Error running memory command: {e}"
-
-
 def run_script(script_name: str, args: str = "") -> str:
     # Validate script name
     if ".." in script_name or "\\" in script_name:
@@ -1182,54 +1266,21 @@ def run_script(script_name: str, args: str = "") -> str:
         return f"Error running script: {e}"
 
 
-def search_conversation_history(query: str, limit: int = 20) -> str:
-    """Search through conversation history for messages matching query."""
-    history_file = PRIVATE_DIR / "conversation_history.json"
+def search_conversation_history(query: str, limit: int = 20, chat_id: int = 0) -> str:
+    """Search conversation history via SQLite turn table."""
+    services = get_services()
+    rows = services.store.search_turns(chat_id or 0, query, limit=limit, days=30)
 
-    if not history_file.exists():
-        return "No conversation history found."
-
-    try:
-        data = json.loads(history_file.read_text())
-    except (json.JSONDecodeError, OSError) as e:
-        return f"Error reading conversation history: {e}"
-
-    query_lower = query.lower()
-    matches = []
-
-    for chat_id_key, entry in data.items():
-        history = entry.get("history", [])
-        for i, msg in enumerate(history):
-            content = msg.get("content", "")
-
-            # Handle both string content and list of blocks
-            if isinstance(content, list):
-                text_parts = []
-                for block in content:
-                    if isinstance(block, dict):
-                        if block.get("type") == "text":
-                            text_parts.append(block.get("text", ""))
-                        elif block.get("type") == "tool_result":
-                            text_parts.append(block.get("content", ""))
-                content = " ".join(text_parts)
-
-            if not isinstance(content, str):
-                continue
-
-            if query_lower in content.lower():
-                role = msg.get("role", "unknown")
-                # Truncate long messages
-                preview = content[:500] + "..." if len(content) > 500 else content
-                matches.append(f"[{role}] {preview}")
-
-                if len(matches) >= limit:
-                    break
-
-        if len(matches) >= limit:
-            break
-
-    if not matches:
+    if not rows:
         return f"No messages found matching '{query}'."
+
+    matches = []
+    for row in rows:
+        role = row["role"]
+        text = row["text"]
+        preview = text[:500] + "..." if len(text) > 500 else text
+        ts = row["created_at_utc"][:10] if row.get("created_at_utc") else ""
+        matches.append(f"[{ts} {role}] {preview}")
 
     result = f"Found {len(matches)} message(s) matching '{query}':\n\n"
     result += "\n\n---\n\n".join(matches)
@@ -1480,68 +1531,33 @@ def _extract_keywords(claim: str) -> list[str]:
 
 
 def _search_memory(keywords: list[str]) -> list[dict]:
-    """Search memory JSON files for keyword matches."""
+    """Search approved_memory table for keyword matches."""
     evidence = []
-    memory_root = REPO_ROOT / "memory"
-    if not memory_root.exists():
+    services = get_services()
+    try:
+        with services.store._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT kind, subject_key, payload_json
+                FROM approved_memory
+                WHERE active = 1
+                """,
+            ).fetchall()
+    except Exception:
         return evidence
 
-    for category in ["people", "projects", "decisions", "commitments"]:
-        category_dir = memory_root / category
-        if not category_dir.exists():
-            continue
-        for filepath in category_dir.glob("*.json"):
-            try:
-                content = filepath.read_text()
-                content_lower = content.lower()
-                matching_keywords = [kw for kw in keywords if kw in content_lower]
-                if matching_keywords:
-                    data = json.loads(content)
-                    # Build a summary based on category
-                    summary = _summarize_memory_entry(category, data)
-                    evidence.append({
-                        "source": f"memory/{category}/{filepath.name}",
-                        "matched_keywords": matching_keywords,
-                        "summary": summary,
-                    })
-            except (OSError, json.JSONDecodeError):
-                continue
+    for row in rows:
+        payload_str = row["payload_json"] or ""
+        search_text = f"{row['kind']} {row['subject_key']} {payload_str}".lower()
+        matching_keywords = [kw for kw in keywords if kw in search_text]
+        if matching_keywords:
+            payload = json.loads(payload_str) if payload_str else {}
+            evidence.append({
+                "source": f"approved_memory ({row['kind']})",
+                "matched_keywords": matching_keywords,
+                "summary": f"[{row['kind']}] {payload}",
+            })
     return evidence
-
-
-def _summarize_memory_entry(category: str, data: dict) -> str:
-    """Create a concise summary of a memory entry."""
-    if category == "people":
-        parts = [f"Person: {data.get('name', '?')}"]
-        if data.get("role"):
-            parts.append(f"role={data['role']}")
-        if data.get("context"):
-            parts.append(f"context={data['context']}")
-        return ", ".join(parts)
-    elif category == "projects":
-        parts = [f"Project: {data.get('name', '?')}"]
-        if data.get("status"):
-            parts.append(f"status={data['status']}")
-        if data.get("description"):
-            parts.append(f"desc={data['description'][:100]}")
-        return ", ".join(parts)
-    elif category == "decisions":
-        parts = [f"Decision: {data.get('topic', '?')}"]
-        if data.get("choice"):
-            parts.append(f"choice={data['choice']}")
-        if data.get("status"):
-            parts.append(f"status={data['status']}")
-        return ", ".join(parts)
-    elif category == "commitments":
-        parts = [f"Commitment: {data.get('what', '?')}"]
-        if data.get("deadline"):
-            parts.append(f"deadline={data['deadline']}")
-        if data.get("status"):
-            parts.append(f"status={data['status']}")
-        if data.get("who"):
-            parts.append(f"who={data['who']}")
-        return ", ".join(parts)
-    return json.dumps(data)[:200]
 
 
 def _search_logs_for_claim(keywords: list[str], days: int) -> list[dict]:
@@ -1594,51 +1610,35 @@ def _search_logs_for_claim(keywords: list[str], days: int) -> list[dict]:
     return evidence
 
 
-def _search_history_for_claim(keywords: list[str]) -> list[dict]:
-    """Search conversation history for evidence."""
+def _search_history_for_claim(keywords: list[str], chat_id: int = 0) -> list[dict]:
+    """Search conversation history via SQLite turn table."""
     evidence = []
-    history_file = PRIVATE_DIR / "conversation_history.json"
-    if not history_file.exists():
-        return evidence
-
-    try:
-        data = json.loads(history_file.read_text())
-    except (json.JSONDecodeError, OSError):
-        return evidence
-
-    for chat_id_key, entry in data.items():
-        history = entry.get("history", [])
-        for msg in history:
-            content = msg.get("content", "")
-            if isinstance(content, list):
-                text_parts = []
-                for block in content:
-                    if isinstance(block, dict):
-                        if block.get("type") == "text":
-                            text_parts.append(block.get("text", ""))
-                        elif block.get("type") == "tool_result":
-                            text_parts.append(block.get("content", "") if isinstance(block.get("content"), str) else "")
-                content = " ".join(text_parts)
-            if not isinstance(content, str):
+    services = get_services()
+    # Search for each keyword that has 3+ characters
+    seen_turn_ids: set[str] = set()
+    for kw in keywords[:5]:
+        rows = services.store.search_turns(chat_id, kw, limit=10, days=30)
+        for row in rows:
+            turn_key = row.get("created_at_utc", "")
+            if turn_key in seen_turn_ids:
                 continue
-
-            content_lower = content.lower()
-            matching_keywords = [kw for kw in keywords if kw in content_lower]
-            if len(matching_keywords) >= 2:  # Require 2+ keyword matches to reduce noise
-                role = msg.get("role", "unknown")
-                preview = content[:300] + "..." if len(content) > 300 else content
+            text = row["text"]
+            text_lower = text.lower()
+            matching_keywords = [k for k in keywords if k in text_lower]
+            if len(matching_keywords) >= 2:
+                seen_turn_ids.add(turn_key)
+                preview = text[:300] + "..." if len(text) > 300 else text
                 evidence.append({
-                    "source": f"conversation ({role})",
+                    "source": f"conversation ({row['role']})",
                     "matched_keywords": matching_keywords,
                     "summary": preview,
                 })
                 if len(evidence) >= 5:
                     return evidence
-
     return evidence
 
 
-def fact_check(claim: str, sources: str = "all", days: int = 30) -> str:
+def fact_check(claim: str, sources: str = "all", days: int = 30, chat_id: int = 0) -> str:
     """Verify a claim against stored knowledge and return evidence report."""
     keywords = _extract_keywords(claim)
     if not keywords:
@@ -1649,19 +1649,19 @@ def fact_check(claim: str, sources: str = "all", days: int = 30) -> str:
 
     all_evidence = []
 
-    # Search memory (people, projects, decisions, commitments)
+    # Search approved memory (SQLite)
     if check_all or "memory" in source_list:
         memory_evidence = _search_memory(keywords)
         all_evidence.extend(memory_evidence)
 
-    # Search daily logs
+    # Search daily logs (file-based — logs are projections not in SQLite)
     if check_all or "logs" in source_list:
         log_evidence = _search_logs_for_claim(keywords, days)
         all_evidence.extend(log_evidence)
 
-    # Search conversation history
+    # Search conversation history (SQLite turn table)
     if check_all or "history" in source_list:
-        history_evidence = _search_history_for_claim(keywords)
+        history_evidence = _search_history_for_claim(keywords, chat_id=chat_id)
         all_evidence.extend(history_evidence)
 
     # Build report
@@ -1804,8 +1804,46 @@ def tool_brain_stats() -> str:
 
 # --- Nutrition tools ---
 
-def tool_log_food(food_description: str) -> str:
-    """Estimate macros for food, append to today's Fuel Log, return estimate + running totals."""
+def tool_run_query(db: str, sql: str) -> str:
+    services = get_services()
+    result = services.analytics.run_query(db, sql)
+    if "error" in result:
+        return f"Query error: {result['error']}"
+    return json.dumps(result, default=str)
+
+
+def tool_metric_trend(chat_id: int, field: str, days: int = 30) -> str:
+    services = get_services()
+    result = services.analytics.metric_trend(chat_id, field, days)
+    return json.dumps(result, default=str)
+
+
+def tool_habit_completion(chat_id: int, habit_name: str, days: int = 30) -> str:
+    services = get_services()
+    result = services.analytics.habit_completion(chat_id, habit_name, days)
+    return json.dumps(result, default=str)
+
+
+def tool_nutrition_summary(chat_id: int, date: str | None = None, days: int = 7) -> str:
+    services = get_services()
+    result = services.analytics.nutrition_summary(chat_id, date, days)
+    return json.dumps(result, default=str)
+
+
+def tool_correlate(chat_id: int, field_a: str, field_b: str, days: int = 30) -> str:
+    services = get_services()
+    result = services.analytics.correlate(chat_id, field_a, field_b, days)
+    return json.dumps(result, default=str)
+
+
+def tool_get_computed_insights(chat_id: int) -> str:
+    services = get_services()
+    result = services.analytics.get_computed_insights(chat_id)
+    return json.dumps(result, default=str)
+
+
+def tool_log_food(food_description: str, chat_id: int = 0) -> str:
+    """Estimate macros for food, write to SQLite + fuel log, return estimate + running totals."""
     try:
         from calorie_estimator import estimate_food, append_to_fuel_log, get_running_total
     except ImportError as e:
@@ -1814,6 +1852,19 @@ def tool_log_food(food_description: str) -> str:
     result = estimate_food(food_description)
     if not result.get("success"):
         return f"Estimation failed: {result.get('error', 'Unknown error')}"
+
+    # Write macros to SQLite food_entry
+    if chat_id:
+        services = get_services()
+        local_date = _resolve_local_date(chat_id, None)
+        services.store.append_food(
+            chat_id, local_date, food_description,
+            calories_est=result.get("calories"),
+            protein_g_est=result.get("protein_g"),
+            carbs_g_est=result.get("carbs_g"),
+            fat_g_est=result.get("fat_g"),
+            fiber_g_est=result.get("fiber_g"),
+        )
 
     appended = append_to_fuel_log(food_description, result)
     totals = get_running_total()
@@ -1836,6 +1887,33 @@ def tool_log_food(food_description: str) -> str:
     lines.append(f"  Entries today: {totals['entries_count']}")
 
     return "\n".join(lines)
+
+
+def tool_log_workout(
+    chat_id: int,
+    workout_type: str,
+    exercises: list[dict] | None = None,
+    cardio: list[dict] | None = None,
+    notes: str = "",
+    date: str | None = None,
+) -> str:
+    """Log a workout session to SQLite."""
+    services = get_services()
+    local_date = _resolve_local_date(chat_id, date)
+    result = services.store.record_workout(
+        chat_id=chat_id,
+        local_date=local_date,
+        workout_type=workout_type,
+        exercises=exercises,
+        cardio=cardio,
+        notes=notes,
+    )
+    parts = [f"Logged {workout_type} workout for {local_date}"]
+    if result["exercises"]:
+        parts.append(f"  {result['exercises']} exercise(s)")
+    if result["cardio_activities"]:
+        parts.append(f"  {result['cardio_activities']} cardio activity/ies")
+    return "\n".join(parts)
 
 
 def tool_get_nutrition_totals(date: str = None) -> str:
@@ -1909,19 +1987,17 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
     if name == "run_weekly_planner":
         return run_weekly_planner(this_week=inputs.get("this_week", False))
     if name == "get_brain_status":
-        return get_brain_status()
+        return get_brain_status(chat_id=chat_id)
     if name == "capture_to_inbox":
         return capture_to_inbox(inputs["text"])
     if name == "search_logs":
         return search_logs(inputs["query"], inputs.get("days", 30))
     if name == "manage_cron":
         return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"))
-    if name == "run_memory_command":
-        return run_memory_command(inputs["args"])
     if name == "run_script":
         return run_script(inputs["script_name"], inputs.get("args", ""))
     if name == "search_conversation_history":
-        return search_conversation_history(inputs["query"], inputs.get("limit", 20))
+        return search_conversation_history(inputs["query"], inputs.get("limit", 20), chat_id=chat_id)
     if name == "get_system_status":
         return get_system_status()
     if name == "get_current_datetime":
@@ -1941,7 +2017,7 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
             focus=inputs.get("focus"),
         )
     if name == "fact_check":
-        return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30))
+        return fact_check(inputs["claim"], inputs.get("sources", "all"), inputs.get("days", 30), chat_id=chat_id)
     if name == "semantic_search":
         return tool_semantic_search(inputs["query"], inputs.get("doc_type", ""), inputs.get("limit", 5))
     if name == "ingest_content":
@@ -1950,8 +2026,29 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
         return tool_explore_connections(inputs["entity_name"], inputs.get("hops", 1))
     if name == "brain_stats":
         return tool_brain_stats()
+    if name == "run_query":
+        return tool_run_query(inputs["db"], inputs["sql"])
+    if name == "metric_trend":
+        return tool_metric_trend(chat_id, inputs["field"], inputs.get("days", 30))
+    if name == "habit_completion":
+        return tool_habit_completion(chat_id, inputs["habit_name"], inputs.get("days", 30))
+    if name == "nutrition_summary":
+        return tool_nutrition_summary(chat_id, inputs.get("date"), inputs.get("days", 7))
+    if name == "correlate":
+        return tool_correlate(chat_id, inputs["field_a"], inputs["field_b"], inputs.get("days", 30))
+    if name == "get_computed_insights":
+        return tool_get_computed_insights(chat_id)
     if name == "log_food":
-        return tool_log_food(inputs["food_description"])
+        return tool_log_food(inputs["food_description"], chat_id=chat_id)
     if name == "get_nutrition_totals":
         return tool_get_nutrition_totals(inputs.get("date"))
+    if name == "log_workout":
+        return tool_log_workout(
+            chat_id=chat_id,
+            workout_type=inputs["workout_type"],
+            exercises=inputs.get("exercises"),
+            cardio=inputs.get("cardio"),
+            notes=inputs.get("notes", ""),
+            date=inputs.get("date"),
+        )
     return f"Unknown V2 tool: {name}"

@@ -262,20 +262,6 @@ def _run_auto_backup():
         logger.error(f"Auto backup failed: {e}")
 
 
-def _run_memory_extract(text: str):
-    """Run legacy memory extraction fire-and-forget path for compatibility."""
-    try:
-        subprocess.run(
-            [sys.executable, str(SCRIPTS_DIR / "memory.py"), "extract", text],
-            capture_output=True,
-            text=True,
-            timeout=60,
-            cwd=str(PROJECT_ROOT),
-        )
-    except Exception as e:
-        logger.error(f"Memory extraction failed: {e}")
-
-
 def _is_authorized(update: Update) -> bool:
     return not OWNER_CHAT_ID or update.effective_chat.id == OWNER_CHAT_ID
 

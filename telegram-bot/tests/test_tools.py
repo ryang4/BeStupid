@@ -225,20 +225,19 @@ class TestFactCheck:
     """Test fact_check tool."""
 
     def test_finds_memory_evidence(self, mock_env):
-        """Test that fact_check finds evidence in memory files."""
-        # Create a person in memory
-        people_dir = mock_env["project_root"] / "memory" / "people"
-        people_dir.mkdir(parents=True, exist_ok=True)
-        person = {
-            "name": "John Smith",
-            "role": "accountant",
-            "context": "Met at tech conference",
-            "source": "Notion",
-            "tags": [],
-            "notes": "",
-            "interactions": [],
-        }
-        (people_dir / "john-smith.json").write_text(json.dumps(person))
+        """Test that fact_check finds evidence in approved_memory table."""
+        from v2.bootstrap import get_services
+        services = get_services()
+        # Insert an approved memory about John Smith
+        with services.store.begin_write() as conn:
+            conn.execute(
+                """
+                INSERT INTO approved_memory
+                    (memory_id, chat_id, kind, subject_key, payload_json, version, active, valid_from_utc, source_candidate_id)
+                VALUES ('mem_test1', 0, 'relationship', 'relationship:john smith:accountant',
+                        '{"name": "John Smith", "role": "accountant"}', 1, 1, '2026-01-01T00:00:00', 'cand_test1')
+                """,
+            )
 
         with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
             from tools_v2 import fact_check
@@ -274,16 +273,18 @@ class TestFactCheck:
                 assert "UNVERIFIED" in result
 
     def test_finds_commitment_evidence(self, mock_env):
-        """Test that fact_check finds evidence in commitments."""
-        commitments_dir = mock_env["project_root"] / "memory" / "commitments"
-        commitments_dir.mkdir(parents=True, exist_ok=True)
-        commitment = {
-            "what": "Send proposal to John",
-            "who": "John Smith",
-            "deadline": "2026-02-15",
-            "status": "open",
-        }
-        (commitments_dir / "20260210-send-proposal.json").write_text(json.dumps(commitment))
+        """Test that fact_check finds evidence in approved_memory (commitments)."""
+        from v2.bootstrap import get_services
+        services = get_services()
+        with services.store.begin_write() as conn:
+            conn.execute(
+                """
+                INSERT INTO approved_memory
+                    (memory_id, chat_id, kind, subject_key, payload_json, version, active, valid_from_utc, source_candidate_id)
+                VALUES ('mem_test2', 0, 'commitment', 'commitment:send proposal to john',
+                        '{"title": "Send proposal to John", "deadline": "2026-02-15"}', 1, 1, '2026-01-01T00:00:00', 'cand_test2')
+                """,
+            )
 
         with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
             from tools_v2 import fact_check
@@ -294,16 +295,18 @@ class TestFactCheck:
             assert "proposal" in result.lower()
 
     def test_finds_decision_evidence(self, mock_env):
-        """Test that fact_check finds evidence in decisions."""
-        decisions_dir = mock_env["project_root"] / "memory" / "decisions"
-        decisions_dir.mkdir(parents=True, exist_ok=True)
-        decision = {
-            "topic": "tech-stack",
-            "choice": "React + FastAPI",
-            "rationale": "Team expertise",
-            "status": "active",
-        }
-        (decisions_dir / "tech-stack.json").write_text(json.dumps(decision))
+        """Test that fact_check finds evidence in approved_memory (decisions)."""
+        from v2.bootstrap import get_services
+        services = get_services()
+        with services.store.begin_write() as conn:
+            conn.execute(
+                """
+                INSERT INTO approved_memory
+                    (memory_id, chat_id, kind, subject_key, payload_json, version, active, valid_from_utc, source_candidate_id)
+                VALUES ('mem_test3', 0, 'fact', 'fact:react fastapi tech stack',
+                        '{"fact": "Decided to use React and FastAPI for tech stack"}', 1, 1, '2026-01-01T00:00:00', 'cand_test3')
+                """,
+            )
 
         with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
             from tools_v2 import fact_check
@@ -353,28 +356,23 @@ class TestFactCheck:
         assert "Could not extract" in result
 
     def test_searches_conversation_history(self, mock_env):
-        """Test that fact_check finds evidence in conversation history."""
-        history = {
-            "12345": {
-                "history": [
-                    {"role": "user", "content": "I signed the contract with Acme Corp yesterday"},
-                    {"role": "assistant", "content": "Got it, I noted the Acme Corp contract signing."},
-                ],
-                "total_input_tokens": 0,
-                "total_output_tokens": 0,
-            }
-        }
-        history_file = mock_env["private_dir"] / "conversation_history.json"
-        history_file.write_text(json.dumps(history))
+        """Test that fact_check finds evidence in the turn table."""
+        from v2.bootstrap import get_services
+        services = get_services()
+        # Insert turns about Acme Corp contract
+        session = services.store.get_or_create_session(0)
+        services.store.record_turn(0, session["session_id"], 0, "user",
+                                   "I signed the contract with Acme Corp yesterday")
+        services.store.record_turn(0, session["session_id"], 0, "assistant",
+                                   "Got it, I noted the Acme Corp contract signing.")
 
         with patch("tools_v2.REPO_ROOT", mock_env["project_root"]):
-            with patch("tools_v2.PRIVATE_DIR", mock_env["private_dir"]):
-                from tools_v2 import fact_check
+            from tools_v2 import fact_check
 
-                result = fact_check("I signed a contract with Acme Corp", sources="history")
+            result = fact_check("I signed a contract with Acme Corp", sources="history", chat_id=0)
 
-                assert "EVIDENCE FOUND" in result
-                assert "acme" in result.lower() or "contract" in result.lower()
+            assert "EVIDENCE FOUND" in result
+            assert "acme" in result.lower() or "contract" in result.lower()
 
 
 class TestGetSystemStatus:

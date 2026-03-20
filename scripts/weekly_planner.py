@@ -167,23 +167,21 @@ def _extract_todo_completion_rate(content: str) -> float:
 
 
 def _load_metrics_index() -> dict:
-    """Load daily metrics and index by date."""
-    metrics_path = os.path.join(os.path.dirname(__file__), '..', METRICS_FILE)
-    if not os.path.exists(metrics_path):
-        return {}
-
+    """Load daily metrics from V2 SQLite, indexed by date."""
     try:
-        with open(metrics_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except (OSError, json.JSONDecodeError):
-        return {}
+        project_root = os.path.join(os.path.dirname(__file__), '..')
+        sys.path.insert(0, os.path.join(project_root, "telegram-bot"))
+        from v2.infra.sqlite_state_store import SQLiteStateStore
 
-    index = {}
-    for entry in data.get("entries", []):
-        date_str = entry.get("date")
-        if date_str:
-            index[date_str] = entry
-    return index
+        store = SQLiteStateStore()
+        chat_id = int(os.environ.get("OWNER_CHAT_ID", "0"))
+        if not chat_id:
+            return {}
+
+        entries = store.get_all_metrics_entries(chat_id)
+        return {e["date"]: e for e in entries if e.get("date")}
+    except Exception:
+        return {}
 
 
 def _calculate_last_week_range(year, week):

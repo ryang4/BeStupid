@@ -167,16 +167,6 @@ class TestBareExceptClauses:
 class TestFireAndForgetLogging:
     """Test that fire-and-forget tasks log failures."""
 
-    def test_memory_extract_failure_logged(self, mock_env):
-        """Test that memory extraction failures are logged."""
-        with patch("subprocess.run", side_effect=Exception("Extract failed")):
-            with patch("bot.logger") as mock_logger:
-                from bot import _run_memory_extract
-
-                _run_memory_extract("test text")
-
-                mock_logger.error.assert_called()
-
     def test_auto_backup_failure_logged(self, mock_env):
         """Test that auto backup failures are logged."""
         with patch("subprocess.run", side_effect=Exception("Backup failed")):

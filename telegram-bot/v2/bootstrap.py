@@ -8,6 +8,7 @@ from v2.app.memory_review import MemoryReviewServiceImpl
 from v2.app.projection import PrivateProjectionService
 from v2.app.reminder_policy import SimpleReminderPolicy
 from v2.app.timezone_resolver import DefaultTimezoneResolver, SystemClock
+from v2.infra.analytics_reader import AnalyticsReader
 from v2.infra.sqlite_state_store import SQLiteStateStore
 
 
@@ -20,6 +21,7 @@ class Services:
     memory_review: MemoryReviewServiceImpl
     projection: PrivateProjectionService
     reminder_policy: SimpleReminderPolicy
+    analytics: AnalyticsReader
 
 
 @lru_cache(maxsize=1)
@@ -36,4 +38,5 @@ def get_services() -> Services:
         memory_review=MemoryReviewServiceImpl(store=store),
         projection=PrivateProjectionService(store=store),
         reminder_policy=SimpleReminderPolicy(store=store, resolver=resolver),
+        analytics=AnalyticsReader(store=store),
     )

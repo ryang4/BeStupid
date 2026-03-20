@@ -25,19 +25,11 @@ METRICS_FILE = os.path.join(PROJECT_ROOT, "data", "daily_metrics.json")
 
 def load_metrics() -> dict:
     """
-    Load metrics from V2 SQLite, falling back to legacy JSON.
+    Load metrics from V2 SQLite (canonical source).
 
     Returns:
         dict: Full metrics data structure, or empty structure if unavailable
     """
-    try:
-        return _load_from_v2_sqlite()
-    except Exception as e:
-        print(f"Warning: V2 SQLite read failed ({e}), falling back to JSON")
-        return _load_from_json()
-
-
-def _load_from_v2_sqlite() -> dict:
     import sys as _sys
     _sys.path.insert(0, os.path.join(PROJECT_ROOT, "telegram-bot"))
     from v2.infra.sqlite_state_store import SQLiteStateStore
@@ -45,22 +37,10 @@ def _load_from_v2_sqlite() -> dict:
     store = SQLiteStateStore()
     chat_id = int(os.environ.get("OWNER_CHAT_ID", "0"))
     if not chat_id:
-        raise ValueError("OWNER_CHAT_ID not set")
+        return {"version": "2.0", "entries": []}
 
     entries = store.get_all_metrics_entries(chat_id)
     return {"version": "2.0", "entries": entries}
-
-
-def _load_from_json() -> dict:
-    """Legacy fallback — reads data/daily_metrics.json."""
-    if not os.path.exists(METRICS_FILE):
-        return {"version": "1.0", "entries": []}
-
-    try:
-        with open(METRICS_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError):
-        return {"version": "1.0", "entries": []}
 
 
 def get_entries_for_days(entries: list, n_days: int) -> list:

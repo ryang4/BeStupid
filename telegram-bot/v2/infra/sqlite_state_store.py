@@ -262,8 +262,71 @@ class SQLiteStateStore:
                     ON turn(session_id, created_at_utc);
                 CREATE INDEX IF NOT EXISTS idx_audit_event_chat
                     ON audit_event(chat_id, created_at_utc);
+                CREATE INDEX IF NOT EXISTS idx_food_entry_day
+                    ON food_entry(day_id);
+
+                CREATE TABLE IF NOT EXISTS workout_session (
+                    session_id TEXT PRIMARY KEY,
+                    day_id TEXT NOT NULL,
+                    workout_type TEXT NOT NULL DEFAULT '',
+                    notes TEXT NOT NULL DEFAULT '',
+                    FOREIGN KEY (day_id) REFERENCES day_context(day_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS exercise_log (
+                    exercise_id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL,
+                    exercise_name TEXT NOT NULL,
+                    sets INTEGER,
+                    reps INTEGER,
+                    weight_lbs REAL,
+                    duration_seconds INTEGER,
+                    FOREIGN KEY (session_id) REFERENCES workout_session(session_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS cardio_activity (
+                    activity_id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL,
+                    activity_type TEXT NOT NULL,
+                    distance REAL,
+                    distance_unit TEXT NOT NULL DEFAULT 'mi',
+                    duration_minutes REAL,
+                    avg_hr INTEGER,
+                    FOREIGN KEY (session_id) REFERENCES workout_session(session_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS token_usage (
+                    chat_id INTEGER PRIMARY KEY,
+                    total_input_tokens INTEGER NOT NULL DEFAULT 0,
+                    total_output_tokens INTEGER NOT NULL DEFAULT 0,
+                    daily_input_tokens INTEGER NOT NULL DEFAULT 0,
+                    daily_output_tokens INTEGER NOT NULL DEFAULT 0,
+                    daily_token_date TEXT NOT NULL DEFAULT '',
+                    updated_at_utc TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_workout_session_day
+                    ON workout_session(day_id);
+                CREATE INDEX IF NOT EXISTS idx_exercise_log_session
+                    ON exercise_log(session_id);
+                CREATE INDEX IF NOT EXISTS idx_cardio_activity_session
+                    ON cardio_activity(session_id);
                 """
             )
+            # ALTER TABLE for food_entry macro columns — safe to fail if columns exist
+            for col_def in [
+                "calories_est INTEGER",
+                "protein_g_est INTEGER",
+                "carbs_g_est INTEGER",
+                "fat_g_est INTEGER",
+                "fiber_g_est INTEGER",
+                "meal_type TEXT",
+            ]:
+                col_name = col_def.split()[0]
+                try:
+                    conn.execute(f"ALTER TABLE food_entry ADD COLUMN {col_def}")
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
 
     @contextmanager
     def begin_write(self) -> Iterator[sqlite3.Connection]:
@@ -899,7 +962,18 @@ class SQLiteStateStore:
             )
         return {"day_id": day["day_id"], "field": field, "value": value}
 
-    def append_food(self, chat_id: int, local_date: str, description: str) -> dict[str, Any]:
+    def append_food(
+        self,
+        chat_id: int,
+        local_date: str,
+        description: str,
+        calories_est: int | None = None,
+        protein_g_est: int | None = None,
+        carbs_g_est: int | None = None,
+        fat_g_est: int | None = None,
+        fiber_g_est: int | None = None,
+        meal_type: str = "",
+    ) -> dict[str, Any]:
         resolved = ResolvedNow(
             chat_id=chat_id,
             timezone_name=self.resolve_timezone_name(chat_id),
@@ -913,10 +987,74 @@ class SQLiteStateStore:
         food_id = _new_id("food")
         with self.begin_write() as conn:
             conn.execute(
-                "INSERT INTO food_entry (food_id, day_id, description, logged_at_utc) VALUES (?, ?, ?, ?)",
-                (food_id, day["day_id"], description.strip(), _utc_now_iso()),
+                """
+                INSERT INTO food_entry
+                    (food_id, day_id, description, logged_at_utc,
+                     calories_est, protein_g_est, carbs_g_est, fat_g_est, fiber_g_est, meal_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (food_id, day["day_id"], description.strip(), _utc_now_iso(),
+                 calories_est, protein_g_est, carbs_g_est, fat_g_est, fiber_g_est, meal_type),
             )
         return {"food_id": food_id, "day_id": day["day_id"], "description": description.strip()}
+
+    def record_workout(
+        self,
+        chat_id: int,
+        local_date: str,
+        workout_type: str,
+        exercises: list[dict[str, Any]] | None = None,
+        cardio: list[dict[str, Any]] | None = None,
+        notes: str = "",
+    ) -> dict[str, Any]:
+        """Record a workout session with exercises and/or cardio activities."""
+        resolved = ResolvedNow(
+            chat_id=chat_id,
+            timezone_name=self.resolve_timezone_name(chat_id),
+            timezone_label=self.resolve_timezone_name(chat_id),
+            utc_now=_utc_now(),
+            local_now=_utc_now(),
+            local_date=local_date,
+            day_key=local_date,
+        )
+        day = self.ensure_day_open(resolved)
+        ws_id = _new_id("ws")
+        with self.begin_write() as conn:
+            conn.execute(
+                "INSERT INTO workout_session (session_id, day_id, workout_type, notes) VALUES (?, ?, ?, ?)",
+                (ws_id, day["day_id"], workout_type, notes),
+            )
+            ex_count = 0
+            for ex in (exercises or []):
+                ex_id = _new_id("ex")
+                conn.execute(
+                    """
+                    INSERT INTO exercise_log (exercise_id, session_id, exercise_name, sets, reps, weight_lbs, duration_seconds)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (ex_id, ws_id, ex.get("name", ""), ex.get("sets"), ex.get("reps"),
+                     ex.get("weight_lbs"), ex.get("duration_seconds")),
+                )
+                ex_count += 1
+            cardio_count = 0
+            for act in (cardio or []):
+                act_id = _new_id("cardio")
+                conn.execute(
+                    """
+                    INSERT INTO cardio_activity
+                        (activity_id, session_id, activity_type, distance, distance_unit, duration_minutes, avg_hr)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (act_id, ws_id, act.get("type", ""), act.get("distance"),
+                     act.get("distance_unit", "mi"), act.get("duration_minutes"), act.get("avg_hr")),
+                )
+                cardio_count += 1
+        return {
+            "session_id": ws_id,
+            "workout_type": workout_type,
+            "exercises": ex_count,
+            "cardio_activities": cardio_count,
+        }
 
     def mark_habit(self, chat_id: int, local_date: str, habit_id: str, status: str) -> dict[str, Any]:
         if status not in {"pending", "done", "skipped", "snoozed"}:
@@ -1166,6 +1304,48 @@ class SQLiteStateStore:
                 missed = [r["name"] for r in habits_rows if r["status"] != "done"]
                 total = len(habits_rows)
 
+                # Training data from workout tables
+                ws_row = conn.execute(
+                    "SELECT session_id, workout_type FROM workout_session WHERE day_id = ? LIMIT 1",
+                    (day_id,),
+                ).fetchone()
+                training = {"workout_type": "", "activities": [], "strength_exercises": []}
+                if ws_row:
+                    training["workout_type"] = ws_row["workout_type"]
+                    for ex in conn.execute(
+                        "SELECT exercise_name, sets, reps, weight_lbs FROM exercise_log WHERE session_id = ?",
+                        (ws_row["session_id"],),
+                    ).fetchall():
+                        training["strength_exercises"].append({
+                            "exercise": ex["exercise_name"],
+                            "sets": ex["sets"],
+                            "reps": ex["reps"],
+                            "weight_lbs": ex["weight_lbs"],
+                        })
+                    for act in conn.execute(
+                        "SELECT activity_type, distance, distance_unit, duration_minutes, avg_hr FROM cardio_activity WHERE session_id = ?",
+                        (ws_row["session_id"],),
+                    ).fetchall():
+                        training["activities"].append({
+                            "type": act["activity_type"],
+                            "distance": act["distance"],
+                            "distance_unit": act["distance_unit"],
+                            "duration_minutes": act["duration_minutes"],
+                            "avg_hr": act["avg_hr"],
+                        })
+
+                # Nutrition totals from food_entry macro columns
+                nutr_row = conn.execute(
+                    """
+                    SELECT COALESCE(SUM(calories_est), 0) AS cal,
+                           COALESCE(SUM(protein_g_est), 0) AS prot
+                    FROM food_entry WHERE day_id = ? AND calories_est IS NOT NULL
+                    """,
+                    (day_id,),
+                ).fetchone()
+                nutrition_cal = nutr_row["cal"] if nutr_row and nutr_row["cal"] else None
+                nutrition_prot = nutr_row["prot"] if nutr_row and nutr_row["prot"] else None
+
                 entries.append({
                     "date": local_date,
                     "sleep": {
@@ -1179,17 +1359,44 @@ class SQLiteStateStore:
                     },
                     "energy": _safe_float(metrics.get("Energy")),
                     "focus": _safe_float(metrics.get("Focus")),
-                    "training": {"workout_type": "", "activities": [], "strength_exercises": []},
+                    "training": training,
                     "todos": {"total": 0, "completed": 0, "completion_rate": 0},
                     "habits": {
                         "completed": completed,
                         "missed": missed,
                         "completion_rate": round(len(completed) / total, 2) if total else 0,
                     },
-                    "nutrition": {"calories": None, "protein_g": None},
+                    "nutrition": {"calories": nutrition_cal, "protein_g": nutrition_prot},
                     "extraction_notes": [],
                 })
         return entries
+
+
+    def search_turns(
+        self,
+        chat_id: int,
+        query: str,
+        limit: int = 20,
+        days: int = 30,
+    ) -> list[dict[str, Any]]:
+        """Search turn text for keyword matches within a date window."""
+        cutoff = (_utc_now() - timedelta(days=days)).isoformat(timespec="seconds")
+        query_lower = f"%{query.lower()}%"
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT t.role, t.text, t.created_at_utc, s.session_id
+                FROM turn t
+                JOIN session s ON s.session_id = t.session_id
+                WHERE s.chat_id = ?
+                  AND t.created_at_utc >= ?
+                  AND LOWER(t.text) LIKE ?
+                ORDER BY t.created_at_utc DESC
+                LIMIT ?
+                """,
+                (chat_id, cutoff, query_lower, limit),
+            ).fetchall()
+        return [dict(row) for row in rows]
 
 
 def _safe_float(value: str | None) -> float | None:
