@@ -4,7 +4,9 @@
     "2026-03-20": {
       "timezone": "America/New_York",
       "status": "open",
-      "metrics": {}
+      "metrics": {
+        "Energy": "good"
+      }
     },
     "2026-03-19": {
       "timezone": "America/New_York",
