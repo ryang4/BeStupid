@@ -232,7 +232,7 @@ class TestFactCheck:
         with services.store.begin_write() as conn:
             conn.execute(
                 """
-                INSERT INTO approved_memory
+                INSERT OR REPLACE INTO approved_memory
                     (memory_id, chat_id, kind, subject_key, payload_json, version, active, valid_from_utc, source_candidate_id)
                 VALUES ('mem_test1', 0, 'relationship', 'relationship:john smith:accountant',
                         '{"name": "John Smith", "role": "accountant"}', 1, 1, '2026-01-01T00:00:00', 'cand_test1')
@@ -279,7 +279,7 @@ class TestFactCheck:
         with services.store.begin_write() as conn:
             conn.execute(
                 """
-                INSERT INTO approved_memory
+                INSERT OR REPLACE INTO approved_memory
                     (memory_id, chat_id, kind, subject_key, payload_json, version, active, valid_from_utc, source_candidate_id)
                 VALUES ('mem_test2', 0, 'commitment', 'commitment:send proposal to john',
                         '{"title": "Send proposal to John", "deadline": "2026-02-15"}', 1, 1, '2026-01-01T00:00:00', 'cand_test2')
@@ -301,7 +301,7 @@ class TestFactCheck:
         with services.store.begin_write() as conn:
             conn.execute(
                 """
-                INSERT INTO approved_memory
+                INSERT OR REPLACE INTO approved_memory
                     (memory_id, chat_id, kind, subject_key, payload_json, version, active, valid_from_utc, source_candidate_id)
                 VALUES ('mem_test3', 0, 'fact', 'fact:react fastapi tech stack',
                         '{"fact": "Decided to use React and FastAPI for tech stack"}', 1, 1, '2026-01-01T00:00:00', 'cand_test3')

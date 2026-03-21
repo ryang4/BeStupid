@@ -279,6 +279,8 @@ def migrate(dry_run: bool = False):
             nutrition = entry.get("nutrition", {})
             line_items = nutrition.get("line_items", [])
             for item in line_items:
+                if not isinstance(item, dict):
+                    continue
                 food_desc = item.get("food", "")
                 if not food_desc:
                     continue
