@@ -1,6 +1,11 @@
 {
   "chat_id": 6248692800,
   "days": {
+    "2026-03-22": {
+      "timezone": "America/New_York",
+      "status": "open",
+      "metrics": {}
+    },
     "2026-03-21": {
       "timezone": "America/New_York",
       "status": "open",
