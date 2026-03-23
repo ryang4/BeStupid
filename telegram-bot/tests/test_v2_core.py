@@ -189,3 +189,68 @@ def test_history_for_disk_strips_tool_blocks():
         {"role": "assistant", "content": "Visible"},
         {"role": "user", "content": "Visible result"},
     ]
+
+
+# ---------------------------------------------------------------------------
+# Stale loop detection (Phase 4: Zombie tasks)
+# ---------------------------------------------------------------------------
+
+
+def test_list_stale_loops_returns_old_loops(v2_store):
+    store, _ = v2_store
+    from datetime import timedelta, timezone as tz
+    old_date = (datetime.now(tz.utc) - timedelta(days=5)).isoformat()
+    with store.begin_write() as conn:
+        conn.execute(
+            "INSERT INTO open_loop (loop_id, chat_id, kind, title, status, priority, created_at_utc) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ("loop_old", 12345, "task", "Old task", "open", "normal", old_date),
+        )
+    result = store.list_stale_loops(12345, age_days=3)
+    assert len(result) == 1
+    assert result[0]["title"] == "Old task"
+    assert result[0]["age_days"] >= 4
+
+
+def test_list_stale_loops_excludes_recent(v2_store):
+    store, _ = v2_store
+    from v2.infra.sqlite_state_store import _utc_now_iso
+    with store.begin_write() as conn:
+        conn.execute(
+            "INSERT INTO open_loop (loop_id, chat_id, kind, title, status, priority, created_at_utc) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ("loop_new", 12345, "task", "New task", "open", "normal", _utc_now_iso()),
+        )
+    result = store.list_stale_loops(12345, age_days=3)
+    assert len(result) == 0
+
+
+def test_list_stale_loops_excludes_completed(v2_store):
+    store, _ = v2_store
+    from datetime import timedelta, timezone as tz
+    old_date = (datetime.now(tz.utc) - timedelta(days=5)).isoformat()
+    with store.begin_write() as conn:
+        conn.execute(
+            "INSERT INTO open_loop (loop_id, chat_id, kind, title, status, priority, created_at_utc) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ("loop_done", 12345, "task", "Done task", "completed", "normal", old_date),
+        )
+    result = store.list_stale_loops(12345, age_days=3)
+    assert len(result) == 0
+
+
+def test_create_open_loop_sets_created_at(v2_store):
+    store, _ = v2_store
+    result = store.create_open_loop(12345, "Test", "task")
+    with store._connect() as conn:
+        row = conn.execute(
+            "SELECT created_at_utc FROM open_loop WHERE loop_id = ?",
+            (result["loop_id"],),
+        ).fetchone()
+    assert row["created_at_utc"] != ""
+
+
+def test_increment_rollover(v2_store):
+    store, _ = v2_store
+    loop = store.create_open_loop(12345, "Rolling task", "task")
+    result = store.increment_rollover(12345, loop["loop_id"])
+    assert result["rollover_count"] == 1
+    result = store.increment_rollover(12345, loop["loop_id"])
+    assert result["rollover_count"] == 2

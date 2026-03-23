@@ -328,6 +328,59 @@ class SQLiteStateStore:
                 except sqlite3.OperationalError:
                     pass  # Column already exists
 
+            # ALTER TABLE for open_loop zombie detection columns
+            for col_def in [
+                "created_at_utc TEXT NOT NULL DEFAULT ''",
+                "rollover_count INTEGER NOT NULL DEFAULT 0",
+            ]:
+                try:
+                    conn.execute(f"ALTER TABLE open_loop ADD COLUMN {col_def}")
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
+
+            # Backfill created_at_utc from source turn
+            conn.execute("""
+                UPDATE open_loop SET created_at_utc = (
+                    SELECT t.created_at_utc FROM turn t WHERE t.turn_id = open_loop.source_turn_id
+                ) WHERE created_at_utc = '' AND source_turn_id != ''
+            """)
+            # Backfill from day context
+            conn.execute("""
+                UPDATE open_loop SET created_at_utc = (
+                    SELECT dc.opened_at_utc FROM day_context dc WHERE dc.day_id = open_loop.day_id
+                ) WHERE created_at_utc = '' AND day_id != ''
+            """)
+            # Remaining blanks: set to now
+            conn.execute(
+                "UPDATE open_loop SET created_at_utc = ? WHERE created_at_utc = ''",
+                (_utc_now_iso(),),
+            )
+
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_open_loop_stale ON open_loop(chat_id, status, created_at_utc)"
+            )
+
+            # Intervention table (Phase 5: Strategy evaluation)
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS intervention (
+                    intervention_id TEXT PRIMARY KEY,
+                    chat_id INTEGER NOT NULL,
+                    strategy_text TEXT NOT NULL,
+                    target_metric TEXT NOT NULL,
+                    baseline_value REAL,
+                    baseline_sample_size INTEGER NOT NULL DEFAULT 0,
+                    start_date TEXT NOT NULL,
+                    evaluation_date TEXT NOT NULL,
+                    status TEXT NOT NULL DEFAULT 'active',
+                    outcome_text TEXT NOT NULL DEFAULT '',
+                    outcome_delta REAL,
+                    created_at_utc TEXT NOT NULL
+                )
+            """)
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_intervention_eval ON intervention(chat_id, status, evaluation_date)"
+            )
+
     @contextmanager
     def begin_write(self) -> Iterator[sqlite3.Connection]:
         conn = self._connect()
@@ -1097,14 +1150,15 @@ class SQLiteStateStore:
         source_turn_id: str = "",
     ) -> dict[str, Any]:
         loop_id = _new_id("loop")
+        created = _utc_now_iso()
         with self.begin_write() as conn:
             conn.execute(
                 """
                 INSERT INTO open_loop
-                    (loop_id, chat_id, kind, title, status, priority, due_at_utc, day_id, source_turn_id)
-                VALUES (?, ?, ?, ?, 'open', ?, ?, ?, ?)
+                    (loop_id, chat_id, kind, title, status, priority, due_at_utc, day_id, source_turn_id, created_at_utc)
+                VALUES (?, ?, ?, ?, 'open', ?, ?, ?, ?, ?)
                 """,
-                (loop_id, chat_id, kind, title.strip(), priority, due_at_utc, day_id, source_turn_id),
+                (loop_id, chat_id, kind, title.strip(), priority, due_at_utc, day_id, source_turn_id, created),
             )
         return {"loop_id": loop_id, "title": title.strip(), "kind": kind, "priority": priority, "due_at_utc": due_at_utc}
 
@@ -1167,6 +1221,223 @@ class SQLiteStateStore:
                 (chat_id, now_iso, now_iso, limit),
             ).fetchall()
         return [dict(row) for row in rows]
+
+    def list_imminent_loops(
+        self,
+        chat_id: int,
+        now_utc: datetime | None = None,
+        lookahead_min: int = 5,
+        lookback_min: int = 15,
+        limit: int = 5,
+    ) -> list[dict[str, Any]]:
+        """Return open loops with due_at_utc within [now-lookback, now+lookahead]."""
+        now_utc = now_utc or _utc_now()
+        window_start = (now_utc - timedelta(minutes=lookback_min)).isoformat()
+        window_end = (now_utc + timedelta(minutes=lookahead_min)).isoformat()
+        now_iso = now_utc.isoformat()
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT loop_id, kind, title, priority, due_at_utc
+                FROM open_loop
+                WHERE chat_id = ? AND status = 'open'
+                  AND due_at_utc != '' AND due_at_utc >= ? AND due_at_utc <= ?
+                  AND (snoozed_until_utc = '' OR snoozed_until_utc <= ?)
+                ORDER BY due_at_utc ASC
+                LIMIT ?
+                """,
+                (chat_id, window_start, window_end, now_iso, limit),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def list_stale_loops(
+        self, chat_id: int, age_days: int = 3, limit: int = 5,
+    ) -> list[dict[str, Any]]:
+        """Return open loops older than age_days."""
+        cutoff = (_utc_now() - timedelta(days=age_days)).isoformat()
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT loop_id, kind, title, priority, due_at_utc, created_at_utc, rollover_count,
+                       CAST(julianday('now') - julianday(created_at_utc) AS INTEGER) AS age_days
+                FROM open_loop
+                WHERE chat_id = ? AND status = 'open'
+                  AND created_at_utc != '' AND created_at_utc <= ?
+                ORDER BY created_at_utc ASC
+                LIMIT ?
+                """,
+                (chat_id, cutoff, limit),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def increment_rollover(self, chat_id: int, loop_id: str) -> dict[str, Any] | None:
+        """Increment rollover count for an open loop."""
+        with self.begin_write() as conn:
+            conn.execute(
+                "UPDATE open_loop SET rollover_count = rollover_count + 1 WHERE loop_id = ? AND chat_id = ?",
+                (loop_id, chat_id),
+            )
+            row = conn.execute(
+                "SELECT loop_id, title, rollover_count FROM open_loop WHERE loop_id = ?",
+                (loop_id,),
+            ).fetchone()
+        return dict(row) if row else None
+
+    # --- Intervention (Strategy Evaluation) Methods ---
+
+    def create_intervention(
+        self,
+        chat_id: int,
+        strategy_text: str,
+        target_metric: str,
+        duration_days: int = 7,
+        baseline_value: float | None = None,
+        baseline_sample_size: int = 0,
+    ) -> dict[str, Any]:
+        """Create a behavioral intervention with baseline capture."""
+        if target_metric not in DAY_METRIC_FIELDS:
+            raise ValueError(f"Unsupported metric: {target_metric}")
+
+        intervention_id = _new_id("intv")
+        today = datetime.now(timezone.utc).date().isoformat()
+        eval_date = (datetime.now(timezone.utc).date() + timedelta(days=duration_days)).isoformat()
+
+        with self.begin_write() as conn:
+            conn.execute(
+                """
+                INSERT INTO intervention
+                    (intervention_id, chat_id, strategy_text, target_metric,
+                     baseline_value, baseline_sample_size,
+                     start_date, evaluation_date, status, created_at_utc)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'active', ?)
+                """,
+                (intervention_id, chat_id, strategy_text.strip(), target_metric,
+                 baseline_value, baseline_sample_size,
+                 today, eval_date, _utc_now_iso()),
+            )
+        return {
+            "intervention_id": intervention_id,
+            "strategy_text": strategy_text.strip(),
+            "target_metric": target_metric,
+            "baseline_value": baseline_value,
+            "start_date": today,
+            "evaluation_date": eval_date,
+            "status": "active",
+        }
+
+    def evaluate_intervention(
+        self, chat_id: int, intervention_id: str, current_value: float | None = None,
+    ) -> dict[str, Any] | None:
+        """Evaluate an active intervention by comparing current to baseline."""
+        with self.begin_write() as conn:
+            row = conn.execute(
+                "SELECT * FROM intervention WHERE intervention_id = ? AND chat_id = ?",
+                (intervention_id, chat_id),
+            ).fetchone()
+            if not row or row["status"] != "active":
+                return dict(row) if row else None
+
+            baseline = row["baseline_value"]
+            delta = (current_value - baseline) if (current_value is not None and baseline is not None) else None
+
+            if delta is not None:
+                direction = "improved" if delta > 0 else ("declined" if delta < 0 else "unchanged")
+                outcome = (
+                    f"{row['target_metric']}: {baseline:.1f} -> {current_value:.1f} "
+                    f"({'+' if delta >= 0 else ''}{delta:.1f}, {direction})"
+                )
+            else:
+                outcome = "Insufficient data to evaluate"
+
+            conn.execute(
+                """
+                UPDATE intervention
+                SET status = 'evaluated', outcome_text = ?, outcome_delta = ?
+                WHERE intervention_id = ?
+                """,
+                (outcome, delta, intervention_id),
+            )
+        return {
+            "intervention_id": intervention_id,
+            "strategy_text": row["strategy_text"],
+            "target_metric": row["target_metric"],
+            "baseline_value": baseline,
+            "current_value": current_value,
+            "outcome_delta": delta,
+            "outcome_text": outcome,
+            "status": "evaluated",
+        }
+
+    def list_due_evaluations(
+        self, chat_id: int, as_of_date: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return active interventions whose evaluation date has passed."""
+        if not as_of_date:
+            as_of_date = datetime.now(timezone.utc).date().isoformat()
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT * FROM intervention
+                WHERE chat_id = ? AND status = 'active' AND evaluation_date <= ?
+                ORDER BY evaluation_date ASC
+                """,
+                (chat_id, as_of_date),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def list_interventions(
+        self, chat_id: int, status: str | None = None, limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        """List interventions, optionally filtered by status."""
+        with self._connect() as conn:
+            if status:
+                rows = conn.execute(
+                    "SELECT * FROM intervention WHERE chat_id = ? AND status = ? ORDER BY created_at_utc DESC LIMIT ?",
+                    (chat_id, status, limit),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM intervention WHERE chat_id = ? ORDER BY created_at_utc DESC LIMIT ?",
+                    (chat_id, limit),
+                ).fetchall()
+        return [dict(row) for row in rows]
+
+    def drop_intervention(
+        self, chat_id: int, intervention_id: str, reason: str = "",
+    ) -> dict[str, Any] | None:
+        """Drop an active intervention."""
+        with self.begin_write() as conn:
+            row = conn.execute(
+                "SELECT * FROM intervention WHERE intervention_id = ? AND chat_id = ?",
+                (intervention_id, chat_id),
+            ).fetchone()
+            if not row:
+                return None
+            conn.execute(
+                "UPDATE intervention SET status = 'dropped', outcome_text = ? WHERE intervention_id = ?",
+                (reason or "Dropped by user", intervention_id),
+            )
+        return {"intervention_id": intervention_id, "status": "dropped", "outcome_text": reason or "Dropped by user"}
+
+    def extend_intervention(
+        self, chat_id: int, intervention_id: str, extra_days: int = 7,
+    ) -> dict[str, Any] | None:
+        """Extend an active intervention's evaluation date."""
+        with self.begin_write() as conn:
+            row = conn.execute(
+                "SELECT * FROM intervention WHERE intervention_id = ? AND chat_id = ?",
+                (intervention_id, chat_id),
+            ).fetchone()
+            if not row:
+                return None
+            from datetime import date as dt_date
+            current_eval = dt_date.fromisoformat(row["evaluation_date"])
+            new_eval = (current_eval + timedelta(days=extra_days)).isoformat()
+            conn.execute(
+                "UPDATE intervention SET evaluation_date = ? WHERE intervention_id = ?",
+                (new_eval, intervention_id),
+            )
+        return {"intervention_id": intervention_id, "evaluation_date": new_eval}
 
     def list_recent_corrections(self, chat_id: int, limit: int = 2) -> list[dict[str, Any]]:
         with self._connect() as conn:

@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from coaching_heartbeat import CoachingHeartbeat, evaluate_checkin
+from coaching_heartbeat import CoachingHeartbeat, evaluate_checkin, evaluate_commitment_nudge
 
 
 # ---------------------------------------------------------------------------
@@ -378,3 +378,130 @@ class TestAssembleContext:
     def test_includes_window_name(self, heartbeat):
         context = heartbeat._assemble_context("evening")
         assert "evening" in context
+
+
+# ---------------------------------------------------------------------------
+# Pure function tests: evaluate_commitment_nudge
+# ---------------------------------------------------------------------------
+
+
+class TestEvaluateCommitmentNudge:
+    """Pure function tests for commitment nudge evaluation."""
+
+    def test_returns_first_unnudged_loop(self):
+        loops = [
+            {"loop_id": "a", "title": "Task A"},
+            {"loop_id": "b", "title": "Task B"},
+        ]
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=loops,
+            nudged_ids=set(),
+            mute_until=None,
+            last_nudge_time=None,
+        )
+        assert result["loop_id"] == "a"
+
+    def test_skips_already_nudged(self):
+        loops = [{"loop_id": "a", "title": "Task A"}, {"loop_id": "b", "title": "Task B"}]
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=loops,
+            nudged_ids={"a"},
+            mute_until=None,
+            last_nudge_time=None,
+        )
+        assert result["loop_id"] == "b"
+
+    def test_returns_none_when_muted(self):
+        loops = [{"loop_id": "a", "title": "Task A"}]
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=loops,
+            nudged_ids=set(),
+            mute_until=datetime(2026, 3, 23, 15, 0),
+            last_nudge_time=None,
+        )
+        assert result is None
+
+    def test_rate_limited_within_30_min(self):
+        loops = [{"loop_id": "a", "title": "Task A"}]
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=loops,
+            nudged_ids=set(),
+            mute_until=None,
+            last_nudge_time=datetime(2026, 3, 23, 13, 45),
+        )
+        assert result is None
+
+    def test_allowed_after_30_min(self):
+        loops = [{"loop_id": "a", "title": "Task A"}]
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=loops,
+            nudged_ids=set(),
+            mute_until=None,
+            last_nudge_time=datetime(2026, 3, 23, 13, 25),
+        )
+        assert result["loop_id"] == "a"
+
+    def test_returns_none_when_empty(self):
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=[],
+            nudged_ids=set(),
+            mute_until=None,
+            last_nudge_time=None,
+        )
+        assert result is None
+
+    def test_returns_none_when_all_nudged(self):
+        loops = [{"loop_id": "a", "title": "Task A"}]
+        result = evaluate_commitment_nudge(
+            now=datetime(2026, 3, 23, 14, 0),
+            imminent_loops=loops,
+            nudged_ids={"a"},
+            mute_until=None,
+            last_nudge_time=None,
+        )
+        assert result is None
+
+
+# ---------------------------------------------------------------------------
+# Keyboard attachment tests
+# ---------------------------------------------------------------------------
+
+
+class TestKeyboardAttachment:
+    """Test that coaching check-ins attach appropriate keyboards."""
+
+    @pytest.fixture
+    def heartbeat_with_snapshot(self, heartbeat):
+        mock_snap = MagicMock()
+        mock_snap.metrics = {}
+        mock_snap.habits = [
+            {"name": "Yoga", "habit_id": "yoga", "status": "pending"},
+            {"name": "Write", "habit_id": "writing", "status": "pending"},
+        ]
+        mock_snap.foods = []
+        mock_snap.open_loops = []
+        heartbeat.services.store.get_day_snapshot.return_value = mock_snap
+        return heartbeat
+
+    def test_morning_keyboard_attached(self, heartbeat_with_snapshot):
+        kb = heartbeat_with_snapshot._build_keyboard_for_window("morning")
+        assert kb is not None
+        assert "inline_keyboard" in kb
+
+    def test_midday_keyboard_habits_only(self, heartbeat_with_snapshot):
+        kb = heartbeat_with_snapshot._build_keyboard_for_window("midday")
+        assert kb is not None
+        for row in kb["inline_keyboard"]:
+            for btn in row:
+                assert btn["callback_data"].startswith("h:")
+
+    def test_no_keyboard_when_no_snapshot(self, heartbeat):
+        heartbeat.services.store.get_day_snapshot.return_value = None
+        kb = heartbeat._build_keyboard_for_window("morning")
+        assert kb is None

@@ -69,6 +69,22 @@ def _run_v2_housekeeping():
     day = services.store.ensure_day_open(resolved)
     services.projection.render_private_day_log(day["day_id"])
 
+    # Auto-evaluate due interventions
+    try:
+        due = services.store.list_due_evaluations(OWNER_CHAT_ID, as_of_date=resolved.local_date)
+        for intv in due:
+            current = None
+            try:
+                trend = services.analytics.metric_trend(OWNER_CHAT_ID, intv["target_metric"], days=7)
+                if trend:
+                    current = trend.get("mean")
+            except Exception:
+                pass
+            services.store.evaluate_intervention(OWNER_CHAT_ID, intv["intervention_id"], current_value=current)
+            logger.info("Auto-evaluated intervention: %s", intv["intervention_id"])
+    except Exception:
+        logger.exception("Failed to auto-evaluate interventions")
+
     # Reminder delivery disabled — coaching heartbeat handles proactive messaging.
     # SimpleReminderPolicy is still available as a data source for the coaching fallback.
 

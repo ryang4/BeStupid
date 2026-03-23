@@ -45,9 +45,10 @@ class ContextAssemblerImpl:
             ContextBlock("analytics_dimensions", self._render_analytics_dimensions(chat_id), priority=2, always_include=True),
             ContextBlock("session_summary", self._render_session_block(session), priority=3),
             ContextBlock("active_open_loops", self._render_open_loops(open_loops), priority=4),
-            ContextBlock("approved_memories", self._render_memories(memories), priority=5),
-            ContextBlock("recent_corrections", self._render_corrections(corrections), priority=6),
-            ContextBlock("brain_context", self._render_brain_context(), priority=7),
+            ContextBlock("active_interventions", self._render_interventions(chat_id), priority=5),
+            ContextBlock("approved_memories", self._render_memories(memories), priority=6),
+            ContextBlock("recent_corrections", self._render_corrections(corrections), priority=7),
+            ContextBlock("brain_context", self._render_brain_context(), priority=8),
         ]
 
         selected_texts: list[str] = []
@@ -170,6 +171,23 @@ class ContextAssemblerImpl:
             "- Query tools: metric_trend, habit_completion, nutrition_summary, correlate, get_computed_insights, run_query",
         ]
         return "\n".join(lines)
+
+    def _render_interventions(self, chat_id: int) -> str:
+        """Render active interventions for the system prompt."""
+        try:
+            interventions = self.store.list_interventions(chat_id, status="active", limit=5)
+            if not interventions:
+                return ""
+            lines = ["ACTIVE INTERVENTIONS:"]
+            for intv in interventions:
+                baseline = f"{intv['baseline_value']:.1f}" if intv.get("baseline_value") is not None else "?"
+                lines.append(
+                    f"- \"{intv['strategy_text']}\" targeting {intv['target_metric']} "
+                    f"(baseline: {baseline}, eval: {intv['evaluation_date']})"
+                )
+            return "\n".join(lines)
+        except Exception:
+            return ""
 
     def _render_brain_context(self) -> str:
         """Render relevant brain_db context (patterns, preferences). Gracefully degrades."""

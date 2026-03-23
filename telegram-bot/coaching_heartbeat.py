@@ -20,6 +20,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 COACHING_MODEL = "haiku"
+MAX_DAILY_PROACTIVE_MESSAGES = 8
 
 # Time windows: (start_hour, end_hour, name)
 WINDOWS = [
@@ -72,6 +73,33 @@ def evaluate_checkin(
     return None
 
 
+def evaluate_commitment_nudge(
+    now: datetime,
+    imminent_loops: list[dict],
+    nudged_ids: set[str],
+    mute_until: datetime | None,
+    last_nudge_time: datetime | None,
+) -> dict | None:
+    """Return the first un-nudged imminent loop, or None.
+
+    Pure function. No I/O. Testable with zero mocking.
+    """
+    # Muted
+    if mute_until and now < mute_until:
+        return None
+
+    # Rate limit: 1 nudge per 30 min
+    if last_nudge_time and (now - last_nudge_time).total_seconds() < 1800:
+        return None
+
+    # Find first un-nudged loop
+    for loop in imminent_loops:
+        if loop["loop_id"] not in nudged_ids:
+            return loop
+
+    return None
+
+
 class CoachingHeartbeat:
     """Adaptive coaching check-in system.
 
@@ -105,10 +133,23 @@ class CoachingHeartbeat:
         self._windows_sent: set[str] = set()
         self._checkin_date: str = ""
         self._running = False
+        # Phase 1+2: Keyboard support
+        self._last_keyboard_message_id: int | None = None
+        self._daily_message_count: int = 0
+        # Phase 3: Commitment nudges
+        self._nudged_loop_ids: set[str] = set()
+        self._last_nudge_time: datetime | None = None
+        # Phase 6: Time-block transitions
+        self._transition_warnings_sent: set[str] = set()
+        self._transition_ack_pending: str | None = None
+        self._transition_ack_deadline: datetime | None = None
 
     def record_activity(self):
         """Record that user activity occurred (call on each message)."""
         self._last_activity = datetime.now()
+        # Any user message clears pending transition ack
+        self._transition_ack_pending = None
+        self._transition_ack_deadline = None
 
     def mute(self, duration_minutes: int) -> int:
         """Mute coaching for duration_minutes. Returns clamped value."""
@@ -143,6 +184,37 @@ class CoachingHeartbeat:
                 if decision:
                     await self._full_checkin_cycle(decision)
 
+                # Commitment nudge check (independent of window check-ins)
+                if not decision and self._daily_message_count < MAX_DAILY_PROACTIVE_MESSAGES:
+                    try:
+                        imminent = self.services.store.list_imminent_loops(self.chat_id)
+                        nudge = evaluate_commitment_nudge(
+                            now=datetime.now(),
+                            imminent_loops=imminent,
+                            nudged_ids=self._nudged_loop_ids,
+                            mute_until=self.mute_until,
+                            last_nudge_time=self._last_nudge_time,
+                        )
+                        if nudge:
+                            await self._send_commitment_nudge(nudge)
+                    except Exception:
+                        logger.exception("Commitment nudge check failed")
+
+                # Time-block transition check
+                if self._daily_message_count < MAX_DAILY_PROACTIVE_MESSAGES:
+                    try:
+                        transition = self._check_block_transition()
+                        if transition:
+                            await self._send_transition_warning(transition)
+                    except Exception:
+                        logger.exception("Block transition check failed")
+
+                # Escalation check (independent of other checks)
+                try:
+                    await self._check_escalation()
+                except Exception:
+                    logger.exception("Escalation check failed")
+
             except asyncio.CancelledError:
                 logger.info("Coaching heartbeat cancelled")
                 break
@@ -171,7 +243,7 @@ class CoachingHeartbeat:
         )
 
     async def _full_checkin_cycle(self, window: str) -> None:
-        """Assemble context, call Claude, inject into history, send."""
+        """Assemble context, call Claude, inject into history, send with keyboard."""
         try:
             context = self._assemble_context(window)
             message = await self._generate_message(context)
@@ -182,15 +254,23 @@ class CoachingHeartbeat:
                 logger.warning("No fallback available, skipping check-in")
                 return
 
+        # Build window-appropriate keyboard
+        keyboard = self._build_keyboard_for_window(window)
+
         # Inject into conversation history
         async with self.chat_lock:
             state = self.get_conversation(self.chat_id)
             state.history.append({"role": "assistant", "content": message})
             state.save_to_disk(self.chat_id)
 
-        await self.send_telegram(message)
+        result = await self.send_telegram(message, reply_markup=keyboard)
+        if isinstance(result, dict):
+            msg_id = result.get("result", {}).get("message_id")
+            if msg_id:
+                self._last_keyboard_message_id = msg_id
 
         self._last_checkin_time = datetime.now()
+        self._daily_message_count += 1
         self._windows_sent.add(window)
         logger.info("Coaching check-in sent: window=%s", window)
 
@@ -314,6 +394,15 @@ class CoachingHeartbeat:
             if pending:
                 prompts.append(f"End-of-day habits still pending: {', '.join(pending)}")
             prompts.append("Prompt: Fill out Top 3 for Tomorrow and What Went Well/Poorly")
+            # Zombie task detection
+            try:
+                stale = self.services.store.list_stale_loops(self.chat_id, age_days=3, limit=3)
+                if stale:
+                    stale_items = [f'"{s["title"]}" ({s.get("age_days", "?")}d old)' for s in stale]
+                    prompts.append(f"Zombie tasks needing action: {', '.join(stale_items)}")
+                    prompts.append("Pick ONE and ask directly. Options: break into 15-min steps, timebox for tomorrow, or drop.")
+            except (AttributeError, Exception):
+                pass  # Method not available or DB error
 
         return prompts
 
@@ -428,6 +517,141 @@ class CoachingHeartbeat:
             logger.exception("Fallback message generation failed")
         return None
 
+    def _build_keyboard_for_window(self, window: str) -> dict | None:
+        """Build context-aware inline keyboard for the given coaching window."""
+        from keyboards import build_morning_keyboard, build_habit_keyboard, build_evening_keyboard
+
+        try:
+            snapshot = self.services.store.get_day_snapshot(
+                self.chat_id, date.today().isoformat()
+            )
+        except Exception:
+            return None
+        if not snapshot:
+            return None
+
+        if window == "morning":
+            last_weight = self._get_last_weight()
+            return build_morning_keyboard(snapshot, last_weight)
+        elif window in ("midday", "afternoon"):
+            return build_habit_keyboard(snapshot)
+        elif window == "evening":
+            stale_loops = self._get_stale_loops()
+            return build_evening_keyboard(snapshot, stale_loops)
+        return None
+
+    def _get_last_weight(self) -> str | None:
+        """Query most recent Weight value for pre-populating buttons."""
+        try:
+            with self.services.store._connect() as conn:
+                row = conn.execute("""
+                    SELECT dm.value
+                    FROM day_metric dm
+                    JOIN day_context dc ON dc.day_id = dm.day_id
+                    WHERE dc.chat_id = ? AND dm.field = 'Weight'
+                    ORDER BY dc.local_date DESC LIMIT 1
+                """, (self.chat_id,)).fetchone()
+            return row["value"] if row else None
+        except Exception:
+            return None
+
+    def _get_stale_loops(self) -> list[dict]:
+        """Get stale open loops for evening keyboard. Returns [] if method doesn't exist yet."""
+        try:
+            return self.services.store.list_stale_loops(self.chat_id, age_days=3, limit=3)
+        except AttributeError:
+            return []  # Phase 4 not deployed yet
+
+    async def _send_commitment_nudge(self, loop: dict) -> None:
+        """Send a template-based commitment nudge. No Claude call — fast and free."""
+        import random
+        title = loop["title"]
+        templates = [
+            f'Heads up — "{title}" is due. What\'s the status?',
+            f'Due now: {title}. Ready to check it off?',
+            f'You committed to: {title}. How\'s it going?',
+        ]
+        message = random.choice(templates)
+
+        async with self.chat_lock:
+            state = self.get_conversation(self.chat_id)
+            state.history.append({"role": "assistant", "content": message})
+            state.save_to_disk(self.chat_id)
+
+        await self.send_telegram(message)
+        self._nudged_loop_ids.add(loop["loop_id"])
+        self._last_nudge_time = datetime.now()
+        self._daily_message_count += 1
+        logger.info("Commitment nudge sent: %s", loop["loop_id"])
+
+    def _check_block_transition(self) -> dict | None:
+        """Check if we're near a time-block transition. Returns transition dict or None."""
+        if self.is_muted():
+            return None
+
+        try:
+            from time_blocks import compute_todays_blocks, find_upcoming_transition
+        except ImportError:
+            return None  # Phase 6 not deployed yet
+
+        now = datetime.now()
+        protocol = self._read_latest_protocol()
+        day_name = now.strftime("%A")
+
+        try:
+            snapshot = self.services.store.get_day_snapshot(self.chat_id, date.today().isoformat())
+            habits = snapshot.habits if snapshot else []
+        except Exception:
+            habits = []
+
+        blocks = compute_todays_blocks(protocol, day_name, habits)
+        transition = find_upcoming_transition(blocks, now, lookahead_min=5)
+
+        if not transition:
+            return None
+
+        block_key = f"{transition['current_block']['label']}_{now.strftime('%Y%m%d')}"
+        if block_key in self._transition_warnings_sent:
+            return None
+
+        transition["block_key"] = block_key
+        return transition
+
+    async def _send_transition_warning(self, transition: dict) -> None:
+        """Send a time-block transition warning with ack button."""
+        current = transition["current_block"]["label"]
+        mins = transition["minutes_remaining"]
+
+        if transition["next_block"]:
+            next_label = transition["next_block"]["label"]
+            message = f"{current} ends in {mins} min. Next: {next_label}."
+        else:
+            message = f"{current} ends in {mins} min."
+
+        from keyboards import build_timeblock_ack_keyboard
+        keyboard = build_timeblock_ack_keyboard(transition["block_key"])
+
+        await self.send_telegram(message, reply_markup=keyboard)
+
+        self._transition_warnings_sent.add(transition["block_key"])
+        self._transition_ack_pending = transition["block_key"]
+        self._transition_ack_deadline = datetime.now() + timedelta(minutes=15)
+        self._daily_message_count += 1
+        logger.info("Transition warning sent: %s", transition["block_key"])
+
+    async def _check_escalation(self) -> None:
+        """Send escalation if transition ack is overdue."""
+        if not self._transition_ack_pending or not self._transition_ack_deadline:
+            return
+        if self.is_muted():
+            self._transition_ack_pending = None
+            return
+        if datetime.now() > self._transition_ack_deadline:
+            await self.send_telegram("You haven't transitioned yet. What's happening?")
+            self._transition_ack_pending = None
+            self._transition_ack_deadline = None
+            self._daily_message_count += 1
+
     def _read_latest_protocol(self) -> str:
         """Read the most recent weekly protocol file."""
         try:
@@ -440,10 +664,15 @@ class CoachingHeartbeat:
         return ""
 
     def _reset_daily_if_needed(self):
-        """Reset windows_sent when the date changes."""
+        """Reset daily state when the date changes."""
         today = date.today().isoformat()
         if self._checkin_date != today:
             self._windows_sent.clear()
+            self._daily_message_count = 0
+            self._nudged_loop_ids.clear()
+            self._transition_warnings_sent.clear()
+            self._transition_ack_pending = None
+            self._transition_ack_deadline = None
             self._checkin_date = today
 
     def _update_heartbeat_file(self):
@@ -458,8 +687,8 @@ class CoachingHeartbeat:
             logger.exception("Failed to update heartbeat file")
 
 
-async def _send_telegram_async(text: str) -> bool:
-    """Send message via Telegram API. Async wrapper around requests."""
+async def _send_telegram_async(text: str, reply_markup: dict | None = None) -> dict | bool:
+    """Send message via Telegram API. Returns response dict when keyboard attached, bool otherwise."""
     if not TELEGRAM_BOT_TOKEN or not OWNER_CHAT_ID:
         logger.warning("Telegram credentials not configured")
         return False
@@ -472,14 +701,38 @@ async def _send_telegram_async(text: str) -> bool:
                 "text": text,
                 "parse_mode": "Markdown",
             }
+            if reply_markup:
+                payload["reply_markup"] = reply_markup
             resp = requests.post(url, json=payload, timeout=10)
             if resp.status_code != 200:
                 # Retry without Markdown on parse failure
                 payload["parse_mode"] = ""
                 resp = requests.post(url, json=payload, timeout=10)
+            if reply_markup and resp.status_code == 200:
+                return resp.json()  # Need message_id for later edits
             return resp.status_code == 200
         except Exception as e:
             logger.error(f"Failed to send telegram: {e}")
             return False
 
     return await asyncio.to_thread(_send)
+
+
+async def _edit_telegram_markup(message_id: int, reply_markup: dict | None = None) -> bool:
+    """Edit inline keyboard on an existing message."""
+    if not TELEGRAM_BOT_TOKEN or not OWNER_CHAT_ID:
+        return False
+
+    def _edit():
+        try:
+            url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/editMessageReplyMarkup"
+            payload: dict = {"chat_id": OWNER_CHAT_ID, "message_id": message_id}
+            if reply_markup:
+                payload["reply_markup"] = reply_markup
+            resp = requests.post(url, json=payload, timeout=10)
+            return resp.status_code == 200
+        except Exception as e:
+            logger.error(f"Failed to edit markup: {e}")
+            return False
+
+    return await asyncio.to_thread(_edit)

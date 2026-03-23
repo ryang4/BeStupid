@@ -16,7 +16,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.error import BadRequest
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import Application, CallbackQueryHandler, CommandHandler, MessageHandler, filters, ContextTypes
 
 from claude_client import ConversationState, run_tool_loop, MODEL, DAILY_TOKEN_BUDGET, get_model_pricing
 from agent_policy import apply_agent_policy_update, format_agent_policy, load_agent_policy
@@ -32,6 +32,7 @@ from personality import (
 )
 from heartbeat import get_health_status, get_heartbeat_monitor, init_heartbeat_monitor
 from coaching_heartbeat import CoachingHeartbeat, _send_telegram_async
+from keyboards import parse_callback_data, build_morning_keyboard, build_habit_keyboard, build_evening_keyboard
 from scheduler import start_scheduler
 from v2.bootstrap import get_services
 
@@ -689,6 +690,137 @@ async def cmd_unmute(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await _send_message(update, "Coaching unmuted.")
 
 
+async def handle_callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Process inline keyboard button presses."""
+    query = update.callback_query
+    chat_id = update.effective_chat.id
+
+    if chat_id != OWNER_CHAT_ID:
+        await query.answer("Unauthorized")
+        return
+
+    try:
+        prefix, params = parse_callback_data(query.data)
+    except ValueError:
+        await query.answer("Invalid button data")
+        return
+
+    services = get_services()
+    resolved = services.timezone_resolver.resolve_now(chat_id)
+    local_date = resolved.local_date
+
+    result_text = ""
+
+    if prefix == "h":
+        habit_id = params["habit_id"]
+        action = params["action"]
+        try:
+            services.store.mark_habit(chat_id, local_date, habit_id, action)
+            result_text = f"{habit_id} → {action}"
+        except ValueError as e:
+            result_text = str(e)
+
+    elif prefix in ("m", "r"):
+        field = params["field"]
+        value = params["value"]
+        try:
+            services.store.set_day_metric(chat_id, local_date, field, value)
+            result_text = f"{field} = {value}"
+        except ValueError as e:
+            result_text = str(e)
+
+    elif prefix == "g":
+        loop_id = params["loop_id"]
+        action = params["action"]
+        if action == "drop":
+            services.store.complete_open_loop(chat_id, loop_id)
+            result_text = "Dropped. Moving on."
+        elif action == "box":
+            services.store.snooze_open_loop(chat_id, loop_id, minutes=24 * 60)
+            result_text = "Timeboxed for tomorrow."
+        elif action == "break":
+            result_text = "Let's break it down."
+            await query.answer(result_text)
+            await query.edit_message_reply_markup(reply_markup=None)
+            loop = services.store.complete_open_loop(chat_id, loop_id)
+            title = loop["title"] if loop else "this task"
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=f'What\'s the smallest next step for "{title}"? Something you could finish in 15 minutes.',
+            )
+            return
+
+    elif prefix == "s":
+        intervention_id = params["intervention_id"]
+        action = params["action"]
+        if action == "keep":
+            try:
+                services.store.extend_intervention(chat_id, intervention_id, 7)
+                result_text = "Strategy extended 7 more days."
+            except (AttributeError, Exception):
+                result_text = "Could not extend (feature pending)."
+        elif action == "drop":
+            try:
+                services.store.drop_intervention(chat_id, intervention_id, "User dropped via button")
+                result_text = "Strategy dropped."
+            except (AttributeError, Exception):
+                result_text = "Could not drop (feature pending)."
+        elif action == "adjust":
+            result_text = "What would you change?"
+            await query.answer(result_text)
+            await query.edit_message_reply_markup(reply_markup=None)
+            return
+
+    elif prefix == "t":
+        result_text = "Got it. Transitioning."
+        if _coaching_heartbeat:
+            _coaching_heartbeat._transition_ack_pending = None
+            _coaching_heartbeat._transition_ack_deadline = None
+
+    await query.answer(result_text)
+
+    # Record as turn in V2 store
+    try:
+        session = services.store.get_or_create_session(chat_id, resolved.utc_now)
+        services.store.record_turn(
+            chat_id=chat_id,
+            session_id=session["session_id"],
+            update_id=update.update_id,
+            role="user",
+            text=f"[button] {query.data} → {result_text}",
+        )
+    except Exception:
+        logger.exception("Failed to record callback turn")
+
+    # Rebuild keyboard with updated state
+    try:
+        snapshot = services.store.get_day_snapshot(chat_id, local_date)
+        if snapshot:
+            from datetime import datetime as _dt
+            hour = _dt.now().hour
+            if 7 <= hour < 10:
+                new_kb = build_morning_keyboard(snapshot, None)
+            elif 20 <= hour < 22:
+                new_kb = build_evening_keyboard(snapshot)
+            else:
+                new_kb = build_habit_keyboard(snapshot)
+
+            if new_kb and new_kb.get("inline_keyboard"):
+                await query.edit_message_reply_markup(reply_markup=new_kb)
+            else:
+                await query.edit_message_reply_markup(reply_markup=None)
+    except Exception:
+        logger.exception("Failed to rebuild keyboard")
+
+    # Re-render private day log
+    try:
+        snapshot = services.store.get_day_snapshot(chat_id, local_date)
+        if snapshot:
+            services.projection.render_private_day_log(snapshot.day_id)
+    except Exception:
+        logger.exception("Failed to render day log after callback")
+
+
 def main():
     if not TELEGRAM_TOKEN:
         print("Error: TELEGRAM_BOT_TOKEN not set")
@@ -723,6 +855,7 @@ def main():
     app.add_handler(CommandHandler("resetpolicy", cmd_resetpolicy))
     app.add_handler(CommandHandler("mute", cmd_mute))
     app.add_handler(CommandHandler("unmute", cmd_unmute))
+    app.add_handler(CallbackQueryHandler(handle_callback_query))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     logger.info("Bot starting (Anthropic SDK mode)")

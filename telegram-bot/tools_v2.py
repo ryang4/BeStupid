@@ -194,6 +194,50 @@ TOOLS = [
         "input_schema": {"type": "object", "properties": {}},
     },
     {
+        "name": "list_stale_loops",
+        "description": "List zombie tasks: open loops older than N days that may need scoping down, a hard deadline, or killing.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "age_days": {"type": "integer", "description": "Minimum age in days (default 3)"},
+            },
+        },
+    },
+    {
+        "name": "create_intervention",
+        "description": "Start a behavioral experiment. Record a strategy, capture baseline metric value, and set an evaluation date.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "strategy": {"type": "string", "description": "What you're trying (e.g., 'No screens after 9pm')"},
+                "target_metric": {"type": "string", "enum": ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM", "Energy", "Focus"]},
+                "duration_days": {"type": "integer", "default": 7, "description": "Days before evaluation (default 7)"},
+            },
+            "required": ["strategy", "target_metric"],
+        },
+    },
+    {
+        "name": "evaluate_intervention",
+        "description": "Evaluate whether a tracked strategy changed the target metric. Compare current value to baseline.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "intervention_id": {"type": "string"},
+            },
+            "required": ["intervention_id"],
+        },
+    },
+    {
+        "name": "list_interventions",
+        "description": "List tracked strategy interventions, optionally filtered by status.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "status": {"type": "string", "enum": ["active", "evaluated", "dropped"]},
+            },
+        },
+    },
+    {
         "name": "queue_memory_candidates",
         "description": "Run the review-before-save extractor over explicit user text and queue pending memory candidates.",
         "input_schema": {
@@ -1969,6 +2013,76 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
         return complete_open_loop(chat_id, inputs["loop_id_or_title"])
     if name == "list_due_followups":
         return list_due_followups(chat_id)
+    if name == "list_stale_loops":
+        age = inputs.get("age_days", 3)
+        services = get_services()
+        loops = services.store.list_stale_loops(chat_id, age_days=age)
+        if not loops:
+            return f"No open loops older than {age} days."
+        lines = [f"Zombie tasks (>{age} days old):"]
+        for loop in loops:
+            age_d = loop.get("age_days", "?")
+            rolled = loop.get("rollover_count", 0)
+            lines.append(f"- [{loop['priority']}] {loop['title']} ({age_d}d old, rolled {rolled}x) [id: {loop['loop_id']}]")
+        return "\n".join(lines)
+    if name == "create_intervention":
+        services = get_services()
+        target = inputs["target_metric"]
+        baseline = None
+        sample = 0
+        try:
+            trend = services.analytics.metric_trend(chat_id, target, days=7)
+            if trend and trend.get("mean") is not None:
+                baseline = trend["mean"]
+                sample = trend.get("sample_size", 0)
+        except Exception:
+            pass
+        result = services.store.create_intervention(
+            chat_id,
+            strategy_text=inputs["strategy"],
+            target_metric=target,
+            duration_days=inputs.get("duration_days", 7),
+            baseline_value=baseline,
+            baseline_sample_size=sample,
+        )
+        baseline_str = f"{baseline:.1f}" if baseline is not None else "no data"
+        return (
+            f"Intervention started: \"{result['strategy_text']}\"\n"
+            f"Target: {result['target_metric']} (baseline: {baseline_str}, {sample} data points)\n"
+            f"Evaluation date: {result['evaluation_date']}"
+        )
+    if name == "evaluate_intervention":
+        services = get_services()
+        intv_id = inputs["intervention_id"]
+        interventions = services.store.list_interventions(chat_id)
+        target_intv = next((i for i in interventions if i["intervention_id"] == intv_id), None)
+        if not target_intv:
+            return f"Intervention not found: {intv_id}"
+        current = None
+        try:
+            trend = services.analytics.metric_trend(chat_id, target_intv["target_metric"], days=7)
+            if trend:
+                current = trend.get("mean")
+        except Exception:
+            pass
+        result = services.store.evaluate_intervention(chat_id, intv_id, current_value=current)
+        if not result:
+            return f"Could not evaluate intervention: {intv_id}"
+        return f"Evaluation: {result['outcome_text']}"
+    if name == "list_interventions":
+        services = get_services()
+        status = inputs.get("status")
+        interventions = services.store.list_interventions(chat_id, status=status)
+        if not interventions:
+            return "No interventions found."
+        lines = ["Interventions:"]
+        for intv in interventions:
+            baseline_str = f"{intv['baseline_value']:.1f}" if intv.get("baseline_value") is not None else "?"
+            lines.append(
+                f"- [{intv['status']}] \"{intv['strategy_text']}\" -> {intv['target_metric']} "
+                f"(baseline: {baseline_str}, eval: {intv['evaluation_date']}) [id: {intv['intervention_id']}]"
+            )
+        return "\n".join(lines)
     if name == "queue_memory_candidates":
         return queue_memory_candidates(chat_id, inputs["text"])
     if name == "review_memory_candidate":
