@@ -45,7 +45,7 @@ def parse_callback_data(data: str) -> tuple[str, dict[str, str]]:
 def build_morning_keyboard(
     snapshot: Any, last_weight: str | None,
 ) -> dict | None:
-    """Morning check-in: weight ±1, mood 1-5, sleep quality 1-5, pending habits."""
+    """Morning check-in: weight ±1, mood 1-5, sleep quality 1-5. No habits — keep it tight."""
     rows: list[list[dict]] = []
 
     # Row 1: Weight buttons (±1 from last known)
@@ -72,24 +72,19 @@ def build_morning_keyboard(
             {"text": f"💤{i}", "callback_data": f"r:Sleep_Quality:{i}"} for i in range(1, 6)
         ])
 
-    # Rows 4+: Pending habits, 2 per row
-    _append_habit_rows(rows, snapshot.habits)
-
     return {"inline_keyboard": rows} if rows else None
 
 
 def build_habit_keyboard(snapshot: Any) -> dict | None:
-    """Midday/afternoon: pending habits only, 2 per row."""
-    rows: list[list[dict]] = []
-    _append_habit_rows(rows, snapshot.habits)
-    return {"inline_keyboard": rows} if rows else None
+    """Midday/afternoon: no keyboard. Habits are logged via text."""
+    return None
 
 
 def build_evening_keyboard(
     snapshot: Any,
     stale_loops: list[dict] | None = None,
 ) -> dict | None:
-    """Evening: PM metrics + pending habits + zombie task actions."""
+    """Evening: PM metrics + zombie task actions. No habits."""
     rows: list[list[dict]] = []
 
     # Mood PM
@@ -107,9 +102,6 @@ def build_evening_keyboard(
         rows.append([
             {"text": f"🎯{i}", "callback_data": f"r:Focus:{i}"} for i in range(1, 6)
         ])
-
-    # Pending habits
-    _append_habit_rows(rows, snapshot.habits)
 
     # Zombie task actions (Phase 4 — gracefully skipped if empty)
     if stale_loops:

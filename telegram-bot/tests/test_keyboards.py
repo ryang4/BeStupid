@@ -124,26 +124,22 @@ class TestBuildMorningKeyboard:
                 assert "Mood_AM" not in btn["callback_data"]
                 assert "Sleep_Quality" not in btn["callback_data"]
 
-    def test_only_pending_habits(self):
+    def test_no_habit_buttons(self):
         habits = [
-            {"name": "Yoga", "habit_id": "yoga", "status": "done"},
+            {"name": "Yoga", "habit_id": "yoga", "status": "pending"},
             {"name": "Write", "habit_id": "writing", "status": "pending"},
-            {"name": "Read", "habit_id": "reading", "status": "pending"},
         ]
         snap = _make_snapshot(habits=habits)
         kb = build_morning_keyboard(snap, None)
-        habit_callbacks = [
-            btn["callback_data"] for row in kb["inline_keyboard"] for btn in row
-            if btn["callback_data"].startswith("h:")
-        ]
-        assert "h:writing:done" in habit_callbacks
-        assert "h:reading:done" in habit_callbacks
-        assert "h:yoga:done" not in habit_callbacks
+        if kb:
+            for row in kb["inline_keyboard"]:
+                for btn in row:
+                    assert not btn["callback_data"].startswith("h:")
 
-    def test_returns_none_when_all_logged_and_done(self):
+    def test_returns_none_when_all_metrics_logged(self):
         snap = _make_snapshot(
             metrics={"Weight": "220", "Mood_AM": "4", "Sleep_Quality": "3"},
-            habits=[{"name": "Yoga", "habit_id": "yoga", "status": "done"}],
+            habits=[],
         )
         kb = build_morning_keyboard(snap, "220")
         assert kb is None
@@ -161,21 +157,14 @@ class TestBuildMorningKeyboard:
 
 
 class TestBuildHabitKeyboard:
-    def test_returns_none_when_all_done(self):
-        habits = [{"name": "Yoga", "habit_id": "yoga", "status": "done"}]
-        snap = _make_snapshot(habits=habits)
-        assert build_habit_keyboard(snap) is None
-
-    def test_two_per_row(self):
+    def test_always_returns_none(self):
+        """Habits are logged via text, not buttons."""
         habits = [
             {"name": "A", "habit_id": "a", "status": "pending"},
             {"name": "B", "habit_id": "b", "status": "pending"},
-            {"name": "C", "habit_id": "c", "status": "pending"},
         ]
         snap = _make_snapshot(habits=habits)
-        kb = build_habit_keyboard(snap)
-        assert len(kb["inline_keyboard"][0]) == 2  # A, B
-        assert len(kb["inline_keyboard"][1]) == 1  # C
+        assert build_habit_keyboard(snap) is None
 
     def test_returns_none_when_no_habits(self):
         snap = _make_snapshot(habits=[])

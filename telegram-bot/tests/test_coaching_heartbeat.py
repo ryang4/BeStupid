@@ -494,12 +494,10 @@ class TestKeyboardAttachment:
         assert kb is not None
         assert "inline_keyboard" in kb
 
-    def test_midday_keyboard_habits_only(self, heartbeat_with_snapshot):
+    def test_midday_keyboard_is_none(self, heartbeat_with_snapshot):
+        """Midday has no keyboard — habits are logged via text."""
         kb = heartbeat_with_snapshot._build_keyboard_for_window("midday")
-        assert kb is not None
-        for row in kb["inline_keyboard"]:
-            for btn in row:
-                assert btn["callback_data"].startswith("h:")
+        assert kb is None
 
     def test_no_keyboard_when_no_snapshot(self, heartbeat):
         heartbeat.services.store.get_day_snapshot.return_value = None
