@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 from typing import Any
 
+from token_utils import estimate_tokens
 from v2.domain.models import ContextBlock, PromptEnvelope
 from v2.interfaces.ports import TimezoneResolver
 from v2.infra.sqlite_state_store import SQLiteStateStore
@@ -15,9 +16,8 @@ logger = logging.getLogger(__name__)
 PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", str(Path(__file__).resolve().parents[3])))
 BRAIN_DB_PATH = PROJECT_ROOT / "memory" / "brain.db"
 
-
-def _estimate_tokens(text: str) -> int:
-    return max(1, len(text) // 4)
+# Backward-compatible alias — canonical implementation in token_utils.py
+_estimate_tokens = estimate_tokens
 
 
 class ContextAssemblerImpl:

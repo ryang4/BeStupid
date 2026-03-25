@@ -14,9 +14,10 @@ def test_build_system_messages_injects_persona_directives():
                 with patch("claude_client.render_agent_policy_instructions", return_value="POLICY BLOCK"):
                     messages = build_system_messages(chat_id=123)
 
-    assert len(messages) == 1
+    # Stable block has persona, dynamic block has policy
+    assert len(messages) == 2
     assert "PERSONA BLOCK" in messages[0]["text"]
-    assert "POLICY BLOCK" in messages[0]["text"]
+    assert "POLICY BLOCK" in messages[1]["text"]
 
 
 def test_build_system_messages_without_chat_id_uses_base_prompt_only():

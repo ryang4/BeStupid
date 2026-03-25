@@ -23,44 +23,8 @@ sys.path.insert(0, str(SCRIPTS_DIR))
 # Load environment
 load_dotenv(Path(__file__).parent / ".env")
 
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", 0))
-
-
-def send_telegram_message(text: str, parse_mode: str = "Markdown") -> bool:
-    """
-    Send a message to OWNER_CHAT_ID via Telegram Bot API.
-
-    Args:
-        text: Message text (supports Markdown)
-        parse_mode: Telegram parse mode (default: Markdown)
-
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        import requests
-
-        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-        payload = {
-            "chat_id": OWNER_CHAT_ID,
-            "text": text,
-            "parse_mode": parse_mode
-        }
-
-        response = requests.post(url, json=payload, timeout=10)
-
-        if response.status_code == 200:
-            print(f"✅ Message sent successfully to chat {OWNER_CHAT_ID}")
-            return True
-        else:
-            print(f"❌ Failed to send message: {response.status_code}")
-            print(f"Response: {response.text}")
-            return False
-
-    except Exception as e:
-        print(f"❌ Error sending message: {e}")
-        return False
+from config import TELEGRAM_BOT_TOKEN, OWNER_CHAT_ID
+from telegram_client import send_telegram_message
 
 
 def send_morning_briefing() -> str:

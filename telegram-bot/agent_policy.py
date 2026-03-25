@@ -5,11 +5,10 @@ Per-chat agent policy persistence and prompt rendering for self-updates.
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime
-from pathlib import Path
 
-HISTORY_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
+from config import PRIVATE_DIR as HISTORY_DIR
+
 POLICY_FILE = HISTORY_DIR / "agent_policies.json"
 
 MAX_RULES = 20

@@ -7,18 +7,17 @@ handles proactive messaging and heartbeat file updates.
 """
 
 import logging
-import os
 from datetime import datetime, timedelta
-from pathlib import Path
 
 try:
     import psutil
 except ImportError:
     psutil = None
 
+from config import PRIVATE_DIR
+
 logger = logging.getLogger(__name__)
 
-PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 HEARTBEAT_FILE = PRIVATE_DIR / "heartbeat.txt"
 
 

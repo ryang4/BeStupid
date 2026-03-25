@@ -4,7 +4,6 @@ BeStupid Telegram Bot - Personal productivity assistant powered by Anthropic SDK
 Thin Telegram layer; all Claude logic lives in claude_client.py.
 """
 
-import os
 import sys
 import logging
 import asyncio
@@ -38,9 +37,8 @@ from v2.bootstrap import get_services
 
 load_dotenv(Path(__file__).parent / ".env")
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", 0))
-PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", str(Path(__file__).resolve().parent.parent)))
+from config import OWNER_CHAT_ID, PROJECT_ROOT
+from config import TELEGRAM_BOT_TOKEN as TELEGRAM_TOKEN
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 
 logging.basicConfig(

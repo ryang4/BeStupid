@@ -9,7 +9,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-HISTORY_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
+from config import PRIVATE_DIR as HISTORY_DIR
+
 PROFILE_FILE = HISTORY_DIR / "persona_profiles.json"
 
 PERSONA_CHOICES = {

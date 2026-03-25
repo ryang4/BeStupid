@@ -7,7 +7,6 @@ via Max subscription at $0/token.
 """
 
 import asyncio
-import json
 import logging
 import os
 import sqlite3
@@ -16,6 +15,8 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import requests
+from claude_client import ConversationState, run_tool_loop
+from telegram_client import send_telegram_message as _send_telegram_sync
 
 logger = logging.getLogger(__name__)
 
@@ -30,9 +31,7 @@ WINDOWS = [
     (20, 21, "evening"),
 ]
 
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", 0))
-PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
+from config import OWNER_CHAT_ID, PRIVATE_DIR, TELEGRAM_BOT_TOKEN
 HEARTBEAT_FILE = PRIVATE_DIR / "heartbeat.txt"
 
 
@@ -246,9 +245,12 @@ class CoachingHeartbeat:
         """Assemble context, call Claude, inject into history, send with keyboard."""
         try:
             context = self._assemble_context(window)
-            message = await self._generate_message(context)
+            message = await self._generate_message(context, window)
         except Exception:
-            logger.exception("Coaching CLI failed, trying fallback")
+            logger.exception("Coaching generation failed, trying fallback")
+            message = None
+
+        if not message:
             message = self._fallback_message()
             if not message:
                 logger.warning("No fallback available, skipping check-in")
@@ -274,48 +276,37 @@ class CoachingHeartbeat:
         self._windows_sent.add(window)
         logger.info("Coaching check-in sent: window=%s", window)
 
-    async def _generate_message(self, context: str) -> str:
-        """One-shot Claude CLI call via Max subscription ($0/token)."""
-        env = {
-            "HOME": os.environ.get("HOME", ""),
-            "PATH": os.environ.get("PATH", ""),
-        }
-        token = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "")
-        if token:
-            env["CLAUDE_CODE_OAUTH_TOKEN"] = token
-
-        proc = await asyncio.create_subprocess_exec(
-            "claude", "-p",
-            "--output-format", "json",
-            "--max-turns", "1",
-            "--tools", "",
-            "--model", COACHING_MODEL,
-            "--system-prompt-file", str(self.prompt_path),
-            "--no-session-persistence",
-            stdin=asyncio.subprocess.PIPE,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            env=env,
-        )
+    async def _generate_message(self, context: str, window: str) -> str | None:
+        """Generate coaching check-in via Claude with full tool access."""
         try:
-            stdout, stderr = await asyncio.wait_for(
-                proc.communicate(input=context.encode()),
-                timeout=60,
-            )
-        except asyncio.TimeoutError:
-            proc.kill()
-            await proc.wait()
-            raise
+            # Create fresh conversation state for this check-in
+            state = ConversationState()
 
-        if proc.returncode != 0:
-            raise RuntimeError(
-                f"claude -p exit {proc.returncode}: {stderr.decode()[:200]}"
+            # Build the coaching prompt as the user message
+            coaching_prompt = self._build_coaching_user_message(context, window)
+
+            response = await run_tool_loop(
+                state=state,
+                user_message=coaching_prompt,
+                chat_id=OWNER_CHAT_ID,
             )
 
-        outer = json.loads(stdout.decode())
-        if outer.get("is_error"):
-            raise RuntimeError(f"CLI error: {outer.get('subtype')}")
-        return outer["result"]
+            if response and response.strip():
+                return response.strip()
+            return None
+        except Exception as e:
+            logger.warning("Tool-based coaching generation failed: %s", e)
+            return None
+
+    def _build_coaching_user_message(self, context: str, window: str) -> str:
+        """Combine coaching prompt instructions with assembled context."""
+        system_instructions = self.prompt_path.read_text()
+        return (
+            f"{system_instructions}\n\n"
+            f"---\n\n"
+            f"Generate a {window} coaching check-in based on this context:\n\n"
+            f"{context}"
+        )
 
     def _get_habit_streaks(self) -> dict[str, int]:
         """Query consecutive days each habit was completed (most recent streak)."""
@@ -688,34 +679,42 @@ class CoachingHeartbeat:
 
 
 async def _send_telegram_async(text: str, reply_markup: dict | None = None) -> dict | bool:
-    """Send message via Telegram API. Returns response dict when keyboard attached, bool otherwise."""
+    """Send message via Telegram API. Returns response dict when keyboard attached, bool otherwise.
+
+    Delegates to the shared telegram_client for plain messages.
+    Keyboard messages use a local path that returns the full response dict
+    (needed for message_id tracking) and retries without Markdown on parse failure.
+    """
+    if not reply_markup:
+        return await asyncio.to_thread(_send_telegram_sync, text)
+
+    # Keyboard path: need full response dict for message_id, plus Markdown retry
     if not TELEGRAM_BOT_TOKEN or not OWNER_CHAT_ID:
         logger.warning("Telegram credentials not configured")
         return False
 
-    def _send():
+    def _send_with_keyboard():
         try:
             url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
             payload = {
                 "chat_id": OWNER_CHAT_ID,
                 "text": text,
                 "parse_mode": "Markdown",
+                "reply_markup": reply_markup,
             }
-            if reply_markup:
-                payload["reply_markup"] = reply_markup
             resp = requests.post(url, json=payload, timeout=10)
             if resp.status_code != 200:
                 # Retry without Markdown on parse failure
                 payload["parse_mode"] = ""
                 resp = requests.post(url, json=payload, timeout=10)
-            if reply_markup and resp.status_code == 200:
+            if resp.status_code == 200:
                 return resp.json()  # Need message_id for later edits
-            return resp.status_code == 200
+            return False
         except Exception as e:
             logger.error(f"Failed to send telegram: {e}")
             return False
 
-    return await asyncio.to_thread(_send)
+    return await asyncio.to_thread(_send_with_keyboard)
 
 
 async def _edit_telegram_markup(message_id: int, reply_markup: dict | None = None) -> bool:

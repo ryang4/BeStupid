@@ -15,9 +15,9 @@ import frontmatter
 
 from v2.domain.models import DaySnapshot, MemoryCandidateRecord, ResolvedNow
 
+from config import PRIVATE_DIR, PROJECT_ROOT
+
 DEFAULT_TIMEZONE = os.environ.get("TZ", "America/New_York")
-PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
-PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", str(Path(__file__).resolve().parents[3])))
 DEFAULT_DB_PATH = PRIVATE_DIR / "assistant_state.db"
 HABITS_PATH = PROJECT_ROOT / "content" / "config" / "habits.md"
 PRIVATE_DAY_LOG_DIR = PRIVATE_DIR / "day_logs"
@@ -366,6 +366,22 @@ class SQLiteStateStore:
                 conn.execute("ALTER TABLE habit_definition ADD COLUMN user_managed INTEGER NOT NULL DEFAULT 0")
             except sqlite3.OperationalError:
                 pass  # Column already exists
+
+            # ALTER TABLE for open_loop hierarchical goal tracking
+            try:
+                conn.execute("ALTER TABLE open_loop ADD COLUMN parent_loop_id TEXT NOT NULL DEFAULT ''")
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+
+            # Agent reflection table
+            conn.execute("""
+                CREATE TABLE IF NOT EXISTS agent_reflection (
+                    reflection_id TEXT PRIMARY KEY,
+                    chat_id INTEGER NOT NULL,
+                    observation TEXT NOT NULL,
+                    created_at_utc TEXT NOT NULL DEFAULT ''
+                )
+            """)
 
             # Backfill created_at_utc from source turn
             conn.execute("""

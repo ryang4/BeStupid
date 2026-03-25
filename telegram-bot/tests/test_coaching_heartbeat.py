@@ -6,7 +6,6 @@ Integration tests mock the Claude CLI subprocess and Telegram sender.
 """
 
 import asyncio
-import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -231,50 +230,11 @@ class TestCoachingHeartbeat:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture
-def mock_cli_success():
-    """Mock asyncio.create_subprocess_exec for successful claude -p call."""
-    proc = AsyncMock()
-    proc.communicate.return_value = (
-        json.dumps({"type": "result", "result": "Hey, nice morning! Don't forget your run today.", "is_error": False}).encode(),
-        b"",
-    )
-    proc.returncode = 0
-    proc.kill = AsyncMock()
-    proc.wait = AsyncMock()
-    return proc
-
-
-@pytest.fixture
-def mock_cli_failure():
-    """Mock asyncio.create_subprocess_exec for failed claude -p call."""
-    proc = AsyncMock()
-    proc.communicate.return_value = (b"", b"Error: rate limited")
-    proc.returncode = 1
-    proc.kill = AsyncMock()
-    proc.wait = AsyncMock()
-    return proc
-
-
-@pytest.fixture
-def mock_cli_error_json():
-    """Mock asyncio.create_subprocess_exec for CLI error in JSON."""
-    proc = AsyncMock()
-    proc.communicate.return_value = (
-        json.dumps({"type": "result", "is_error": True, "subtype": "error_max_turns"}).encode(),
-        b"",
-    )
-    proc.returncode = 0
-    proc.kill = AsyncMock()
-    proc.wait = AsyncMock()
-    return proc
-
-
 class TestCoachingIntegration:
 
     @pytest.mark.asyncio
-    async def test_full_checkin_cycle(self, heartbeat, mock_cli_success):
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", return_value=mock_cli_success):
+    async def test_full_checkin_cycle(self, heartbeat):
+        with patch("coaching_heartbeat.run_tool_loop", new_callable=AsyncMock, return_value="Hey, nice morning! Don't forget your run today."):
             await heartbeat._full_checkin_cycle("morning")
 
         heartbeat.send_telegram.assert_called_once()
@@ -284,8 +244,8 @@ class TestCoachingIntegration:
         assert "morning" in heartbeat._windows_sent
 
     @pytest.mark.asyncio
-    async def test_cli_failure_falls_back(self, heartbeat, mock_cli_failure):
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", return_value=mock_cli_failure):
+    async def test_tool_loop_failure_falls_back(self, heartbeat):
+        with patch("coaching_heartbeat.run_tool_loop", new_callable=AsyncMock, side_effect=RuntimeError("API error")):
             await heartbeat._full_checkin_cycle("morning")
 
         # Should have fallen back to SimpleReminderPolicy
@@ -294,51 +254,42 @@ class TestCoachingIntegration:
         assert "Missing morning check-in" in msg
 
     @pytest.mark.asyncio
-    async def test_cli_json_error_falls_back(self, heartbeat, mock_cli_error_json):
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", return_value=mock_cli_error_json):
+    async def test_tool_loop_empty_response_falls_back(self, heartbeat):
+        with patch("coaching_heartbeat.run_tool_loop", new_callable=AsyncMock, return_value=""):
             await heartbeat._full_checkin_cycle("morning")
 
+        # Empty response should trigger fallback
         heartbeat.send_telegram.assert_called_once()
         msg = heartbeat.send_telegram.call_args[0][0]
         assert "Missing morning check-in" in msg
 
     @pytest.mark.asyncio
-    async def test_cli_timeout_falls_back(self, heartbeat):
-        proc = AsyncMock()
-        proc.communicate.side_effect = asyncio.TimeoutError()
-        proc.kill = AsyncMock()
-        proc.wait = AsyncMock()
-
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", return_value=proc):
+    async def test_tool_loop_none_response_falls_back(self, heartbeat):
+        with patch("coaching_heartbeat.run_tool_loop", new_callable=AsyncMock, return_value=None):
             await heartbeat._full_checkin_cycle("morning")
 
-        proc.kill.assert_called_once()
+        # None response should trigger fallback
         heartbeat.send_telegram.assert_called_once()
+        msg = heartbeat.send_telegram.call_args[0][0]
+        assert "Missing morning check-in" in msg
 
     @pytest.mark.asyncio
-    async def test_cli_missing_binary_falls_back(self, heartbeat):
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", side_effect=FileNotFoundError("claude not found")):
-            await heartbeat._full_checkin_cycle("morning")
-
-        heartbeat.send_telegram.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_no_fallback_skips_silently(self, heartbeat, mock_cli_failure):
+    async def test_no_fallback_skips_silently(self, heartbeat):
         heartbeat.services.reminder_policy.next_actions.return_value = []
 
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", return_value=mock_cli_failure):
+        with patch("coaching_heartbeat.run_tool_loop", new_callable=AsyncMock, return_value=None):
             await heartbeat._full_checkin_cycle("morning")
 
         heartbeat.send_telegram.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_history_injection(self, heartbeat, mock_cli_success):
+    async def test_history_injection(self, heartbeat):
         history = []
         heartbeat.get_conversation.return_value = MagicMock(
             history=history, save_to_disk=MagicMock()
         )
 
-        with patch("coaching_heartbeat.asyncio.create_subprocess_exec", return_value=mock_cli_success):
+        with patch("coaching_heartbeat.run_tool_loop", new_callable=AsyncMock, return_value="Hey Ryan!"):
             await heartbeat._full_checkin_cycle("morning")
 
         assert len(history) == 1

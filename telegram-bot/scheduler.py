@@ -7,24 +7,16 @@ Loads job configuration from the same cron_jobs.json used by the manage_cron too
 
 import json
 import logging
-import os
 import subprocess
 import threading
 import time
-from pathlib import Path
 
-import requests
 import schedule
+from config import CRON_CONFIG, OWNER_CHAT_ID, PRIVATE_DIR, PROJECT_ROOT, TELEGRAM_BOT_TOKEN
+from telegram_client import send_telegram_message as _send_telegram
 from v2.bootstrap import get_services
 
 logger = logging.getLogger(__name__)
-
-# Use same HISTORY_DIR as tools.py and claude_client.py
-PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
-CRON_CONFIG = PRIVATE_DIR / "cron_jobs.json"
-PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-OWNER_CHAT_ID = int(os.environ.get("OWNER_CHAT_ID", "0") or 0)
 
 # Map job names to their actual implementations
 JOB_COMMANDS = {
@@ -47,18 +39,7 @@ _last_v2_housekeeping = 0.0
 
 
 def _send_v2_message(text: str) -> bool:
-    if not TELEGRAM_BOT_TOKEN or not OWNER_CHAT_ID:
-        return False
-    try:
-        response = requests.post(
-            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={"chat_id": OWNER_CHAT_ID, "text": text, "parse_mode": "Markdown"},
-            timeout=10,
-        )
-        return response.status_code == 200
-    except Exception:
-        logger.exception("Failed to send V2 reminder")
-        return False
+    return _send_telegram(text)
 
 
 def _run_v2_housekeeping():

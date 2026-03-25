@@ -18,13 +18,12 @@ from v2.bootstrap import get_services
 from v2.app.timezone_resolver import parse_timezone_spec
 
 from agent_policy import apply_agent_policy_update, format_agent_policy, load_agent_policy
+from config import CRON_CONFIG, PRIVATE_DIR, PROJECT_ROOT
 
-PROJECT_ROOT = Path(os.environ.get("PROJECT_ROOT", Path(__file__).parent.parent))
 SCRIPTS_DIR = PROJECT_ROOT / "scripts"
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 REPO_ROOT = PROJECT_ROOT
-PRIVATE_DIR = Path(os.environ.get("HISTORY_DIR", str(Path.home() / ".bestupid-private")))
 
 BLOCKED_PATTERNS = [".env", ".git/", ".git\\", "__pycache__"]
 
@@ -39,7 +38,6 @@ ALLOWED_CRON_COMMANDS = {
     "weekly_planner": "cd /project && python scripts/weekly_planner.py --this-week",
 }
 _CRON_SCHEDULE_RE = re.compile(r'^[\d\*/,\-]+(\s+[\d\*/,\-]+){4}$')
-CRON_CONFIG = PRIVATE_DIR / "cron_jobs.json"
 _GREP_EXCLUDE = {".git", ".env", "node_modules", "__pycache__"}
 
 ALLOWED_METRICS = ["Weight", "Sleep", "Sleep_Quality", "Mood_AM", "Mood_PM", "Energy", "Focus"]
@@ -104,6 +102,25 @@ def _check_writable(path: Path) -> str | None:
 
 TOOLS = [
     {
+        "name": "think",
+        "description": (
+            "Use this tool to reason through your approach BEFORE acting. Write down: "
+            "what you know, what you need to find out, what steps you'll take, and "
+            "which specific rules or constraints apply. ALWAYS use this before "
+            "multi-step tasks or when tool results need interpretation."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "thought": {
+                    "type": "string",
+                    "description": "Your reasoning, plan, or analysis",
+                }
+            },
+            "required": ["thought"],
+        },
+    },
+    {
         "name": "get_day_snapshot",
         "description": "Get the canonical snapshot for the current local day or a specific YYYY-MM-DD day.",
         "input_schema": {
@@ -136,18 +153,6 @@ TOOLS = [
                 "date": {"type": "string", "description": "Optional YYYY-MM-DD in local time."},
             },
             "required": ["field", "value"],
-        },
-    },
-    {
-        "name": "append_food",
-        "description": "Append a food entry to canonical day state.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "description": {"type": "string"},
-                "date": {"type": "string", "description": "Optional YYYY-MM-DD in local time."},
-            },
-            "required": ["description"],
         },
     },
     {
@@ -238,26 +243,18 @@ TOOLS = [
         },
     },
     {
-        "name": "queue_memory_candidates",
-        "description": "Run the review-before-save extractor over explicit user text and queue pending memory candidates.",
+        "name": "manage_memory",
+        "description": (
+            "Manage memory candidates: queue new candidates from text, or approve/reject a pending candidate."
+        ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "text": {"type": "string"},
+                "action": {"type": "string", "enum": ["queue", "approve", "reject"]},
+                "text": {"type": "string", "description": "Text to extract memory candidates from (required for 'queue')."},
+                "candidate_id": {"type": "string", "description": "Candidate ID (required for 'approve'/'reject')."},
             },
-            "required": ["text"],
-        },
-    },
-    {
-        "name": "review_memory_candidate",
-        "description": "Approve or reject a pending memory candidate.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "candidate_id": {"type": "string"},
-                "action": {"type": "string", "enum": ["approve", "reject"]},
-            },
-            "required": ["candidate_id", "action"],
+            "required": ["action"],
         },
     },
     # --- Ported from tools.py (v1) ---
@@ -444,24 +441,15 @@ TOOLS = [
         }
     },
     {
-        "name": "get_agent_policy",
-        "description": "Get the assistant's current self-updated operating policy for this chat.",
-        "input_schema": {
-            "type": "object",
-            "properties": {},
-            "required": []
-        }
-    },
-    {
-        "name": "self_update_policy",
-        "description": "Update assistant operating policy for this chat. Use to adapt behavior after recurring friction.",
+        "name": "manage_policy",
+        "description": "Get or update assistant operating policy for this chat. Use to adapt behavior after recurring friction.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "action": {
                     "type": "string",
-                    "enum": ["append_rules", "replace_rules", "set_focus", "reset"],
-                    "description": "Policy update action"
+                    "enum": ["get", "append_rules", "replace_rules", "set_focus", "reset"],
+                    "description": "Policy action"
                 },
                 "rules": {
                     "type": "array",
@@ -478,7 +466,7 @@ TOOLS = [
                     "description": "Why this update is needed based on observed outcomes"
                 }
             },
-            "required": ["action", "reason"]
+            "required": ["action"]
         }
     },
     {
@@ -613,17 +601,15 @@ TOOLS = [
         }
     },
     {
-        "name": "get_nutrition_totals",
-        "description": "Get running nutrition totals (calories, protein, carbs, fat, fiber) for a given day.",
+        "name": "get_nutrition_summary",
+        "description": "Get daily nutrition totals (calories, protein, carbs, fat, fiber) from food log entries.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "date": {
-                    "type": "string",
-                    "description": "Date in YYYY-MM-DD format (defaults to today)"
-                }
-            }
-        }
+                "date": {"type": "string", "description": "Specific YYYY-MM-DD date, or omit for last N days"},
+                "days": {"type": "integer", "default": 7, "description": "Number of days if no specific date"},
+            },
+        },
     },
     {
         "name": "run_query",
@@ -646,15 +632,22 @@ TOOLS = [
         },
     },
     {
-        "name": "metric_trend",
-        "description": "Get time series data and trend analysis for a metric. Returns min/max/mean, linear trend slope, and direction.",
+        "name": "analyze_metrics",
+        "description": (
+            "Analyze tracked metrics. Use analysis_type='trend' for time series & trend, "
+            "'correlation' for Pearson correlation between two metrics, "
+            "'insights' for computed insights (weight trend, TDEE, patterns)."
+        ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "field": {"type": "string", "enum": ALLOWED_METRICS, "description": "Metric field name"},
+                "analysis_type": {"type": "string", "enum": ["trend", "correlation", "insights"]},
+                "field": {"type": "string", "enum": ALLOWED_METRICS, "description": "Metric field (for trend)"},
+                "field_a": {"type": "string", "enum": ALLOWED_METRICS, "description": "First metric (for correlation)"},
+                "field_b": {"type": "string", "enum": ALLOWED_METRICS, "description": "Second metric (for correlation)"},
                 "days": {"type": "integer", "default": 30, "description": "Number of days to analyze"},
             },
-            "required": ["field"],
+            "required": ["analysis_type"],
         },
     },
     {
@@ -668,35 +661,6 @@ TOOLS = [
             },
             "required": ["habit_name"],
         },
-    },
-    {
-        "name": "nutrition_summary",
-        "description": "Get daily nutrition totals (calories, protein, carbs, fat, fiber) from food log entries.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "date": {"type": "string", "description": "Specific YYYY-MM-DD date, or omit for last N days"},
-                "days": {"type": "integer", "default": 7, "description": "Number of days if no specific date"},
-            },
-        },
-    },
-    {
-        "name": "correlate",
-        "description": "Compute Pearson correlation between two metrics. Requires 7+ paired data points.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "field_a": {"type": "string", "enum": ALLOWED_METRICS},
-                "field_b": {"type": "string", "enum": ALLOWED_METRICS},
-                "days": {"type": "integer", "default": 30},
-            },
-            "required": ["field_a", "field_b"],
-        },
-    },
-    {
-        "name": "get_computed_insights",
-        "description": "Get computed insights: weight trend, TDEE estimate, key correlations, and pattern detection.",
-        "input_schema": {"type": "object", "properties": {}},
     },
     {
         "name": "log_workout",
@@ -762,26 +726,16 @@ TOOLS = [
         },
     },
     {
-        "name": "complete_todo",
-        "description": "Complete a daily todo by ID or title match.",
+        "name": "update_todo",
+        "description": "Complete or drop (cancel) a daily todo by ID or title match.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "todo_id_or_title": {"type": "string", "description": "Loop ID or title of the todo to complete."},
+                "action": {"type": "string", "enum": ["complete", "drop"]},
+                "todo_id_or_title": {"type": "string", "description": "Loop ID or title of the todo."},
+                "notes": {"type": "string", "description": "Optional reason (only used for drop)."},
             },
-            "required": ["todo_id_or_title"],
-        },
-    },
-    {
-        "name": "drop_todo",
-        "description": "Drop (cancel) a daily todo by ID or title match.",
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "todo_id_or_title": {"type": "string", "description": "Loop ID or title of the todo to drop."},
-                "notes": {"type": "string", "description": "Optional reason for dropping."},
-            },
-            "required": ["todo_id_or_title"],
+            "required": ["action", "todo_id_or_title"],
         },
     },
     {
@@ -880,26 +834,146 @@ TOOLS = [
         },
     },
     {
-        "name": "mute_coaching",
-        "description": "Mute coaching heartbeat for a number of minutes.",
+        "name": "manage_coaching",
+        "description": "Mute or unmute coaching heartbeat. For mute, optionally specify minutes (default 60, max 1440).",
         "input_schema": {
             "type": "object",
             "properties": {
-                "minutes": {"type": "integer", "description": "Minutes to mute. Default 60. Max 1440."},
+                "action": {"type": "string", "enum": ["mute", "unmute"]},
+                "minutes": {"type": "integer", "description": "Minutes to mute (only for 'mute' action). Default 60. Max 1440."},
             },
+            "required": ["action"],
         },
-    },
-    {
-        "name": "unmute_coaching",
-        "description": "Unmute coaching heartbeat immediately.",
-        "input_schema": {"type": "object", "properties": {}},
     },
     {
         "name": "get_token_usage",
         "description": "Get current token usage and daily budget status.",
         "input_schema": {"type": "object", "properties": {}},
+        "cache_control": {"type": "ephemeral"},
+    },
+    {
+        "name": "decompose_goal",
+        "description": "Break a high-level goal into sub-tasks. Creates a parent loop and child loops linked to it.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "goal": {"type": "string", "description": "The high-level goal to decompose"},
+                "subtasks": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "List of sub-task titles",
+                },
+            },
+            "required": ["goal", "subtasks"],
+        },
+    },
+    {
+        "name": "goal_progress",
+        "description": "Show progress on a goal and its sub-tasks. Returns hierarchical completion status.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "goal_id_or_title": {"type": "string", "description": "Parent goal loop_id or title"},
+            },
+            "required": ["goal_id_or_title"],
+        },
+    },
+    {
+        "name": "refresh_context",
+        "description": "Re-fetch the current day context after making multiple writes. Returns updated snapshot.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "self_reflect",
+        "description": "Record an observation about your own performance, patterns noticed, or coaching effectiveness. Use after sessions where something worked well or poorly.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "observation": {
+                    "type": "string",
+                    "description": "What you observed about your coaching effectiveness or patterns",
+                },
+            },
+            "required": ["observation"],
+        },
     },
 ]
+
+# ---------------------------------------------------------------------------
+# Lazy tool loading: core vs. extended
+# ---------------------------------------------------------------------------
+
+# Core tools always sent to the API (high-frequency daily use)
+CORE_TOOL_NAMES = {
+    "think",
+    "get_day_snapshot",
+    "update_day_metric",
+    "mark_habit",
+    "log_food",
+    "get_nutrition_summary",
+    "create_open_loop",
+    "complete_open_loop",
+    "create_todo",
+    "update_todo",
+    "list_todos",
+    "list_due_followups",
+    "analyze_metrics",
+    "read_file",
+    "write_file",
+    "search_logs",
+    "semantic_search",
+    "manage_policy",
+    "save_reflection",
+    "decompose_goal",
+    "goal_progress",
+    "refresh_context",
+    "self_reflect",
+    "list_extended_tools",  # The meta-tool itself is always available
+}
+
+# Meta-tool for discovering extended tools
+_LIST_EXTENDED_TOOLS_DEF = {
+    "name": "list_extended_tools",
+    "description": "List all available extended tools not in the core set. Call this when you need a tool that isn't available. Returns tool names and descriptions.",
+    "input_schema": {"type": "object", "properties": {}},
+}
+
+
+def get_core_tools() -> list[dict]:
+    """Return core tool definitions + the meta-tool."""
+    core = [t for t in TOOLS if t["name"] in CORE_TOOL_NAMES]
+    if not any(t["name"] == "list_extended_tools" for t in core):
+        core.append(_LIST_EXTENDED_TOOLS_DEF)
+    # Ensure cache_control is on the last tool
+    for t in core:
+        t.pop("cache_control", None)
+    core[-1]["cache_control"] = {"type": "ephemeral"}
+    return core
+
+
+def get_extended_tool_descriptions() -> str:
+    """Return names + descriptions of extended tools."""
+    extended = [t for t in TOOLS if t["name"] not in CORE_TOOL_NAMES]
+    if not extended:
+        return "No extended tools available."
+    lines = ["Extended tools (call any by name after viewing this list):"]
+    for t in extended:
+        desc = t.get("description", "")
+        if len(desc) > 100:
+            desc = desc[:100] + "..."
+        lines.append(f"- {t['name']}: {desc}")
+    return "\n".join(lines)
+
+
+def get_all_tools() -> list[dict]:
+    """Return all tool definitions (core + extended). Used when extended tools are activated."""
+    all_tools = list(TOOLS)
+    if not any(t["name"] == "list_extended_tools" for t in all_tools):
+        all_tools.append(_LIST_EXTENDED_TOOLS_DEF)
+    for t in all_tools:
+        t.pop("cache_control", None)
+    all_tools[-1]["cache_control"] = {"type": "ephemeral"}
+    return all_tools
 
 
 def _resolve_local_date(chat_id: int, maybe_date: str | None) -> str:
@@ -961,7 +1035,7 @@ def update_day_metric(chat_id: int, field: str, value: str, date: str | None = N
     snapshot = services.store.get_day_snapshot(chat_id, local_date)
     if snapshot:
         services.projection.render_private_day_log(snapshot.day_id)
-    return f"Updated {field}={result['value']} for {local_date}."
+    return f"Updated {field}={result['value']} for {local_date}. Stored value confirmed: {result['value']}"
 
 
 def append_food(chat_id: int, description: str, date: str | None = None) -> str:
@@ -971,7 +1045,27 @@ def append_food(chat_id: int, description: str, date: str | None = None) -> str:
     snapshot = services.store.get_day_snapshot(chat_id, local_date)
     if snapshot:
         services.projection.render_private_day_log(snapshot.day_id)
-    return f"Logged food for {local_date}: {result['description']}"
+    totals = _get_nutrition_totals_from_sqlite(chat_id, local_date)
+    totals_line = f"Running totals: {totals['calories']} cal, {totals['protein_g']}g protein, {totals['carbs_g']}g carbs, {totals['fat_g']}g fat ({totals['count']} entries)"
+    return f"Logged food for {local_date}: {result['description']}\n{totals_line}"
+
+
+def _compact_habit_summary(chat_id: int, local_date: str) -> str:
+    """Return a one-line habit summary like 'Habits: 3/7 done (yoga✓ writing✓ reading✗)'."""
+    services = get_services()
+    snapshot = services.store.get_day_snapshot(chat_id, local_date)
+    if not snapshot:
+        return ""
+    habits = snapshot.get("habits", [])
+    if not habits:
+        return ""
+    done = sum(1 for h in habits if h.get("status") == "done")
+    total = len(habits)
+    details = " ".join(
+        f"{h['habit_id']}{'✓' if h.get('status') == 'done' else '✗'}"
+        for h in habits
+    )
+    return f"Habits: {done}/{total} done ({details})"
 
 
 def mark_habit(chat_id: int, habit_id: str, status: str, date: str | None = None) -> str:
@@ -981,7 +1075,8 @@ def mark_habit(chat_id: int, habit_id: str, status: str, date: str | None = None
     snapshot = services.store.get_day_snapshot(chat_id, local_date)
     if snapshot:
         services.projection.render_private_day_log(snapshot.day_id)
-    return f"Marked habit {result['habit_id']} as {result['status']} for {local_date}."
+    summary = _compact_habit_summary(chat_id, local_date)
+    return f"Marked habit {result['habit_id']} as {result['status']} for {local_date}.\n{summary}"
 
 
 def create_open_loop(chat_id: int, title: str, kind: str, priority: str = "normal", due_hours: int | None = None) -> str:
@@ -1000,7 +1095,8 @@ def create_open_loop(chat_id: int, title: str, kind: str, priority: str = "norma
         day_id=day["day_id"],
     )
     services.projection.render_private_day_log(day["day_id"])
-    return f"Created {kind} loop {created['loop_id']}: {created['title']}"
+    open_count = len(services.store.list_due_followups(chat_id, now_utc=services.clock.now_utc(), limit=100))
+    return f"Created {kind} loop {created['loop_id']}: {created['title']}\nOpen loops: {open_count}"
 
 
 def complete_open_loop(chat_id: int, loop_id_or_title: str) -> str:
@@ -1011,7 +1107,8 @@ def complete_open_loop(chat_id: int, loop_id_or_title: str) -> str:
     snapshot = services.store.get_day_snapshot(chat_id)
     if snapshot:
         services.projection.render_private_day_log(snapshot.day_id)
-    return f"Completed loop {result['loop_id']}: {result['title']}"
+    open_count = len(services.store.list_due_followups(chat_id, now_utc=services.clock.now_utc(), limit=100))
+    return f"Completed loop {result['loop_id']}: {result['title']}\nRemaining open loops: {open_count}"
 
 
 def list_due_followups(chat_id: int) -> str:
@@ -2036,6 +2133,23 @@ def tool_get_computed_insights(chat_id: int) -> str:
 # --- Daily Todo Tool Handlers ---
 
 
+def _compact_todo_summary(chat_id: int, local_date: str) -> str:
+    """Return a one-line todo summary like 'Todos: 3/7 done (2 must_win, 1 can_do open)'."""
+    services = get_services()
+    todos = services.store.list_daily_todos(chat_id, local_date)
+    if not todos:
+        return "Todos: none"
+    total = len(todos)
+    done = sum(1 for t in todos if t["status"] == "completed")
+    open_todos = [t for t in todos if t["status"] not in ("completed", "cancelled")]
+    open_cats = {}
+    for t in open_todos:
+        cat = t.get("category") or "uncategorized"
+        open_cats[cat] = open_cats.get(cat, 0) + 1
+    open_detail = ", ".join(f"{v} {k}" for k, v in open_cats.items()) if open_cats else "none"
+    return f"Todos: {done}/{total} done (open: {open_detail})"
+
+
 def tool_create_todo(chat_id: int, title: str, category: str = "", date: str | None = None, is_top3: bool = False) -> str:
     services = get_services()
     local_date = _resolve_local_date(chat_id, date)
@@ -2044,7 +2158,8 @@ def tool_create_todo(chat_id: int, title: str, category: str = "", date: str | N
     )
     top3_label = " [priority]" if is_top3 else ""
     cat_label = f" ({category})" if category else ""
-    return f"Created todo{top3_label}{cat_label}: {result['title']} for {local_date}"
+    summary = _compact_todo_summary(chat_id, local_date)
+    return f"Created todo{top3_label}{cat_label}: {result['title']} for {local_date}\n{summary}"
 
 
 def tool_complete_todo(chat_id: int, todo_id_or_title: str) -> str:
@@ -2052,7 +2167,9 @@ def tool_complete_todo(chat_id: int, todo_id_or_title: str) -> str:
     result = services.store.complete_open_loop(chat_id, todo_id_or_title)
     if not result:
         return f"Todo not found: {todo_id_or_title}"
-    return f"Completed: {result['title']}"
+    local_date = _resolve_local_date(chat_id, None)
+    summary = _compact_todo_summary(chat_id, local_date)
+    return f"Completed: {result['title']}\n{summary}"
 
 
 def tool_drop_todo(chat_id: int, todo_id_or_title: str, notes: str = "") -> str:
@@ -2076,7 +2193,9 @@ def tool_drop_todo(chat_id: int, todo_id_or_title: str, notes: str = "") -> str:
             params.append(notes)
         params.append(row["loop_id"])
         conn.execute(f"UPDATE open_loop SET {updates} WHERE loop_id = ?", params)
-    return f"Dropped: {row['title']}" + (f" ({notes})" if notes else "")
+    local_date = _resolve_local_date(chat_id, None)
+    summary = _compact_todo_summary(chat_id, local_date)
+    return f"Dropped: {row['title']}" + (f" ({notes})" if notes else "") + f"\n{summary}"
 
 
 def tool_defer_todo(chat_id: int, todo_id_or_title: str, to_date: str) -> str:
@@ -2371,6 +2490,79 @@ def tool_get_nutrition_totals(date: str = None, chat_id: int = 0) -> str:
     return "\n".join(lines)
 
 
+
+def tool_decompose_goal(chat_id: int, goal: str, subtasks: list[str]) -> str:
+    services = get_services()
+    resolved = services.timezone_resolver.resolve_now(chat_id)
+    day = services.store.ensure_day_open(resolved)
+    # Create parent goal
+    parent = services.store.create_open_loop(
+        chat_id=chat_id, title=goal, kind="task", priority="high",
+        due_at_utc="", day_id=day["day_id"],
+    )
+    # Create child sub-tasks linked to parent
+    children = []
+    for sub in subtasks:
+        child = services.store.create_open_loop(
+            chat_id=chat_id, title=sub, kind="task", priority="normal",
+            due_at_utc="", day_id=day["day_id"],
+        )
+        # Link child to parent
+        with services.store.begin_write() as conn:
+            conn.execute(
+                "UPDATE open_loop SET parent_loop_id = ? WHERE loop_id = ?",
+                (parent["loop_id"], child["loop_id"]),
+            )
+        children.append(child)
+    services.projection.render_private_day_log(day["day_id"])
+    lines = [f"Goal: {goal} [{parent['loop_id']}]", f"Sub-tasks ({len(children)}):"]
+    for c in children:
+        lines.append(f"  - {c['title']} [{c['loop_id']}]")
+    return "\n".join(lines)
+
+
+def tool_goal_progress(chat_id: int, goal_id_or_title: str) -> str:
+    services = get_services()
+    # Find the parent goal
+    with services.store._connect() as conn:
+        parent = conn.execute(
+            "SELECT loop_id, title, status FROM open_loop WHERE chat_id = ? AND (loop_id = ? OR LOWER(title) = LOWER(?)) LIMIT 1",
+            (chat_id, goal_id_or_title, goal_id_or_title),
+        ).fetchone()
+        if not parent:
+            return f"Goal not found: {goal_id_or_title}"
+        children = conn.execute(
+            "SELECT loop_id, title, status FROM open_loop WHERE parent_loop_id = ? ORDER BY created_at_utc",
+            (parent["loop_id"],),
+        ).fetchall()
+    if not children:
+        return f"Goal: {parent['title']} [{parent['status']}] (no sub-tasks)"
+    done = sum(1 for c in children if c["status"] == "completed")
+    total = len(children)
+    pct = int(done / total * 100) if total > 0 else 0
+    lines = [f"Goal: {parent['title']} — {pct}% ({done}/{total} sub-tasks done)"]
+    for c in children:
+        mark = "✓" if c["status"] == "completed" else "✗"
+        lines.append(f"  {mark} {c['title']}")
+    return "\n".join(lines)
+
+
+def tool_refresh_context(chat_id: int) -> str:
+    return get_day_snapshot(chat_id, None)
+
+
+def tool_self_reflect(chat_id: int, observation: str) -> str:
+    import uuid
+    services = get_services()
+    reflection_id = str(uuid.uuid4())[:8]
+    with services.store.begin_write() as conn:
+        conn.execute(
+            "INSERT INTO agent_reflection (reflection_id, chat_id, observation, created_at_utc) VALUES (?, ?, ?, ?)",
+            (reflection_id, chat_id, observation, services.clock.now_utc().isoformat()),
+        )
+    return f"Reflection recorded [{reflection_id}]: {observation[:80]}..."
+
+
 async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
     try:
         return _dispatch_tool(name, inputs, chat_id)
@@ -2379,14 +2571,21 @@ async def execute_tool(name: str, inputs: dict, chat_id: int = 0) -> str:
 
 
 def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
+    if name == "think":
+        thought = inputs.get("thought")
+        if not thought:
+            return "[think tool called with no thought content]"
+        return "Thinking recorded."
+    if name == "list_extended_tools":
+        return get_extended_tool_descriptions()
     if name == "get_day_snapshot":
         return get_day_snapshot(chat_id, inputs.get("date"))
     if name == "set_timezone":
         return set_timezone(chat_id, inputs["timezone"], inputs.get("location_label"))
     if name == "update_day_metric":
         return update_day_metric(chat_id, inputs["field"], inputs["value"], inputs.get("date"))
-    if name == "append_food":
-        return append_food(chat_id, inputs["description"], inputs.get("date"))
+    if name == "append_food":  # backward compat -> route to log_food
+        return tool_log_food(inputs.get("description", inputs.get("food_description", "")), chat_id=chat_id)
     if name == "mark_habit":
         return mark_habit(chat_id, inputs["habit_id"], inputs["status"], inputs.get("date"))
     if name == "create_open_loop":
@@ -2471,9 +2670,17 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
                 f"(baseline: {baseline_str}, eval: {intv['evaluation_date']}) [id: {intv['intervention_id']}]"
             )
         return "\n".join(lines)
-    if name == "queue_memory_candidates":
+    # --- manage_memory (merged: queue_memory_candidates + review_memory_candidate) ---
+    if name == "manage_memory":
+        action = inputs["action"]
+        if action == "queue":
+            return queue_memory_candidates(chat_id, inputs["text"])
+        if action in ("approve", "reject"):
+            return review_memory_candidate(chat_id, inputs["candidate_id"], action)
+        return f"Unknown manage_memory action: {action}"
+    if name == "queue_memory_candidates":  # backward compat
         return queue_memory_candidates(chat_id, inputs["text"])
-    if name == "review_memory_candidate":
+    if name == "review_memory_candidate":  # backward compat
         return review_memory_candidate(chat_id, inputs["candidate_id"], inputs["action"])
     # --- Ported v1 tool dispatch ---
     if name == "read_file":
@@ -2508,9 +2715,21 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
         return check_git_health()
     if name == "sync_with_remote":
         return sync_with_remote()
-    if name == "get_agent_policy":
+    # --- manage_policy (merged: get_agent_policy + self_update_policy) ---
+    if name == "manage_policy":
+        action = inputs["action"]
+        if action == "get":
+            return get_agent_policy(chat_id=chat_id)
+        return self_update_policy(
+            action=action,
+            reason=inputs.get("reason", ""),
+            chat_id=chat_id,
+            rules=inputs.get("rules"),
+            focus=inputs.get("focus"),
+        )
+    if name == "get_agent_policy":  # backward compat
         return get_agent_policy(chat_id=chat_id)
-    if name == "self_update_policy":
+    if name == "self_update_policy":  # backward compat
         return self_update_policy(
             action=inputs["action"],
             reason=inputs["reason"],
@@ -2530,20 +2749,29 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
         return tool_brain_stats()
     if name == "run_query":
         return tool_run_query(inputs["db"], inputs["sql"])
-    if name == "metric_trend":
+    # --- analyze_metrics (merged: metric_trend + correlate + get_computed_insights) ---
+    if name == "analyze_metrics":
+        analysis_type = inputs["analysis_type"]
+        if analysis_type == "trend":
+            return tool_metric_trend(chat_id, inputs["field"], inputs.get("days", 30))
+        if analysis_type == "correlation":
+            return tool_correlate(chat_id, inputs["field_a"], inputs["field_b"], inputs.get("days", 30))
+        if analysis_type == "insights":
+            return tool_get_computed_insights(chat_id)
+        return f"Unknown analysis_type: {analysis_type}"
+    if name == "metric_trend":  # backward compat
         return tool_metric_trend(chat_id, inputs["field"], inputs.get("days", 30))
+    if name == "correlate":  # backward compat
+        return tool_correlate(chat_id, inputs["field_a"], inputs["field_b"], inputs.get("days", 30))
+    if name == "get_computed_insights":  # backward compat
+        return tool_get_computed_insights(chat_id)
     if name == "habit_completion":
         return tool_habit_completion(chat_id, inputs["habit_name"], inputs.get("days", 30))
-    if name == "nutrition_summary":
+    # --- get_nutrition_summary (merged: get_nutrition_totals + nutrition_summary) ---
+    if name in ("get_nutrition_summary", "nutrition_summary", "get_nutrition_totals"):
         return tool_nutrition_summary(chat_id, inputs.get("date"), inputs.get("days", 7))
-    if name == "correlate":
-        return tool_correlate(chat_id, inputs["field_a"], inputs["field_b"], inputs.get("days", 30))
-    if name == "get_computed_insights":
-        return tool_get_computed_insights(chat_id)
     if name == "log_food":
         return tool_log_food(inputs["food_description"], chat_id=chat_id)
-    if name == "get_nutrition_totals":
-        return tool_get_nutrition_totals(inputs.get("date"), chat_id=chat_id)
     if name == "log_workout":
         return tool_log_workout(
             chat_id=chat_id,
@@ -2556,9 +2784,17 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
     # --- Daily Todo Tools ---
     if name == "create_todo":
         return tool_create_todo(chat_id, inputs["title"], category=inputs.get("category", ""), date=inputs.get("date"), is_top3=inputs.get("is_top3", False))
-    if name == "complete_todo":
+    # --- update_todo (merged: complete_todo + drop_todo) ---
+    if name == "update_todo":
+        action = inputs["action"]
+        if action == "complete":
+            return tool_complete_todo(chat_id, inputs["todo_id_or_title"])
+        if action == "drop":
+            return tool_drop_todo(chat_id, inputs["todo_id_or_title"], notes=inputs.get("notes", ""))
+        return f"Unknown update_todo action: {action}"
+    if name == "complete_todo":  # backward compat
         return tool_complete_todo(chat_id, inputs["todo_id_or_title"])
-    if name == "drop_todo":
+    if name == "drop_todo":  # backward compat
         return tool_drop_todo(chat_id, inputs["todo_id_or_title"], notes=inputs.get("notes", ""))
     if name == "defer_todo":
         return tool_defer_todo(chat_id, inputs["todo_id_or_title"], inputs["to_date"])
@@ -2577,10 +2813,26 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
         return tool_save_reflection(chat_id, went_well=inputs.get("went_well", ""), went_poorly=inputs.get("went_poorly", ""), lessons=inputs.get("lessons", ""), date=inputs.get("date"))
     if name == "get_reflections":
         return tool_get_reflections(chat_id, date=inputs.get("date"))
-    if name == "mute_coaching":
+    # --- manage_coaching (merged: mute_coaching + unmute_coaching) ---
+    if name == "manage_coaching":
+        action = inputs["action"]
+        if action == "mute":
+            return tool_mute_coaching(chat_id, minutes=inputs.get("minutes", 60))
+        if action == "unmute":
+            return tool_unmute_coaching(chat_id)
+        return f"Unknown manage_coaching action: {action}"
+    if name == "mute_coaching":  # backward compat
         return tool_mute_coaching(chat_id, minutes=inputs.get("minutes", 60))
-    if name == "unmute_coaching":
+    if name == "unmute_coaching":  # backward compat
         return tool_unmute_coaching(chat_id)
     if name == "get_token_usage":
         return tool_get_token_usage(chat_id)
+    if name == "decompose_goal":
+        return tool_decompose_goal(chat_id, inputs["goal"], inputs["subtasks"])
+    if name == "goal_progress":
+        return tool_goal_progress(chat_id, inputs["goal_id_or_title"])
+    if name == "refresh_context":
+        return tool_refresh_context(chat_id)
+    if name == "self_reflect":
+        return tool_self_reflect(chat_id, inputs["observation"])
     return f"Unknown V2 tool: {name}"
