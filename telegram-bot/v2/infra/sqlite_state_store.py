@@ -338,6 +338,35 @@ class SQLiteStateStore:
                 except sqlite3.OperationalError:
                     pass  # Column already exists
 
+            # ALTER TABLE for open_loop daily todo columns
+            for col_def in [
+                "category TEXT NOT NULL DEFAULT ''",
+                "source TEXT NOT NULL DEFAULT ''",
+                "is_top3 INTEGER NOT NULL DEFAULT 0",
+                "notes TEXT NOT NULL DEFAULT ''",
+            ]:
+                try:
+                    conn.execute(f"ALTER TABLE open_loop ADD COLUMN {col_def}")
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
+
+            # ALTER TABLE for day_context evening reflection columns
+            for col_def in [
+                "went_well TEXT NOT NULL DEFAULT ''",
+                "went_poorly TEXT NOT NULL DEFAULT ''",
+                "lessons TEXT NOT NULL DEFAULT ''",
+            ]:
+                try:
+                    conn.execute(f"ALTER TABLE day_context ADD COLUMN {col_def}")
+                except sqlite3.OperationalError:
+                    pass  # Column already exists
+
+            # ALTER TABLE for habit_definition agent management
+            try:
+                conn.execute("ALTER TABLE habit_definition ADD COLUMN user_managed INTEGER NOT NULL DEFAULT 0")
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+
             # Backfill created_at_utc from source turn
             conn.execute("""
                 UPDATE open_loop SET created_at_utc = (
@@ -358,6 +387,9 @@ class SQLiteStateStore:
 
             conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_open_loop_stale ON open_loop(chat_id, status, created_at_utc)"
+            )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_open_loop_day_kind ON open_loop(day_id, kind, status)"
             )
 
             # Intervention table (Phase 5: Strategy evaluation)
@@ -529,7 +561,8 @@ class SQLiteStateStore:
                     ON CONFLICT(habit_id) DO UPDATE SET
                         name = excluded.name,
                         cadence = excluded.cadence,
-                        active = 1
+                        active = CASE WHEN habit_definition.user_managed = 1
+                                      THEN habit_definition.active ELSE 1 END
                     """,
                     (habit["habit_id"], chat_id, habit["name"], habit["cadence"]),
                 )
@@ -653,6 +686,24 @@ class SQLiteStateStore:
                 "SELECT summary_text FROM session WHERE chat_id = ? ORDER BY started_at_utc DESC LIMIT 1",
                 (chat_id,),
             ).fetchone()
+            todos = [dict(item) for item in conn.execute(
+                """
+                SELECT loop_id, title, status, category, source, is_top3, notes,
+                       rollover_count, created_at_utc
+                FROM open_loop
+                WHERE day_id = ? AND kind = 'daily_todo'
+                ORDER BY CASE category
+                    WHEN 'must_win' THEN 0 WHEN 'can_do' THEN 1 WHEN 'not_today' THEN 2 ELSE 3
+                END, created_at_utc
+                """,
+                (day_id,),
+            ).fetchall()]
+
+        reflections = {
+            "went_well": row["went_well"] if "went_well" in row.keys() else "",
+            "went_poorly": row["went_poorly"] if "went_poorly" in row.keys() else "",
+            "lessons": row["lessons"] if "lessons" in row.keys() else "",
+        }
 
         return DaySnapshot(
             day_id=day_id,
@@ -665,6 +716,8 @@ class SQLiteStateStore:
             foods=foods,
             habits=habits,
             open_loops=loops,
+            todos=todos,
+            reflections=reflections,
             summary=session["summary_text"] if session else "",
         )
 
@@ -1283,6 +1336,208 @@ class SQLiteStateStore:
             ).fetchone()
         return dict(row) if row else None
 
+    # --- Daily Todo Methods (extend open_loop with kind='daily_todo') ---
+
+    def create_daily_todo(
+        self,
+        chat_id: int,
+        local_date: str,
+        title: str,
+        category: str = "",
+        source: str = "manual",
+        is_top3: bool = False,
+        notes: str = "",
+    ) -> dict[str, Any]:
+        loop_id = _new_id("loop")
+        created = _utc_now_iso()
+        # Resolve day_id from local_date
+        with self.begin_write() as conn:
+            day_row = conn.execute(
+                "SELECT day_id FROM day_context WHERE chat_id = ? AND local_date = ?",
+                (chat_id, local_date),
+            ).fetchone()
+            day_id = day_row["day_id"] if day_row else ""
+            conn.execute(
+                """
+                INSERT INTO open_loop
+                    (loop_id, chat_id, kind, title, status, priority, day_id,
+                     created_at_utc, category, source, is_top3, notes)
+                VALUES (?, ?, 'daily_todo', ?, 'open', 'normal', ?,
+                        ?, ?, ?, ?, ?)
+                """,
+                (loop_id, chat_id, title.strip(), day_id,
+                 created, category, source, 1 if is_top3 else 0, notes),
+            )
+        return {
+            "loop_id": loop_id, "title": title.strip(), "kind": "daily_todo",
+            "category": category, "source": source, "is_top3": is_top3,
+            "day_id": day_id, "local_date": local_date,
+        }
+
+    def list_daily_todos(
+        self, chat_id: int, local_date: str, status: str | None = None,
+    ) -> list[dict[str, Any]]:
+        with self._connect() as conn:
+            day_row = conn.execute(
+                "SELECT day_id FROM day_context WHERE chat_id = ? AND local_date = ?",
+                (chat_id, local_date),
+            ).fetchone()
+            if not day_row:
+                return []
+            day_id = day_row["day_id"]
+            if status:
+                rows = conn.execute(
+                    """
+                    SELECT loop_id, title, status, priority, category, source, is_top3, notes,
+                           rollover_count, created_at_utc
+                    FROM open_loop
+                    WHERE day_id = ? AND kind = 'daily_todo' AND status = ?
+                    ORDER BY CASE category
+                        WHEN 'must_win' THEN 0 WHEN 'can_do' THEN 1 WHEN 'not_today' THEN 2 ELSE 3
+                    END, created_at_utc
+                    """,
+                    (day_id, status),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    """
+                    SELECT loop_id, title, status, priority, category, source, is_top3, notes,
+                           rollover_count, created_at_utc
+                    FROM open_loop
+                    WHERE day_id = ? AND kind = 'daily_todo'
+                    ORDER BY CASE category
+                        WHEN 'must_win' THEN 0 WHEN 'can_do' THEN 1 WHEN 'not_today' THEN 2 ELSE 3
+                    END, created_at_utc
+                    """,
+                    (day_id,),
+                ).fetchall()
+        return [dict(row) for row in rows]
+
+    def rollover_daily_todos(self, chat_id: int, from_day_id: str, to_day_id: str) -> int:
+        """Atomically roll open daily_todos from one day to another."""
+        with self.begin_write() as conn:
+            open_todos = conn.execute(
+                """
+                SELECT loop_id, title, priority, category, notes
+                FROM open_loop
+                WHERE day_id = ? AND kind = 'daily_todo' AND status = 'open' AND chat_id = ?
+                """,
+                (from_day_id, chat_id),
+            ).fetchall()
+            count = 0
+            for todo in open_todos:
+                new_id = _new_id("loop")
+                conn.execute(
+                    """
+                    INSERT INTO open_loop
+                        (loop_id, chat_id, kind, title, status, priority, day_id,
+                         created_at_utc, category, source, rollover_count)
+                    VALUES (?, ?, 'daily_todo', ?, 'open', ?, ?,
+                            ?, ?, 'rollover',
+                            (SELECT rollover_count + 1 FROM open_loop WHERE loop_id = ?))
+                    """,
+                    (new_id, chat_id, todo["title"], todo["priority"], to_day_id,
+                     _utc_now_iso(), todo["category"], todo["loop_id"]),
+                )
+                conn.execute(
+                    "UPDATE open_loop SET status = 'rolled' WHERE loop_id = ?",
+                    (todo["loop_id"],),
+                )
+                count += 1
+        return count
+
+    # --- Habit Definition CRUD ---
+
+    def create_habit_definition(
+        self, chat_id: int, name: str, cadence: str = "daily",
+    ) -> dict[str, Any]:
+        habit_id = name.lower().replace(" ", "_")
+        with self.begin_write() as conn:
+            conn.execute(
+                """
+                INSERT INTO habit_definition (habit_id, chat_id, name, cadence, active, user_managed)
+                VALUES (?, ?, ?, ?, 1, 1)
+                ON CONFLICT(habit_id) DO UPDATE SET name = excluded.name, cadence = excluded.cadence,
+                    active = 1, user_managed = 1
+                """,
+                (habit_id, chat_id, name, cadence),
+            )
+        return {"habit_id": habit_id, "name": name, "cadence": cadence, "active": 1, "user_managed": 1}
+
+    def update_habit_definition(
+        self, chat_id: int, habit_id_or_name: str,
+        active: bool | None = None, name: str | None = None,
+    ) -> dict[str, Any] | None:
+        with self.begin_write() as conn:
+            row = conn.execute(
+                """
+                SELECT habit_id, name, cadence, active, user_managed
+                FROM habit_definition
+                WHERE chat_id = ? AND (habit_id = ? OR LOWER(name) = LOWER(?))
+                """,
+                (chat_id, habit_id_or_name, habit_id_or_name),
+            ).fetchone()
+            if not row:
+                return None
+            hid = row["habit_id"]
+            updates = []
+            params: list[Any] = []
+            if active is not None:
+                updates.append("active = ?")
+                params.append(1 if active else 0)
+                updates.append("user_managed = 1")
+            if name is not None:
+                updates.append("name = ?")
+                params.append(name)
+            if not updates:
+                return dict(row)
+            params.append(hid)
+            conn.execute(f"UPDATE habit_definition SET {', '.join(updates)} WHERE habit_id = ?", params)
+            updated = conn.execute("SELECT * FROM habit_definition WHERE habit_id = ?", (hid,)).fetchone()
+        return dict(updated) if updated else None
+
+    # --- Reflection Methods ---
+
+    def save_reflection(
+        self, chat_id: int, local_date: str,
+        went_well: str = "", went_poorly: str = "", lessons: str = "",
+    ) -> dict[str, Any] | None:
+        with self.begin_write() as conn:
+            row = conn.execute(
+                "SELECT day_id FROM day_context WHERE chat_id = ? AND local_date = ?",
+                (chat_id, local_date),
+            ).fetchone()
+            if not row:
+                return None
+            day_id = row["day_id"]
+            updates = []
+            params: list[Any] = []
+            if went_well:
+                updates.append("went_well = ?")
+                params.append(went_well)
+            if went_poorly:
+                updates.append("went_poorly = ?")
+                params.append(went_poorly)
+            if lessons:
+                updates.append("lessons = ?")
+                params.append(lessons)
+            if not updates:
+                return None
+            params.append(day_id)
+            conn.execute(f"UPDATE day_context SET {', '.join(updates)} WHERE day_id = ?", params)
+            updated = conn.execute("SELECT * FROM day_context WHERE day_id = ?", (day_id,)).fetchone()
+        return dict(updated) if updated else None
+
+    def get_reflection(self, chat_id: int, local_date: str) -> dict[str, str]:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT went_well, went_poorly, lessons FROM day_context WHERE chat_id = ? AND local_date = ?",
+                (chat_id, local_date),
+            ).fetchone()
+        if not row:
+            return {"went_well": "", "went_poorly": "", "lessons": ""}
+        return {"went_well": row["went_well"], "went_poorly": row["went_poorly"], "lessons": row["lessons"]}
+
     # --- Intervention (Strategy Evaluation) Methods ---
 
     def create_intervention(
@@ -1617,6 +1872,14 @@ class SQLiteStateStore:
                 nutrition_cal = nutr_row["cal"] if nutr_row and nutr_row["cal"] else None
                 nutrition_prot = nutr_row["prot"] if nutr_row and nutr_row["prot"] else None
 
+                # Todo stats from open_loop daily_todo entries
+                todo_rows = conn.execute(
+                    "SELECT status FROM open_loop WHERE day_id = ? AND kind = 'daily_todo'",
+                    (day_id,),
+                ).fetchall()
+                todo_total = len(todo_rows)
+                todo_completed = sum(1 for r in todo_rows if r["status"] == "completed")
+
                 entries.append({
                     "date": local_date,
                     "sleep": {
@@ -1631,7 +1894,11 @@ class SQLiteStateStore:
                     "energy": _safe_float(metrics.get("Energy")),
                     "focus": _safe_float(metrics.get("Focus")),
                     "training": training,
-                    "todos": {"total": 0, "completed": 0, "completion_rate": 0},
+                    "todos": {
+                        "total": todo_total,
+                        "completed": todo_completed,
+                        "completion_rate": round(todo_completed / todo_total, 2) if todo_total else 0,
+                    },
                     "habits": {
                         "completed": completed,
                         "missed": missed,

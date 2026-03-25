@@ -102,6 +102,21 @@ class ContextAssemblerImpl:
             lines.append(f"- Foods logged today: {len(day.foods)}")
         if day.open_loops:
             lines.append(f"- Open loops for today: {len(day.open_loops)}")
+        if day.todos:
+            total = len(day.todos)
+            done = sum(1 for t in day.todos if t.get("status") == "completed")
+            open_todos = [t for t in day.todos if t.get("status") == "open"]
+            must_wins = [t for t in open_todos if t.get("category") == "must_win"]
+            zombies = [t for t in open_todos if int(t.get("rollover_count", 0)) >= 3]
+            lines.append(f"- Todos: {done}/{total} done")
+            if must_wins:
+                mw_names = ", ".join(t["title"][:40] for t in must_wins[:3])
+                lines.append(f"- Must-win pending: {mw_names}")
+            if zombies:
+                z_names = ", ".join(f"{t['title'][:30]} (rolled {t['rollover_count']}x)" for t in zombies[:3])
+                lines.append(f"- ZOMBIE TASKS (3+ rollovers): {z_names}")
+        if day.reflections and any(day.reflections.get(k) for k in ("went_well", "went_poorly", "lessons")):
+            lines.append("- Reflections: recorded")
         return "\n".join(lines)
 
     def _render_session_block(self, session: dict[str, Any]) -> str:

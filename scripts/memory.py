@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 """
+DEPRECATED: This module uses legacy JSON file storage.
+Use brain_db.py for semantic memory (entities, relationships, preferences)
+and assistant_state.db for operational data (todos, habits, metrics, food).
+
+Legacy JSON directories have been archived to memory/_archive_json/.
+
 Memory management tools for the BeStupid knowledge graph.
 Provides deterministic CRUD operations for structured memory storage.
 
@@ -19,11 +25,19 @@ import argparse
 import fcntl
 import json
 import sys
+import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
 import ulid
+
+warnings.warn(
+    "scripts/memory.py is deprecated. Use brain_db.py for semantic memory "
+    "and assistant_state.db for operational data.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 MEMORY_ROOT = Path(__file__).parent.parent / "memory"
 EVENTS_PATH = MEMORY_ROOT / "events.jsonl"

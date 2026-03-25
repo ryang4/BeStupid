@@ -50,6 +50,16 @@ class PrivateProjectionService:
         else:
             lines.append("- None")
 
+        lines.extend(["", "## Todos"])
+        todos = data.get("todos", [])
+        if todos:
+            for todo in todos:
+                status_mark = "[x]" if todo.get("status") == "completed" else "[ ]"
+                cat = f" ({todo['category']})" if todo.get("category") else ""
+                lines.append(f"- {status_mark} {todo['title']}{cat}")
+        else:
+            lines.append("- None")
+
         lines.extend(["", "## Open Loops"])
         loops = data.get("open_loops", [])
         if loops:
@@ -59,10 +69,23 @@ class PrivateProjectionService:
         else:
             lines.append("- None")
 
+        reflections = data.get("reflections", {})
+        if any(reflections.get(k) for k in ("went_well", "went_poorly", "lessons")):
+            lines.extend(["", "## Reflections"])
+            if reflections.get("went_well"):
+                lines.append(f"**What Went Well:** {reflections['went_well']}")
+            if reflections.get("went_poorly"):
+                lines.append(f"**What Went Poorly:** {reflections['went_poorly']}")
+            if reflections.get("lessons"):
+                lines.append(f"**Lessons:** {reflections['lessons']}")
+
         if data.get("summary"):
             lines.extend(["", "## Session Summary", data["summary"]])
 
-        out_path.write_text("\n".join(lines) + "\n")
+        # Atomic write: tmp + rename (POSIX safe)
+        tmp_path = out_path.with_suffix(".tmp")
+        tmp_path.write_text("\n".join(lines) + "\n")
+        tmp_path.rename(out_path)
         self.store.export_private_metrics(data["chat_id"])
         return out_path
 

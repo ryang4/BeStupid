@@ -66,4 +66,6 @@ class DaySnapshot:
     foods: list[dict[str, str]] = field(default_factory=list)
     habits: list[dict[str, str]] = field(default_factory=list)
     open_loops: list[dict[str, str]] = field(default_factory=list)
+    todos: list[dict[str, Any]] = field(default_factory=list)
+    reflections: dict[str, str] = field(default_factory=dict)
     summary: str = ""

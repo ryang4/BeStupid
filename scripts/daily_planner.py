@@ -79,19 +79,45 @@ def get_weekly_protocol():
     return ""
 
 
+def _get_sqlite_store():
+    """Get SQLiteStateStore for reading todos from canonical state."""
+    try:
+        bot_dir = os.path.join(os.path.dirname(__file__), '..', 'telegram-bot')
+        if bot_dir not in sys.path:
+            sys.path.insert(0, bot_dir)
+        from v2.infra.sqlite_state_store import SQLiteStateStore
+        return SQLiteStateStore()
+    except Exception as e:
+        print(f"   SQLite store unavailable: {e}")
+        return None
+
+
 def get_yesterday_incomplete_todos():
     """
-    Extract incomplete todos from yesterday's log.
-
-    Finds all unchecked items (- [ ]) in Today's Todos section.
+    Extract incomplete todos from yesterday.
+    Tries SQLite first (canonical), falls back to markdown parsing.
 
     Returns:
         list: List of incomplete todo strings in "- [ ] Task" format
     """
     yesterday = datetime.now() - timedelta(days=1)
     date_str = yesterday.strftime("%Y-%m-%d")
-    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
+    chat_id = int(os.environ.get("OWNER_CHAT_ID", "0"))
 
+    # Try SQLite first
+    store = _get_sqlite_store()
+    if store and chat_id:
+        try:
+            todos = store.list_daily_todos(chat_id, date_str, status="open")
+            if todos:
+                print(f"   Found {len(todos)} incomplete todos from SQLite for {date_str}")
+                return [f"- [ ] {t['title']}" for t in todos]
+            print(f"   No open todos in SQLite for {date_str}, checking markdown fallback")
+        except Exception as e:
+            print(f"   SQLite read failed, falling back to markdown: {e}")
+
+    # Fallback: parse markdown
+    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
     if not os.path.exists(log_path):
         print(f"   No log found for yesterday ({date_str})")
         return []
@@ -117,7 +143,7 @@ def get_yesterday_incomplete_todos():
                 incomplete_todos.append(line)
 
         if incomplete_todos:
-            print(f"   Found {len(incomplete_todos)} incomplete todos from yesterday")
+            print(f"   Found {len(incomplete_todos)} incomplete todos from markdown")
         else:
             print(f"   All todos from yesterday were completed!")
 
@@ -130,17 +156,31 @@ def get_yesterday_incomplete_todos():
 
 def get_yesterday_top_3():
     """
-    Extract 'Top 3 for Tomorrow' items from yesterday's log.
-
-    Parses numbered list and converts to checkbox format.
+    Extract 'Top 3 for Tomorrow' items from yesterday.
+    Tries SQLite first (canonical), falls back to markdown parsing.
 
     Returns:
         list: List of todo strings in "- [ ] Task" format
     """
     yesterday = datetime.now() - timedelta(days=1)
     date_str = yesterday.strftime("%Y-%m-%d")
-    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
+    chat_id = int(os.environ.get("OWNER_CHAT_ID", "0"))
 
+    # Try SQLite first
+    store = _get_sqlite_store()
+    if store and chat_id:
+        try:
+            todos = store.list_daily_todos(chat_id, date_str)
+            top3 = [t for t in todos if t.get("is_top3")]
+            if top3:
+                print(f"   Found {len(top3)} priority items from SQLite for {date_str}")
+                return [f"- [ ] {t['title']}" for t in top3]
+            print(f"   No priority items in SQLite for {date_str}, checking markdown fallback")
+        except Exception as e:
+            print(f"   SQLite read failed, falling back to markdown: {e}")
+
+    # Fallback: parse markdown
+    log_path = os.path.join(VAULT_DIR, f"{date_str}.md")
     if not os.path.exists(log_path):
         print(f"   No log found for yesterday ({date_str})")
         return []
@@ -168,7 +208,7 @@ def get_yesterday_top_3():
                     todos.append(f"- [ ] {task}")
 
         if todos:
-            print(f"   Found {len(todos)} items from yesterday's Top 3")
+            print(f"   Found {len(todos)} items from yesterday's Top 3 (markdown)")
         else:
             print(f"   Top 3 section exists but no items found")
 
@@ -546,6 +586,35 @@ def create_daily_log():
     # 10. Write file
     with open(file_path, "w", encoding='utf-8') as f:
         f.write(content)
+
+    # 10b. Write generated todos to SQLite (canonical state)
+    chat_id = int(os.environ.get("OWNER_CHAT_ID", "0"))
+    store = _get_sqlite_store()
+    if store and chat_id:
+        try:
+            todo_count = 0
+            for category_name, items in [
+                ("must_win", command_engine.get("must_win", [])),
+                ("can_do", command_engine.get("can_do", [])),
+                ("not_today", command_engine.get("not_today", [])),
+            ]:
+                for todo_text in items:
+                    title = normalize_todo(todo_text)
+                    if title:
+                        source = "planner"
+                        if todo_text in yesterday_incomplete:
+                            source = "rollover"
+                        elif todo_text in yesterday_top_3:
+                            source = "top3"
+                        store.create_daily_todo(
+                            chat_id, date_str, title,
+                            category=category_name, source=source,
+                            is_top3=(source == "top3"),
+                        )
+                        todo_count += 1
+            print(f"   Written {todo_count} todos to SQLite")
+        except Exception as e:
+            print(f"   Warning: Could not write todos to SQLite: {e}")
 
     # 11. Print summary
     workout_type = ai_response.get('workout_type', 'recovery')

@@ -746,6 +746,159 @@ TOOLS = [
             "required": ["workout_type"],
         },
     },
+    # --- Daily Todo Tools ---
+    {
+        "name": "create_todo",
+        "description": "Create a daily todo item. Use category to set priority tier.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string", "description": "The todo text."},
+                "category": {"type": "string", "enum": ["must_win", "can_do", "not_today", ""], "description": "Priority category."},
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD. Defaults to today."},
+                "is_top3": {"type": "boolean", "description": "True if this is a 'priority for tomorrow' item."},
+            },
+            "required": ["title"],
+        },
+    },
+    {
+        "name": "complete_todo",
+        "description": "Complete a daily todo by ID or title match.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "todo_id_or_title": {"type": "string", "description": "Loop ID or title of the todo to complete."},
+            },
+            "required": ["todo_id_or_title"],
+        },
+    },
+    {
+        "name": "drop_todo",
+        "description": "Drop (cancel) a daily todo by ID or title match.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "todo_id_or_title": {"type": "string", "description": "Loop ID or title of the todo to drop."},
+                "notes": {"type": "string", "description": "Optional reason for dropping."},
+            },
+            "required": ["todo_id_or_title"],
+        },
+    },
+    {
+        "name": "defer_todo",
+        "description": "Defer a daily todo to a future date.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "todo_id_or_title": {"type": "string", "description": "Loop ID or title of the todo to defer."},
+                "to_date": {"type": "string", "description": "YYYY-MM-DD date to defer to."},
+            },
+            "required": ["todo_id_or_title", "to_date"],
+        },
+    },
+    {
+        "name": "list_todos",
+        "description": "List daily todos for a given date with optional status filter.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD. Defaults to today."},
+                "status": {"type": "string", "enum": ["open", "completed", "rolled", "cancelled"], "description": "Optional status filter."},
+            },
+        },
+    },
+    {
+        "name": "set_priorities",
+        "description": "Set evening priority items for tomorrow. Creates daily_todo entries with is_top3=true.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "items": {"type": "array", "items": {"type": "string"}, "description": "List of priority items for tomorrow."},
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD for the target date. Defaults to tomorrow."},
+            },
+            "required": ["items"],
+        },
+    },
+    # --- Agent-Parity Tools ---
+    {
+        "name": "close_day",
+        "description": "Close the current day in canonical state.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD. Defaults to today."},
+            },
+        },
+    },
+    {
+        "name": "snooze_loop",
+        "description": "Snooze an open loop for a number of minutes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "loop_id_or_title": {"type": "string", "description": "Loop ID or title to snooze."},
+                "minutes": {"type": "integer", "description": "Minutes to snooze. Default 60."},
+            },
+            "required": ["loop_id_or_title"],
+        },
+    },
+    {
+        "name": "manage_habit",
+        "description": "Create, disable, enable, or rename a habit definition.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["create", "disable", "enable", "rename"]},
+                "name": {"type": "string", "description": "Habit name (or ID for existing habits)."},
+                "new_name": {"type": "string", "description": "New name when action is 'rename'."},
+                "cadence": {"type": "string", "description": "Cadence for new habits. Default 'daily'."},
+            },
+            "required": ["action", "name"],
+        },
+    },
+    {
+        "name": "save_reflection",
+        "description": "Save evening reflection (what went well, what went poorly, lessons).",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "went_well": {"type": "string", "description": "What went well today."},
+                "went_poorly": {"type": "string", "description": "What went poorly today."},
+                "lessons": {"type": "string", "description": "Lessons learned today."},
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD. Defaults to today."},
+            },
+        },
+    },
+    {
+        "name": "get_reflections",
+        "description": "Get evening reflections for a given date.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "date": {"type": "string", "description": "Optional YYYY-MM-DD. Defaults to today."},
+            },
+        },
+    },
+    {
+        "name": "mute_coaching",
+        "description": "Mute coaching heartbeat for a number of minutes.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "minutes": {"type": "integer", "description": "Minutes to mute. Default 60. Max 1440."},
+            },
+        },
+    },
+    {
+        "name": "unmute_coaching",
+        "description": "Unmute coaching heartbeat immediately.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
+    {
+        "name": "get_token_usage",
+        "description": "Get current token usage and daily budget status.",
+        "input_schema": {"type": "object", "properties": {}},
+    },
 ]
 
 
@@ -1010,36 +1163,30 @@ def get_brain_status(chat_id: int = 0) -> str:
 
     output = [f"## Brain Status - {day_name}, {today_str}\n"]
 
-    # Todos: still read from markdown (not in SQLite yet)
-    log_path = REPO_ROOT / "content" / "logs" / f"{today_str}.md"
-    if log_path.exists():
-        log_content = log_path.read_text()
-
-        todos = []
-        if "## Today's Todos" in log_content:
-            todos_section = log_content.split("## Today's Todos")[1]
-            if "\n## " in todos_section:
-                todos_section = todos_section.split("\n## ")[0]
-            for line in todos_section.split("\n"):
-                if line.strip().startswith("- [ ]"):
-                    todos.append(line.strip())
-
-        if todos:
-            output.append("### Incomplete Todos")
-            for todo in todos[:10]:
-                output.append(todo)
-            output.append("")
-
-    # Metrics: read from SQLite via get_day_snapshot
+    # Todos + Metrics: read from SQLite
     services = get_services()
     snapshot = services.store.get_day_snapshot(chat_id, today_str)
+
+    if snapshot and snapshot.todos:
+        open_todos = [t for t in snapshot.todos if t.get("status") == "open"]
+        done_todos = [t for t in snapshot.todos if t.get("status") == "completed"]
+        if open_todos:
+            output.append("### Incomplete Todos")
+            for todo in open_todos[:10]:
+                prefix = "[must_win] " if todo.get("category") == "must_win" else ""
+                rollover = f" (rolled {todo['rollover_count']}x)" if int(todo.get("rollover_count", 0)) > 0 else ""
+                output.append(f"- [ ] {prefix}{todo['title']}{rollover}")
+            output.append("")
+        if done_todos:
+            output.append(f"### Completed: {len(done_todos)}/{len(snapshot.todos)}\n")
+
     if snapshot and snapshot.metrics:
         output.append("### Today's Metrics")
         for k, v in sorted(snapshot.metrics.items()):
             output.append(f"- {k}: {v}")
         output.append("")
-    elif not log_path.exists():
-        output.append("*Today's log doesn't exist yet. Run daily planner to create it.*\n")
+    elif not snapshot:
+        output.append("*Today's day is not open yet. Run daily planner to create it.*\n")
 
     try:
         from metrics_analyzer import generate_llm_summary
@@ -1886,10 +2033,255 @@ def tool_get_computed_insights(chat_id: int) -> str:
     return json.dumps(result, default=str)
 
 
-def tool_log_food(food_description: str, chat_id: int = 0) -> str:
-    """Estimate macros for food, write to SQLite + fuel log, return estimate + running totals."""
+# --- Daily Todo Tool Handlers ---
+
+
+def tool_create_todo(chat_id: int, title: str, category: str = "", date: str | None = None, is_top3: bool = False) -> str:
+    services = get_services()
+    local_date = _resolve_local_date(chat_id, date)
+    result = services.store.create_daily_todo(
+        chat_id, local_date, title, category=category, source="manual", is_top3=is_top3,
+    )
+    top3_label = " [priority]" if is_top3 else ""
+    cat_label = f" ({category})" if category else ""
+    return f"Created todo{top3_label}{cat_label}: {result['title']} for {local_date}"
+
+
+def tool_complete_todo(chat_id: int, todo_id_or_title: str) -> str:
+    services = get_services()
+    result = services.store.complete_open_loop(chat_id, todo_id_or_title)
+    if not result:
+        return f"Todo not found: {todo_id_or_title}"
+    return f"Completed: {result['title']}"
+
+
+def tool_drop_todo(chat_id: int, todo_id_or_title: str, notes: str = "") -> str:
+    services = get_services()
+    with services.store.begin_write() as conn:
+        row = conn.execute(
+            """
+            SELECT loop_id, title FROM open_loop
+            WHERE chat_id = ? AND kind = 'daily_todo'
+              AND (loop_id = ? OR LOWER(title) = LOWER(?))
+            ORDER BY created_at_utc DESC LIMIT 1
+            """,
+            (chat_id, todo_id_or_title, todo_id_or_title),
+        ).fetchone()
+        if not row:
+            return f"Todo not found: {todo_id_or_title}"
+        updates = "status = 'cancelled'"
+        params: list = []
+        if notes:
+            updates += ", notes = ?"
+            params.append(notes)
+        params.append(row["loop_id"])
+        conn.execute(f"UPDATE open_loop SET {updates} WHERE loop_id = ?", params)
+    return f"Dropped: {row['title']}" + (f" ({notes})" if notes else "")
+
+
+def tool_defer_todo(chat_id: int, todo_id_or_title: str, to_date: str) -> str:
+    services = get_services()
+    with services.store.begin_write() as conn:
+        row = conn.execute(
+            """
+            SELECT loop_id, title FROM open_loop
+            WHERE chat_id = ? AND kind = 'daily_todo' AND status = 'open'
+              AND (loop_id = ? OR LOWER(title) = LOWER(?))
+            ORDER BY created_at_utc DESC LIMIT 1
+            """,
+            (chat_id, todo_id_or_title, todo_id_or_title),
+        ).fetchone()
+        if not row:
+            return f"Open todo not found: {todo_id_or_title}"
+        # Mark current as rolled
+        conn.execute("UPDATE open_loop SET status = 'rolled' WHERE loop_id = ?", (row["loop_id"],))
+    # Create new todo on target date
+    services.store.create_daily_todo(chat_id, to_date, row["title"], source="rollover")
+    return f"Deferred '{row['title']}' to {to_date}"
+
+
+def tool_list_todos(chat_id: int, date: str | None = None, status: str | None = None) -> str:
+    services = get_services()
+    local_date = _resolve_local_date(chat_id, date)
+    todos = services.store.list_daily_todos(chat_id, local_date, status=status)
+    if not todos:
+        return f"No todos for {local_date}" + (f" (status={status})" if status else "") + "."
+    lines = [f"**Todos for {local_date}:**"]
+    for t in todos:
+        mark = "[x]" if t["status"] == "completed" else "[-]" if t["status"] == "cancelled" else "[ ]"
+        cat = f" ({t['category']})" if t.get("category") else ""
+        rolled = f" [rolled {t['rollover_count']}x]" if int(t.get("rollover_count", 0)) > 0 else ""
+        top3 = " *" if t.get("is_top3") else ""
+        lines.append(f"- {mark} {t['title']}{cat}{rolled}{top3}")
+    total = len(todos)
+    done = sum(1 for t in todos if t["status"] == "completed")
+    lines.append(f"\n{done}/{total} completed")
+    return "\n".join(lines)
+
+
+def tool_set_priorities(chat_id: int, items: list[str], date: str | None = None) -> str:
+    services = get_services()
+    if not date:
+        # Default to tomorrow
+        from datetime import timedelta
+        resolved = services.resolver.resolve_now(chat_id)
+        tomorrow = (resolved.local_now + timedelta(days=1)).strftime("%Y-%m-%d")
+        local_date = tomorrow
+    else:
+        local_date = date
+    # Ensure the target day exists
+    services.store.ensure_day_open(services.resolver.resolve_now(chat_id))
+    created = []
+    for title in items:
+        result = services.store.create_daily_todo(
+            chat_id, local_date, title, category="must_win", source="top3", is_top3=True,
+        )
+        created.append(result["title"])
+    return f"Set {len(created)} priorities for {local_date}:\n" + "\n".join(f"- {t}" for t in created)
+
+
+# --- Agent-Parity Tool Handlers ---
+
+
+def tool_close_day(chat_id: int, date: str | None = None) -> str:
+    services = get_services()
+    local_date = _resolve_local_date(chat_id, date)
+    result = services.store.close_day(chat_id, local_date)
+    if result:
+        return f"Day {local_date} closed."
+    return f"Could not close day {local_date} (may already be closed or not exist)."
+
+
+def tool_snooze_loop(chat_id: int, loop_id_or_title: str, minutes: int = 60) -> str:
+    services = get_services()
+    result = services.store.snooze_open_loop(chat_id, loop_id_or_title, minutes)
+    if not result:
+        return f"Open loop not found: {loop_id_or_title}"
+    return f"Snoozed '{result['title']}' until {result['snoozed_until_utc']}"
+
+
+def tool_manage_habit(chat_id: int, action: str, name: str, new_name: str = "", cadence: str = "daily") -> str:
+    services = get_services()
+    if action == "create":
+        result = services.store.create_habit_definition(chat_id, name, cadence)
+        return f"Created habit: {result['name']} (cadence: {result['cadence']})"
+    elif action == "disable":
+        result = services.store.update_habit_definition(chat_id, name, active=False)
+        if not result:
+            return f"Habit not found: {name}"
+        return f"Disabled habit: {result['name']}"
+    elif action == "enable":
+        result = services.store.update_habit_definition(chat_id, name, active=True)
+        if not result:
+            return f"Habit not found: {name}"
+        return f"Enabled habit: {result['name']}"
+    elif action == "rename":
+        if not new_name:
+            return "new_name is required for rename action."
+        result = services.store.update_habit_definition(chat_id, name, name=new_name)
+        if not result:
+            return f"Habit not found: {name}"
+        return f"Renamed habit to: {result['name']}"
+    return f"Unknown action: {action}"
+
+
+def tool_save_reflection(chat_id: int, went_well: str = "", went_poorly: str = "", lessons: str = "", date: str | None = None) -> str:
+    services = get_services()
+    local_date = _resolve_local_date(chat_id, date)
+    result = services.store.save_reflection(chat_id, local_date, went_well=went_well, went_poorly=went_poorly, lessons=lessons)
+    if not result:
+        return f"Could not save reflection for {local_date} (day may not exist)."
+    parts = []
+    if went_well:
+        parts.append(f"Went well: {went_well[:80]}")
+    if went_poorly:
+        parts.append(f"Went poorly: {went_poorly[:80]}")
+    if lessons:
+        parts.append(f"Lessons: {lessons[:80]}")
+    return f"Reflection saved for {local_date}.\n" + "\n".join(parts)
+
+
+def tool_get_reflections(chat_id: int, date: str | None = None) -> str:
+    services = get_services()
+    local_date = _resolve_local_date(chat_id, date)
+    ref = services.store.get_reflection(chat_id, local_date)
+    if not any(ref.values()):
+        return f"No reflections recorded for {local_date}."
+    lines = [f"**Reflections for {local_date}:**"]
+    if ref["went_well"]:
+        lines.append(f"**What Went Well:** {ref['went_well']}")
+    if ref["went_poorly"]:
+        lines.append(f"**What Went Poorly:** {ref['went_poorly']}")
+    if ref["lessons"]:
+        lines.append(f"**Lessons:** {ref['lessons']}")
+    return "\n".join(lines)
+
+
+def tool_mute_coaching(chat_id: int, minutes: int = 60) -> str:
     try:
-        from calorie_estimator import estimate_food, append_to_fuel_log, get_running_total
+        from bot import _coaching_heartbeat
+        if _coaching_heartbeat:
+            _coaching_heartbeat.mute(minutes)
+            return f"Coaching muted for {minutes} minutes."
+        return "Coaching heartbeat not available."
+    except Exception as e:
+        return f"Could not mute coaching: {e}"
+
+
+def tool_unmute_coaching(chat_id: int) -> str:
+    try:
+        from bot import _coaching_heartbeat
+        if _coaching_heartbeat:
+            _coaching_heartbeat.unmute()
+            return "Coaching unmuted."
+        return "Coaching heartbeat not available."
+    except Exception as e:
+        return f"Could not unmute coaching: {e}"
+
+
+def tool_get_token_usage(chat_id: int) -> str:
+    try:
+        from claude_client import ConversationState, DAILY_TOKEN_BUDGET, get_model_pricing
+        state = ConversationState.load_from_disk(chat_id)
+        pricing = get_model_pricing()
+        total_tokens = state.total_input_tokens + state.total_output_tokens
+        daily_tokens = state.daily_input_tokens + state.daily_output_tokens
+        budget_pct = round(daily_tokens / DAILY_TOKEN_BUDGET * 100, 1) if DAILY_TOKEN_BUDGET else 0
+        est_cost = (
+            state.total_input_tokens * pricing["input_per_token"]
+            + state.total_output_tokens * pricing["output_per_token"]
+        )
+        lines = [
+            "**Token Usage:**",
+            f"  Daily: {daily_tokens:,} / {DAILY_TOKEN_BUDGET:,} ({budget_pct}%)",
+            f"  Total: {total_tokens:,}",
+            f"  Estimated cost: ${est_cost:.4f}",
+        ]
+        return "\n".join(lines)
+    except Exception as e:
+        return f"Token usage unavailable: {e}"
+
+
+def _get_nutrition_totals_from_sqlite(chat_id: int, local_date: str) -> dict[str, Any]:
+    """Get running nutrition totals from SQLite food_entry table."""
+    services = get_services()
+    snapshot = services.store.get_day_snapshot(chat_id, local_date)
+    if not snapshot or not snapshot.foods:
+        return {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0, "count": 0}
+    totals = {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0, "count": len(snapshot.foods)}
+    for food in snapshot.foods:
+        totals["calories"] += int(food.get("calories_est") or 0)
+        totals["protein_g"] += int(food.get("protein_g_est") or 0)
+        totals["carbs_g"] += int(food.get("carbs_g_est") or 0)
+        totals["fat_g"] += int(food.get("fat_g_est") or 0)
+        totals["fiber_g"] += int(food.get("fiber_g_est") or 0)
+    return totals
+
+
+def tool_log_food(food_description: str, chat_id: int = 0) -> str:
+    """Estimate macros for food, write to SQLite, return estimate + running totals."""
+    try:
+        from calorie_estimator import estimate_food
     except ImportError as e:
         return f"Calorie estimator unavailable: {e}"
 
@@ -1897,10 +2289,10 @@ def tool_log_food(food_description: str, chat_id: int = 0) -> str:
     if not result.get("success"):
         return f"Estimation failed: {result.get('error', 'Unknown error')}"
 
-    # Write macros to SQLite food_entry
+    # Write macros to SQLite food_entry (single source of truth)
+    local_date = _resolve_local_date(chat_id, None) if chat_id else datetime.now().strftime("%Y-%m-%d")
     if chat_id:
         services = get_services()
-        local_date = _resolve_local_date(chat_id, None)
         services.store.append_food(
             chat_id, local_date, food_description,
             calories_est=result.get("calories"),
@@ -1909,9 +2301,6 @@ def tool_log_food(food_description: str, chat_id: int = 0) -> str:
             fat_g_est=result.get("fat_g"),
             fiber_g_est=result.get("fiber_g"),
         )
-
-    appended = append_to_fuel_log(food_description, result)
-    totals = get_running_total()
 
     lines = [
         f"**Logged:** {food_description}",
@@ -1923,12 +2312,12 @@ def tool_log_food(food_description: str, chat_id: int = 0) -> str:
         for item in result["line_items"]:
             lines.append(f"    - {item}")
 
-    if not appended:
-        lines.append("  (Warning: could not append to fuel log — does today's log have a Fuel Log section?)")
-
-    lines.append("")
-    lines.append(f"**Daily totals:** {totals['calories_so_far']} cal | {totals['protein_so_far']}g protein | {totals['carbs_so_far']}g carbs | {totals['fat_so_far']}g fat | {totals['fiber_so_far']}g fiber")
-    lines.append(f"  Entries today: {totals['entries_count']}")
+    # Get running totals from SQLite
+    if chat_id:
+        totals = _get_nutrition_totals_from_sqlite(chat_id, local_date)
+        lines.append("")
+        lines.append(f"**Daily totals:** {totals['calories']} cal | {totals['protein_g']}g protein | {totals['carbs_g']}g carbs | {totals['fat_g']}g fat | {totals['fiber_g']}g fiber")
+        lines.append(f"  Entries today: {totals['count']}")
 
     return "\n".join(lines)
 
@@ -1960,24 +2349,23 @@ def tool_log_workout(
     return "\n".join(parts)
 
 
-def tool_get_nutrition_totals(date: str = None) -> str:
-    """Get running nutrition totals for a given day."""
-    try:
-        from calorie_estimator import get_running_total
-    except ImportError as e:
-        return f"Calorie estimator unavailable: {e}"
-
-    totals = get_running_total(date)
+def tool_get_nutrition_totals(date: str = None, chat_id: int = 0) -> str:
+    """Get running nutrition totals for a given day from SQLite."""
     label = date if date else datetime.now().strftime("%Y-%m-%d")
+    local_date = _resolve_local_date(chat_id, date) if chat_id else label
+
+    totals = _get_nutrition_totals_from_sqlite(chat_id, local_date) if chat_id else {
+        "calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0, "count": 0,
+    }
 
     lines = [
         f"**Nutrition totals for {label}:**",
-        f"  Calories: {totals['calories_so_far']}",
-        f"  Protein: {totals['protein_so_far']}g",
-        f"  Carbs: {totals['carbs_so_far']}g",
-        f"  Fat: {totals['fat_so_far']}g",
-        f"  Fiber: {totals['fiber_so_far']}g",
-        f"  Entries: {totals['entries_count']}",
+        f"  Calories: {totals['calories']}",
+        f"  Protein: {totals['protein_g']}g",
+        f"  Carbs: {totals['carbs_g']}g",
+        f"  Fat: {totals['fat_g']}g",
+        f"  Fiber: {totals['fiber_g']}g",
+        f"  Entries: {totals['count']}",
     ]
 
     return "\n".join(lines)
@@ -2155,7 +2543,7 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
     if name == "log_food":
         return tool_log_food(inputs["food_description"], chat_id=chat_id)
     if name == "get_nutrition_totals":
-        return tool_get_nutrition_totals(inputs.get("date"))
+        return tool_get_nutrition_totals(inputs.get("date"), chat_id=chat_id)
     if name == "log_workout":
         return tool_log_workout(
             chat_id=chat_id,
@@ -2165,4 +2553,34 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
             notes=inputs.get("notes", ""),
             date=inputs.get("date"),
         )
+    # --- Daily Todo Tools ---
+    if name == "create_todo":
+        return tool_create_todo(chat_id, inputs["title"], category=inputs.get("category", ""), date=inputs.get("date"), is_top3=inputs.get("is_top3", False))
+    if name == "complete_todo":
+        return tool_complete_todo(chat_id, inputs["todo_id_or_title"])
+    if name == "drop_todo":
+        return tool_drop_todo(chat_id, inputs["todo_id_or_title"], notes=inputs.get("notes", ""))
+    if name == "defer_todo":
+        return tool_defer_todo(chat_id, inputs["todo_id_or_title"], inputs["to_date"])
+    if name == "list_todos":
+        return tool_list_todos(chat_id, date=inputs.get("date"), status=inputs.get("status"))
+    if name == "set_priorities":
+        return tool_set_priorities(chat_id, inputs["items"], date=inputs.get("date"))
+    # --- Agent-Parity Tools ---
+    if name == "close_day":
+        return tool_close_day(chat_id, date=inputs.get("date"))
+    if name == "snooze_loop":
+        return tool_snooze_loop(chat_id, inputs["loop_id_or_title"], minutes=inputs.get("minutes", 60))
+    if name == "manage_habit":
+        return tool_manage_habit(chat_id, inputs["action"], inputs["name"], new_name=inputs.get("new_name", ""), cadence=inputs.get("cadence", "daily"))
+    if name == "save_reflection":
+        return tool_save_reflection(chat_id, went_well=inputs.get("went_well", ""), went_poorly=inputs.get("went_poorly", ""), lessons=inputs.get("lessons", ""), date=inputs.get("date"))
+    if name == "get_reflections":
+        return tool_get_reflections(chat_id, date=inputs.get("date"))
+    if name == "mute_coaching":
+        return tool_mute_coaching(chat_id, minutes=inputs.get("minutes", 60))
+    if name == "unmute_coaching":
+        return tool_unmute_coaching(chat_id)
+    if name == "get_token_usage":
+        return tool_get_token_usage(chat_id)
     return f"Unknown V2 tool: {name}"
