@@ -358,13 +358,20 @@ TOOLS = [
     },
     {
         "name": "manage_cron",
-        "description": "Manage persistent cron jobs. Jobs survive container restarts. command_name must be one of: morning_briefing, evening_reminder, evening_screens, evening_bed, daily_planner, auto_backup.",
+        "description": (
+            "Manage scheduled cron jobs and their message content. "
+            "Schedule actions: list, add, remove, enable, disable. "
+            "Message actions: set_message (set custom reminder text), get_message (view current text). "
+            "command_name options: morning_briefing, evening_reminder (10pm), "
+            "evening_screens (10:15pm), evening_bed (11:30pm), daily_planner, auto_backup. "
+            "To change WHEN a reminder fires, use add/remove. To change WHAT it says, use set_message."
+        ),
         "input_schema": {
             "type": "object",
             "properties": {
                 "action": {
                     "type": "string",
-                    "enum": ["list", "add", "remove", "enable", "disable"],
+                    "enum": ["list", "add", "remove", "enable", "disable", "set_message", "get_message"],
                     "description": "Action to perform"
                 },
                 "schedule": {
@@ -374,7 +381,11 @@ TOOLS = [
                 "command_name": {
                     "type": "string",
                     "enum": list(ALLOWED_CRON_COMMANDS.keys()),
-                    "description": "Predefined command (required for add/remove/enable/disable)"
+                    "description": "Predefined command (required for add/remove/enable/disable/set_message/get_message)"
+                },
+                "message": {
+                    "type": "string",
+                    "description": "Full message text in Markdown (required for set_message)"
                 }
             },
             "required": ["action"]
@@ -928,6 +939,7 @@ CORE_TOOL_NAMES = {
     "goal_progress",
     "refresh_context",
     "self_reflect",
+    "manage_cron",  # Self-modification: schedules + message content
     "list_extended_tools",  # The meta-tool itself is always available
 }
 
@@ -1442,7 +1454,10 @@ def _sync_cron_to_scheduler() -> str | None:
         return f"Error reloading scheduler: {e}"
 
 
-def manage_cron(action: str, schedule: str = None, command_name: str = None) -> str:
+MAX_CRON_MESSAGE_LEN = 2000  # Well under Telegram's 4096 char limit
+
+
+def manage_cron(action: str, schedule: str = None, command_name: str = None, message: str = None) -> str:
     config = _load_cron_config()
 
     if action == "list":
@@ -1450,8 +1465,10 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
             return "No cron jobs configured."
         lines = []
         for name, entry in config.items():
-            status = "enabled" if entry.get("enabled") else "disabled"
-            lines.append(f"- {name}: {entry['schedule']} [{status}]")
+            status_parts = ["enabled" if entry.get("enabled") else "disabled"]
+            if entry.get("message"):
+                status_parts.append("custom message")
+            lines.append(f"- {name}: {entry['schedule']} [{', '.join(status_parts)}]")
         return "Cron jobs:\n" + "\n".join(lines)
 
     elif action == "add":
@@ -1503,6 +1520,33 @@ def manage_cron(action: str, schedule: str = None, command_name: str = None) -> 
         if err:
             return err
         return f"Disabled cron job: {command_name}"
+
+    elif action == "set_message":
+        if not command_name:
+            return "Error: 'command_name' is required for set_message."
+        if command_name not in config:
+            return f"Job '{command_name}' not found in config. Use 'add' first."
+        if not message:
+            return "Error: 'message' text is required for set_message."
+        if len(message) > MAX_CRON_MESSAGE_LEN:
+            return f"Error: message is {len(message)} chars, max is {MAX_CRON_MESSAGE_LEN} (Telegram limit is 4096)."
+        # Warn about unmatched Markdown delimiters
+        for char in ("*", "_", "`"):
+            if message.count(char) % 2 != 0:
+                return f"Warning: unmatched '{char}' may break Telegram formatting. Fix the content or it will fall back to plain text."
+        config[command_name]["message"] = message
+        _save_cron_config(config)
+        return f"Updated message for '{command_name}'.\n\nNew message:\n{message}"
+
+    elif action == "get_message":
+        if not command_name:
+            return "Error: 'command_name' is required for get_message."
+        if command_name not in config:
+            return f"Job '{command_name}' not found in config."
+        custom = config[command_name].get("message")
+        if custom:
+            return f"Custom message for '{command_name}':\n{custom}"
+        return f"No custom message for '{command_name}' (using default)."
 
     return f"Unknown action: {action}"
 
@@ -2702,7 +2746,7 @@ def _dispatch_tool(name: str, inputs: dict, chat_id: int) -> str:
     if name == "search_logs":
         return search_logs(inputs["query"], inputs.get("days", 30))
     if name == "manage_cron":
-        return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"))
+        return manage_cron(inputs["action"], inputs.get("schedule"), inputs.get("command_name"), inputs.get("message"))
     if name == "run_script":
         return run_script(inputs["script_name"], inputs.get("args", ""))
     if name == "search_conversation_history":

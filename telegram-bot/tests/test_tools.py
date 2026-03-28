@@ -133,6 +133,90 @@ class TestManageCron:
                 assert "Removed" in result
 
 
+class TestManageCronMessages:
+    """Test manage_cron set_message/get_message actions."""
+
+    def test_set_message_persists(self, mock_env, sample_cron_config):
+        """Test that set_message saves and get_message retrieves."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("set_message", command_name="morning_briefing", message="Custom morning msg")
+
+            assert "Updated" in result
+            assert "Custom morning msg" in result
+
+            result = manage_cron("get_message", command_name="morning_briefing")
+            assert "Custom morning msg" in result
+
+    def test_set_message_rejects_oversized(self, mock_env, sample_cron_config):
+        """Test rejection of messages exceeding max length."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("set_message", command_name="morning_briefing", message="x" * 2500)
+            assert "Error" in result
+            assert "2500" in result
+
+    def test_set_message_warns_unmatched_markdown(self, mock_env, sample_cron_config):
+        """Test warning on unmatched Markdown delimiters."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("set_message", command_name="morning_briefing", message="*bold but not closed")
+            assert "unmatched" in result.lower()
+
+    def test_set_message_requires_command_name(self, mock_env, sample_cron_config):
+        """Test that command_name is required."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("set_message", message="Hello")
+            assert "Error" in result
+
+    def test_set_message_requires_message(self, mock_env, sample_cron_config):
+        """Test that message text is required."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("set_message", command_name="morning_briefing")
+            assert "Error" in result
+
+    def test_get_message_no_custom(self, mock_env, sample_cron_config):
+        """Test get_message when no custom message is set."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("get_message", command_name="morning_briefing")
+            assert "default" in result.lower()
+
+    def test_list_shows_custom_message_indicator(self, mock_env, sample_cron_config):
+        """Test that list shows custom message status."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            manage_cron("set_message", command_name="morning_briefing", message="Custom")
+            result = manage_cron("list")
+            assert "custom message" in result
+
+    def test_set_message_on_nonexistent_job(self, mock_env):
+        """Test set_message on a job that doesn't exist in config."""
+        with patch("tools_v2.CRON_CONFIG", mock_env["private_dir"] / "cron_jobs.json"):
+            from tools_v2 import manage_cron
+
+            result = manage_cron("set_message", command_name="morning_briefing", message="Test")
+            assert "not found" in result.lower()
+
+    def test_set_message_allows_valid_markdown(self, mock_env, sample_cron_config):
+        """Test that properly paired Markdown is accepted."""
+        with patch("tools_v2.CRON_CONFIG", sample_cron_config):
+            from tools_v2 import manage_cron
+
+            msg = "**Bold title**\n\n- Item 1\n- Item 2\n\n_Italic footer_"
+            result = manage_cron("set_message", command_name="morning_briefing", message=msg)
+            assert "Updated" in result
+
+
 class TestRunScript:
     """Test run_script tool."""
 
